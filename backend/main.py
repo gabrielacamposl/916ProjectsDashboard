@@ -394,7 +394,7 @@ def inspect_cells():
         # Florida cells
         if 'FLO' in workbook.sheetnames:
             flo = workbook['FLO']
-            fl_cells = ['B3','B4','B5','B6','B11','B12','C16','C17','C18','C19','C20', 'B24','B25','B26','B30','B31']
+            fl_cells = ['B3','B4','B5','B6','B12','B11','C16','C17','C18','C19','C20', 'B24','B25','B26','B30','B31']
             for cell in fl_cells:
                 try:
                     inspection["florida"][cell] = {"value": flo[cell].value, "type": str(type(flo[cell].value))}
