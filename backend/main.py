@@ -224,13 +224,12 @@ def process_sheet_data(workbook, sheet_name):
             kiosk = read_excel_cell(sheet, 'B22')
             
             logger.info("📋 Leyendo datos de Proyectos...")
-            # NOTA: El usuario especificó Quote en B7, pero B7 ya se usa para total de Aloha19
-            # Mantenemos B27 para Quote y agregamos log para verificar
-            quote = read_excel_cell(sheet, 'B27')  # Verificar si debe ser B7 según usuario
+            # CORREGIDO: Quote de Texas está en B27 según especificación del usuario
+            quote = read_excel_cell(sheet, 'B27')  # QUOTE = 5 en B27
             pending = read_excel_cell(sheet, 'B28')  # Texas Pending
             
-            logger.info(f"⚠️ VERIFICAR: Usuario dice Quote=5 en B7, pero B7={total} (Aloha19 total)")
-            logger.info(f"📊 Actualmente leyendo Quote desde B27={quote}")
+            logger.info(f"📊 Texas Quote (B27): {quote}")
+            logger.info(f"📊 Texas Pending (B28): {pending}")
             
             logger.info("🏗️ Leyendo tipos de proyectos...")
             project_edmb = read_excel_cell(sheet, 'B33')
@@ -256,8 +255,9 @@ def process_sheet_data(workbook, sheet_name):
                     "kiosk": kiosk
                 },
                 "projects": {
-                    "quote": quote,
-                    "pending": pending
+                    "quote": quote,  # Texas Quote = 5 (B27)
+                    "pending": pending  # Texas Pending (B28)
+                    # NOTA: Texas NO tiene signed ni paid
                 },
                 "project_types": {
                     "edmb": project_edmb
@@ -383,12 +383,12 @@ def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
         
         table_data = []
         
-        # Mapeo de columnas a nombres legibles (basado en la fila 1)
+        # Mapeo de columnas a nombres legibles (basado en el diagnóstico real)
         column_names = {
-            'A': 'STORE', 'B': 'ADDRESS', 'C': 'DM', 'D': 'A19', 'E': 'WIRING',
-            'F': 'FRESH AI', 'G': 'EDMB', 'H': 'IDMB', 'I': 'QB', 'J': 'KIOSK',
-            'K': 'A19 UP', 'L': 'START REMOD', 'M': 'END REMOD', 'N': 'PROJECT',
-            'O': 'AUV', 'P': 'COST', 'Q': 'STATUS', 'R': 'INSTALLATION', 'S': 'Col_S', 'T': 'Col_T'
+            'A': 'STORE', 'B': 'ADDRESS', 'C': 'PHONE/STORE PHONE', 'D': 'DM', 'E': 'GM',
+            'F': 'A19', 'G': 'WIRING', 'H': 'FRESH AI', 'I': 'EDMB', 'J': 'IDMB',
+            'K': 'QB', 'L': 'KIOSK', 'M': 'A19 UP', 'N': 'START REMOD', 'O': 'END REMOD',
+            'P': 'PROJECT', 'Q': 'AUV', 'R': 'COST', 'S': 'STATUS', 'T': 'INSTALLATION'
         }
         
         # Leer datos fila por fila (empezar desde fila 2 para evitar headers)
@@ -508,32 +508,52 @@ def get_detailed_regional_table(region):
 def get_project_details_table():
     """Obtiene tabla de detalles de proyectos con columnas específicas y filtros"""
     try:
-        # Columnas específicas requeridas: STORE, ADDRESS, PROJECT, AUV, COST, STATUS, INSTALLATION
-        # Mapeo: A=STORE, B=ADDRESS, N=PROJECT, O=AUV, P=COST, Q=STATUS, R=INSTALLATION
-        required_columns = ['A', 'B', 'N', 'O', 'P', 'Q', 'R']
+        # Columnas específicas requeridas según diagnóstico:
+        # A=STORE, B=ADDRESS, P=PROJECT, Q=AUV, R=COST, S=STATUS, T=INSTALLATION
+        required_columns = ['A', 'B', 'P', 'Q', 'R', 'S', 'T']
         
-        # Filtros válidos para la columna PROJECT
+        # Filtros válidos para la columna PROJECT (ahora en P, no N)
         valid_projects = ['FAI,EDMB,IDMB,QB', 'EDMB,IDMB,QB', 'EDMB']
         
         # Intentar con ambas hojas
         project_data = []
+        debug_info = {
+            "sheets_processed": [],
+            "total_rows_checked": 0,
+            "rows_with_project_data": 0,
+            "rows_matching_filters": 0
+        }
         
         for sheet_name in ['FLO-COM', 'TEX-COM']:
+            if sheet_name not in [s for s in (workbook.sheetnames if workbook else [])]:
+                logger.warning(f"⚠️ Hoja {sheet_name} no encontrada")
+                debug_info["sheets_processed"].append(f"{sheet_name}: NO_EXISTE")
+                continue
+                
             result = get_table_data(sheet_name, required_columns, filter_rows=False)
             
             if "error" not in result:
-                # Filtrar filas según PROJECT
+                debug_info["sheets_processed"].append(f"{sheet_name}: PROCESADA")
+                
+                # Filtrar filas según PROJECT (CORREGIDO: ahora en columna P)
                 for row_info in result["data"]:
                     row_data = row_info["data"]
+                    debug_info["total_rows_checked"] += 1
                     
-                    # Verificar si PROJECT tiene alguno de los valores válidos
-                    project_value = row_data.get('N', '---').strip()
+                    # CORREGIDO: PROJECT está en columna P, no N
+                    project_value = row_data.get('P', '---').strip()
+                    
+                    if project_value not in ['---', '', ' ', 'NULL', '-----']:
+                        debug_info["rows_with_project_data"] += 1
+                        logger.info(f"🔍 Proyecto encontrado en {sheet_name} fila {row_info['row']}: '{project_value}'")
                     
                     # Verificar si el proyecto coincide con alguno de los filtros válidos
                     project_matches = False
                     for valid_project in valid_projects:
                         if valid_project.upper() in project_value.upper():
                             project_matches = True
+                            debug_info["rows_matching_filters"] += 1
+                            logger.info(f"✅ Coincidencia encontrada: '{project_value}' contiene '{valid_project}'")
                             break
                     
                     # Solo incluir si tiene un proyecto válido y datos completos
@@ -547,16 +567,23 @@ def get_project_details_table():
                             row_data['_source_sheet'] = sheet_name
                             row_data['_region'] = 'Florida' if sheet_name == 'FLO-COM' else 'Texas'
                             project_data.append(row_info)
+                            logger.info(f"✅ Fila válida agregada: Store={store}, Project={project_value}")
+            else:
+                debug_info["sheets_processed"].append(f"{sheet_name}: ERROR - {result['error']}")
+                logger.error(f"❌ Error procesando {sheet_name}: {result['error']}")
         
-        # Mapeo de nombres de columnas para display
+        # Log de resumen
+        logger.info(f"📊 RESUMEN: {debug_info['total_rows_checked']} filas revisadas, {debug_info['rows_with_project_data']} con datos de proyecto, {debug_info['rows_matching_filters']} coinciden con filtros")
+        
+        # CORREGIDO: Mapeo de nombres de columnas según diagnóstico
         column_display_names = {
             'A': 'STORE',
             'B': 'ADDRESS', 
-            'N': 'PROJECT',
-            'O': 'AUV',
-            'P': 'COST',
-            'Q': 'STATUS',
-            'R': 'INSTALLATION'
+            'P': 'PROJECT',  # CORREGIDO: P en lugar de N
+            'Q': 'AUV',      # CORREGIDO: Q en lugar de O
+            'R': 'COST',     # CORREGIDO: R en lugar de P
+            'S': 'STATUS',   # CORREGIDO: S en lugar de Q
+            'T': 'INSTALLATION'  # CORREGIDO: T en lugar de R
         }
         
         return jsonify({
@@ -565,9 +592,10 @@ def get_project_details_table():
             "columns": required_columns,
             "column_names": column_display_names,
             "total_rows": len(project_data),
+            "debug_info": debug_info,
             "filters_applied": {
                 "project_types": valid_projects,
-                "note": "Solo se muestran filas con PROJECT que contenga: FAI,EDMB,IDMB,QB | EDMB,IDMB,QB | EDMB"
+                "note": "Solo se muestran filas con PROJECT (columna P) que contenga: FAI,EDMB,IDMB,QB | EDMB,IDMB,QB | EDMB"
             }
         })
         
@@ -699,38 +727,41 @@ def test_project_filters():
             # Revisar desde fila 2 (skip headers)
             for row_num in range(2, actual_max + 1):
                 try:
-                    # Columna N = PROJECT
-                    project_cell = sheet[f"N{row_num}"].value
+                    # CORREGIDO: Columna P = PROJECT (no N)
+                    project_cell = sheet[f"P{row_num}"].value
                     store_cell = sheet[f"A{row_num}"].value  # Para verificar que hay datos
                     
                     results["total_rows_found"] += 1
                     
                     if project_cell is not None and str(project_cell).strip() != "":
                         project_value = str(project_cell).strip()
-                        results["rows_with_project_data"] += 1
-                        sheet_info["rows_found"] += 1
                         
-                        # Guardar muestra de valores de proyecto
-                        if len(sheet_info["project_samples"]) < 5:
-                            sheet_info["project_samples"].append({
-                                "row": row_num,
-                                "store": str(store_cell) if store_cell else "NULL",
-                                "project": project_value
-                            })
-                        
-                        # Verificar si coincide con filtros
-                        for valid_project in valid_projects:
-                            if valid_project.upper() in project_value.upper():
-                                results["rows_matching_filters"] += 1
-                                if len(results["sample_project_values"]) < 10:
-                                    results["sample_project_values"].append({
-                                        "sheet": sheet_name,
-                                        "row": row_num,
-                                        "store": str(store_cell) if store_cell else "NULL",
-                                        "project": project_value,
-                                        "matched_filter": valid_project
-                                    })
-                                break
+                        # Filtrar valores como "-----" que no son proyectos reales
+                        if project_value not in ["-----", "---", ""]:
+                            results["rows_with_project_data"] += 1
+                            sheet_info["rows_found"] += 1
+                            
+                            # Guardar muestra de valores de proyecto
+                            if len(sheet_info["project_samples"]) < 5:
+                                sheet_info["project_samples"].append({
+                                    "row": row_num,
+                                    "store": str(store_cell) if store_cell else "NULL",
+                                    "project": project_value
+                                })
+                            
+                            # Verificar si coincide con filtros
+                            for valid_project in valid_projects:
+                                if valid_project.upper() in project_value.upper():
+                                    results["rows_matching_filters"] += 1
+                                    if len(results["sample_project_values"]) < 10:
+                                        results["sample_project_values"].append({
+                                            "sheet": sheet_name,
+                                            "row": row_num,
+                                            "store": str(store_cell) if store_cell else "NULL",
+                                            "project": project_value,
+                                            "matched_filter": valid_project
+                                        })
+                                    break
                                 
                 except Exception as e:
                     sheet_info["project_samples"].append({

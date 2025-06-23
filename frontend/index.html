@@ -553,13 +553,14 @@
 
         .dual-chart-wrapper {
             background: white;
-            padding: 20px;
+            padding: 15px; /* REDUCIDO de 20px a 15px */
             border-radius: 15px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
             border: 1px solid #E5E7EB;
             position: relative;
             overflow: hidden;
+            height: 350px; /* NUEVA: Altura fija más pequeña */
         }
 
         .dual-chart-wrapper::before {
@@ -577,11 +578,15 @@
             box-shadow: 0 12px 30px rgba(0,0,0,0.15);
         }
 
+        .dual-chart-wrapper canvas {
+            max-height: 280px !important; /* NUEVA: Limitar altura del canvas */
+        }
+
         .dual-chart-title {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px; /* REDUCIDO de 20px a 15px */
             color: var(--wendy-dark-gray);
-            font-size: 1.2em;
+            font-size: 1.1em; /* REDUCIDO de 1.2em a 1.1em */
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -1069,8 +1074,8 @@
                 result.data.forEach(rowInfo => {
                     const row = rowInfo.data;
                     
-                    // Format cost as currency
-                    let formattedCost = row.P || '---';
+                    // Format cost as currency (ahora en columna R)
+                    let formattedCost = row.R || '---';
                     if (formattedCost !== '---' && !isNaN(formattedCost) && formattedCost !== '' && formattedCost !== '0') {
                         try {
                             formattedCost = new Intl.NumberFormat('en-US', {
@@ -1086,11 +1091,11 @@
                         <tr>
                             <td>${row.A || '---'}</td>
                             <td>${row.B || '---'}</td>
-                            <td>${row.N || '---'}</td>
-                            <td>${row.O || '---'}</td>
-                            <td>${formattedCost}</td>
+                            <td>${row.P || '---'}</td>
                             <td>${row.Q || '---'}</td>
-                            <td>${row.R || '---'}</td>
+                            <td>${formattedCost}</td>
+                            <td>${row.S || '---'}</td>
+                            <td>${row.T || '---'}</td>
                             <td>${row._region || 'N/A'}</td>
                         </tr>
                     `;
@@ -1145,12 +1150,12 @@
                 const table = document.getElementById('detailedTable');
                 let tableHTML = `<tr>`;
                 
-                // Create headers with proper names
+                // Create headers with proper names (actualizado según diagnóstico)
                 const columnNames = {
-                    'A': 'STORE', 'B': 'ADDRESS', 'C': 'DM', 'D': 'A19', 'E': 'WIRING',
-                    'F': 'FRESH AI', 'G': 'EDMB', 'H': 'IDMB', 'I': 'QB', 'J': 'KIOSK',
-                    'K': 'A19 UP', 'L': 'START REMOD', 'M': 'END REMOD', 'N': 'PROJECT',
-                    'O': 'AUV', 'P': 'COST', 'Q': 'STATUS', 'R': 'INSTALLATION'
+                    'A': 'STORE', 'B': 'ADDRESS', 'C': 'PHONE/STORE PHONE', 'D': 'DM', 'E': 'GM',
+                    'F': 'A19', 'G': 'WIRING', 'H': 'FRESH AI', 'I': 'EDMB', 'J': 'IDMB',
+                    'K': 'QB', 'L': 'KIOSK', 'M': 'A19 UP', 'N': 'START REMOD', 'O': 'END REMOD',
+                    'P': 'PROJECT', 'Q': 'AUV', 'R': 'COST', 'S': 'STATUS', 'T': 'INSTALLATION'
                 };
                 
                 result.columns.forEach(col => {
@@ -1170,8 +1175,8 @@
                             cellValue = '---';
                         }
                         
-                        // Format cost column if it's column P
-                        if (col === 'P' && cellValue !== '---' && !isNaN(cellValue) && cellValue !== '' && cellValue !== '0') {
+                        // Format cost column if it's column R (not P)
+                        if (col === 'R' && cellValue !== '---' && !isNaN(cellValue) && cellValue !== '' && cellValue !== '0') {
                             try {
                                 cellValue = new Intl.NumberFormat('en-US', {
                                     style: 'currency',
@@ -1345,6 +1350,9 @@
             const defaultColors = ['#E31837', '#FFC72C', '#8B5CF6', '#10B981', '#0085CA', '#6B7280'];
             const chartColors = colors || defaultColors;
             
+            // Determinar si es una gráfica de Project Types para ajustar tamaño
+            const isProjectTypesChart = ctx.canvas.id.includes('projectTypes') || title.includes('Project Types');
+            
             const config = {
                 type: chartType,
                 data: {
@@ -1358,13 +1366,14 @@
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: isProjectTypesChart ? false : true, // Permitir cambio de tamaño en Project Types
                     plugins: {
                         legend: {
                             position: chartType === 'bar' ? 'top' : 'bottom',
                             labels: {
-                                padding: 15,
+                                padding: isProjectTypesChart ? 10 : 15, // Menos padding para Project Types
                                 font: {
-                                    size: 12,
+                                    size: isProjectTypesChart ? 10 : 12, // Texto más pequeño para Project Types
                                     family: 'Montserrat',
                                     weight: '600'
                                 }
@@ -1374,7 +1383,7 @@
                             color: chartType === 'bar' ? '#374151' : 'white',
                             font: {
                                 weight: 'bold',
-                                size: 14,
+                                size: isProjectTypesChart ? 12 : 14, // Texto más pequeño para Project Types
                                 family: 'Montserrat'
                             },
                             formatter: (value, context) => {
@@ -1390,15 +1399,18 @@
 
             // Specific configurations for bar charts
             if (chartType === 'bar') {
+                const maxValue = isProjectTypesChart ? 50 : 80; // CORREGIDO: 50 para Project Types, 80 para otros
+                
                 config.options.scales = {
                     y: {
                         beginAtZero: true,
-                        max: 80,
+                        max: maxValue, // Usar el máximo apropiado
                         ticks: {
-                            stepSize: 10,
+                            stepSize: isProjectTypesChart ? 5 : 10, // Steps más pequeños para Project Types
                             font: {
                                 family: 'Montserrat',
-                                weight: '500'
+                                weight: '500',
+                                size: isProjectTypesChart ? 10 : 12 // Texto más pequeño para Project Types
                             }
                         }
                     },
@@ -1408,7 +1420,8 @@
                             minRotation: 0,
                             font: {
                                 family: 'Montserrat',
-                                weight: '500'
+                                weight: '500',
+                                size: isProjectTypesChart ? 10 : 12 // Texto más pequeño para Project Types
                             }
                         }
                     }
@@ -1429,11 +1442,11 @@
                 container.innerHTML = `
                     <div class="dual-chart-wrapper">
                         <div class="dual-chart-title">Project Types - Florida</div>
-                        <canvas id="projectTypesFloridaChart" width="400" height="300"></canvas>
+                        <canvas id="projectTypesFloridaChart" width="350" height="250"></canvas>
                     </div>
                     <div class="dual-chart-wrapper">
                         <div class="dual-chart-title">Project Types - Texas</div>
-                        <canvas id="projectTypesTexasChart" width="400" height="300"></canvas>
+                        <canvas id="projectTypesTexasChart" width="350" height="250"></canvas>
                     </div>
                 `;
                 
@@ -1451,7 +1464,7 @@
                         createChart(
                             document.getElementById('projectTypesFloridaChart').getContext('2d'), 
                             floridaData,
-                            'Florida Projects',
+                            'Project Types - Florida',
                             ['#8B5CF6', '#0085CA'],
                             true,
                             'bar'
@@ -1470,7 +1483,7 @@
                         createChart(
                             document.getElementById('projectTypesTexasChart').getContext('2d'), 
                             texasData,
-                            'Texas Projects',
+                            'Project Types - Texas',
                             ['#10B981'],
                             true,
                             'bar'
@@ -1484,7 +1497,7 @@
                 container.innerHTML = `
                     <div class="dual-chart-wrapper">
                         <div class="dual-chart-title">Project Types - ${currentRegion.charAt(0).toUpperCase() + currentRegion.slice(1)}</div>
-                        <canvas id="projectTypesSingleChart" width="400" height="300"></canvas>
+                        <canvas id="projectTypesSingleChart" width="350" height="250"></canvas>
                     </div>
                 `;
                 
@@ -1589,10 +1602,24 @@
             // Projects chart
             if (data.projects) {
                 const projectsData = {};
-                if (data.projects.paid > 0) projectsData['Paid'] = data.projects.paid;
-                if (data.projects.signed > 0) projectsData['Signed'] = data.projects.signed;
-                if (data.projects.quote > 0) projectsData['Quote'] = data.projects.quote;
-                if (data.projects.pending > 0) projectsData['Pending'] = data.projects.pending;
+                
+                // CORREGIDO: En vista global, mostrar datos combinados. En vistas regionales, mostrar datos específicos
+                if (currentRegion === 'global') {
+                    // Vista global: combinar datos de Florida y Texas
+                    if (data.projects.signed > 0) projectsData['Signed'] = data.projects.signed;
+                    if (data.projects.quote > 0) projectsData['Quote'] = data.projects.quote; // Combinado FL+TX
+                    if (data.projects.paid > 0) projectsData['Paid'] = data.projects.paid;
+                    if (data.projects.pending > 0) projectsData['Pending'] = data.projects.pending;
+                } else if (currentRegion === 'texas') {
+                    // Vista Texas: solo Quote
+                    if (data.projects.quote > 0) projectsData['Quote'] = data.projects.quote;
+                    if (data.projects.pending > 0) projectsData['Pending'] = data.projects.pending;
+                } else if (currentRegion === 'florida') {
+                    // Vista Florida: Signed, Quote, Paid
+                    if (data.projects.signed > 0) projectsData['Signed'] = data.projects.signed;
+                    if (data.projects.quote > 0) projectsData['Quote'] = data.projects.quote;
+                    if (data.projects.paid > 0) projectsData['Paid'] = data.projects.paid;
+                }
                
                 if (Object.keys(projectsData).length > 0) {
                     createChart(
