@@ -1,4 +1,4 @@
-# main.py - Backend para Railway
+# main.py - Backend con DEBUG completo
 from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 import requests
@@ -9,9 +9,14 @@ import time
 import threading
 from datetime import datetime
 import os
+import logging
+
+# Configurar logging para debug
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-CORS(app)  # Permitir requests desde Vercel
+CORS(app)
 
 # Variable global para almacenar los datos procesados
 dashboard_data = {
@@ -27,26 +32,49 @@ def download_and_process_excel():
     global dashboard_data
     
     try:
-        print(f"Descargando archivo... {datetime.now()}")
+        logger.info("🔄 Iniciando descarga de SharePoint...")
         
         # URL del SharePoint
         url = "https://916foods-my.sharepoint.com/personal/it_support_916foods_com/_layouts/15/download.aspx?share=EZEBqKqQF9pFitMhSuZPwj4B4xV5tW0qtHLdceNN5-I9Ug"
         
-        response = requests.get(url, timeout=30)
+        # Headers para evitar bloqueos
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        response = requests.get(url, headers=headers, timeout=30)
+        logger.info(f"📥 Respuesta SharePoint: Status {response.status_code}, Tamaño: {len(response.content)} bytes")
+        
         response.raise_for_status()
         
+        # Verificar que el archivo no esté vacío
+        if len(response.content) < 1000:
+            raise Exception(f"Archivo muy pequeño o vacío: {len(response.content)} bytes")
+        
         # Cargar el Excel en memoria
+        logger.info("📊 Cargando archivo Excel...")
         workbook = openpyxl.load_workbook(BytesIO(response.content))
         
-        print("Archivo descargado exitosamente")
+        logger.info(f"📋 Hojas encontradas en Excel: {workbook.sheetnames}")
+        
+        # Verificar que existen las hojas necesarias
+        required_sheets = ['FLO', 'TEX']
+        for sheet_name in required_sheets:
+            if sheet_name not in workbook.sheetnames:
+                raise Exception(f"Hoja '{sheet_name}' no encontrada. Disponibles: {workbook.sheetnames}")
+        
+        logger.info("✅ Archivo Excel cargado correctamente")
         
         # Procesar datos de Florida
+        logger.info("🏖️ Procesando datos de Florida...")
         florida_data = process_sheet_data(workbook, 'FLO')
         
         # Procesar datos de Texas  
+        logger.info("🤠 Procesando datos de Texas...")
         texas_data = process_sheet_data(workbook, 'TEX')
         
         # Combinar datos globales
+        logger.info("🌍 Combinando datos globales...")
         global_data = combine_regional_data(florida_data, texas_data)
         
         # Actualizar datos globales
@@ -58,134 +86,243 @@ def download_and_process_excel():
             "status": "success"
         }
         
-        print("Datos procesados correctamente")
+        logger.info("✅ Datos procesados correctamente")
+        logger.info(f"📊 Resumen - FL: {florida_data.get('aloha19', {}).get('total', 0)} tiendas, TX: {texas_data.get('aloha19', {}).get('total', 0)} tiendas")
         
     except Exception as e:
-        print(f"Error procesando datos: {str(e)}")
+        error_msg = f"Error procesando datos: {str(e)}"
+        logger.error(f"❌ {error_msg}")
         dashboard_data["status"] = f"error: {str(e)}"
 
 def read_excel_cell(sheet, cell):
-    """Lee una celda del Excel de forma segura"""
+    """Lee una celda del Excel de forma segura con DEBUG"""
     try:
-        value = sheet[cell].value
+        cell_obj = sheet[cell]
+        value = cell_obj.value
+        
+        # DEBUG: Mostrar valor exacto de cada celda
+        logger.info(f"🔍 Celda {cell}: '{value}' (tipo: {type(value)})")
+        
         if value is None:
+            logger.warning(f"⚠️ Celda {cell} está vacía")
             return 0
-        num_value = float(value)
-        return max(0, num_value)  # No permitir negativos
-    except:
+        
+        # Convertir a número
+        if isinstance(value, (int, float)):
+            num_value = float(value)
+        else:
+            # Si es texto, intentar convertir
+            try:
+                num_value = float(str(value).strip())
+            except:
+                logger.warning(f"⚠️ No se pudo convertir '{value}' a número en celda {cell}")
+                return 0
+        
+        # Validar que no sea negativo
+        if num_value < 0:
+            logger.warning(f"⚠️ Valor negativo en celda {cell}: {num_value}")
+            return 0
+        
+        logger.info(f"✅ Celda {cell} = {num_value}")
+        return num_value
+        
+    except Exception as e:
+        logger.error(f"❌ Error leyendo celda {cell}: {str(e)}")
         return 0
 
 def process_sheet_data(workbook, sheet_name):
-    """Procesa los datos de una hoja específica (FLO o TEX)"""
+    """Procesa los datos de una hoja específica (FLO o TEX) con DEBUG completo"""
     try:
         sheet = workbook[sheet_name]
+        logger.info(f"📋 Procesando hoja: {sheet_name}")
+        
+        # DEBUG: Mostrar información básica de la hoja
+        logger.info(f"📏 Dimensiones de la hoja: {sheet.max_row} filas x {sheet.max_column} columnas")
         
         if sheet_name == 'FLO':
+            logger.info("🏖️ === PROCESANDO FLORIDA (FLO) ===")
+            
+            # DEBUG: Leer y mostrar cada celda individual
+            logger.info("📊 Leyendo datos de Aloha 19...")
+            stage1 = read_excel_cell(sheet, 'B3')
+            stage2 = read_excel_cell(sheet, 'B4')
+            finished = read_excel_cell(sheet, 'B5')
+            total = read_excel_cell(sheet, 'B6')
+            
+            logger.info("🔌 Leyendo datos de Wiring...")
+            wiring_pending = read_excel_cell(sheet, 'B10')
+            wiring_finished = read_excel_cell(sheet, 'B11')
+            
+            logger.info("🤖 Leyendo datos de Tecnologías (Columna C - YES)...")
+            fresh_ai = read_excel_cell(sheet, 'C15')
+            edmb = read_excel_cell(sheet, 'C16')
+            idmb = read_excel_cell(sheet, 'C17')
+            qb = read_excel_cell(sheet, 'C18')
+            kiosk = read_excel_cell(sheet, 'C19')
+            
+            logger.info("📋 Leyendo datos de Proyectos...")
+            signed = read_excel_cell(sheet, 'B24')
+            quote = read_excel_cell(sheet, 'B25')
+            paid = read_excel_cell(sheet, 'B26')
+            
+            logger.info("🏗️ Leyendo tipos de proyectos...")
+            project_edmb_idmb_qb = read_excel_cell(sheet, 'B30')
+            project_fai_edmb_idmb_qb = read_excel_cell(sheet, 'B31')
+            
             # Datos de Florida
             data = {
-                # Aloha 19
                 "aloha19": {
-                    "stage1": read_excel_cell(sheet, 'B3'),
-                    "stage2": read_excel_cell(sheet, 'B4'), 
-                    "finished": read_excel_cell(sheet, 'B5'),
-                    "total": read_excel_cell(sheet, 'B6')
+                    "stage1": stage1,
+                    "stage2": stage2, 
+                    "finished": finished,
+                    "total": total
                 },
-                # Wiring
                 "wiring": {
-                    "pending": read_excel_cell(sheet, 'B10'),
-                    "finished": read_excel_cell(sheet, 'B11')
+                    "pending": wiring_pending,
+                    "finished": wiring_finished
                 },
-                # Tecnologías (Columna C - YES)
                 "technologies": {
-                    "fresh_ai": read_excel_cell(sheet, 'C15'),
-                    "edmb": read_excel_cell(sheet, 'C16'),
-                    "idmb": read_excel_cell(sheet, 'C17'),
-                    "qb": read_excel_cell(sheet, 'C18'),
-                    "kiosk": read_excel_cell(sheet, 'C19')
+                    "fresh_ai": fresh_ai,
+                    "edmb": edmb,
+                    "idmb": idmb,
+                    "qb": qb,
+                    "kiosk": kiosk
                 },
-                # Proyectos
                 "projects": {
-                    "signed": read_excel_cell(sheet, 'B24'),
-                    "quote": read_excel_cell(sheet, 'B25'),
-                    "paid": read_excel_cell(sheet, 'B26')
+                    "signed": signed,
+                    "quote": quote,
+                    "paid": paid
                 },
-                # Tipos de proyectos
                 "project_types": {
-                    "edmb_idmb_qb": read_excel_cell(sheet, 'B30'),
-                    "fai_edmb_idmb_qb": read_excel_cell(sheet, 'B31')
+                    "edmb_idmb_qb": project_edmb_idmb_qb,
+                    "fai_edmb_idmb_qb": project_fai_edmb_idmb_qb
                 }
             }
             
         else:  # TEX
+            logger.info("🤠 === PROCESANDO TEXAS (TEX) ===")
+            
+            logger.info("📊 Leyendo datos de Aloha 19...")
+            stage1 = read_excel_cell(sheet, 'B3')
+            stage2 = read_excel_cell(sheet, 'B4')
+            close = read_excel_cell(sheet, 'B5')
+            finished = read_excel_cell(sheet, 'B6')
+            total = read_excel_cell(sheet, 'B7')
+            
+            logger.info("🔌 Leyendo datos de Wiring...")
+            wiring_pending = read_excel_cell(sheet, 'B12')
+            wiring_finished = read_excel_cell(sheet, 'B13')
+            
+            logger.info("🤖 Leyendo datos de Tecnologías (Columna B)...")
+            fresh_ai = read_excel_cell(sheet, 'B18')
+            edmb = read_excel_cell(sheet, 'B19')
+            idmb = read_excel_cell(sheet, 'B20')
+            qb = read_excel_cell(sheet, 'B21')
+            kiosk = read_excel_cell(sheet, 'B22')
+            
+            logger.info("📋 Leyendo datos de Proyectos...")
+            quote = read_excel_cell(sheet, 'B27')
+            pending = read_excel_cell(sheet, 'B28')
+            
+            logger.info("🏗️ Leyendo tipos de proyectos...")
+            project_edmb = read_excel_cell(sheet, 'B33')
+            
             # Datos de Texas
             data = {
-                # Aloha 19
                 "aloha19": {
-                    "stage1": read_excel_cell(sheet, 'B3'),
-                    "stage2": read_excel_cell(sheet, 'B4'),
-                    "close": read_excel_cell(sheet, 'B5'),
-                    "finished": read_excel_cell(sheet, 'B6'),
-                    "total": read_excel_cell(sheet, 'B7')
+                    "stage1": stage1,
+                    "stage2": stage2,
+                    "close": close,
+                    "finished": finished,
+                    "total": total
                 },
-                # Wiring
                 "wiring": {
-                    "pending": read_excel_cell(sheet, 'B12'),
-                    "finished": read_excel_cell(sheet, 'B13')
+                    "pending": wiring_pending,
+                    "finished": wiring_finished
                 },
-                # Tecnologías (Columna B)
                 "technologies": {
-                    "fresh_ai": read_excel_cell(sheet, 'B18'),
-                    "edmb": read_excel_cell(sheet, 'B19'),
-                    "idmb": read_excel_cell(sheet, 'B20'),
-                    "qb": read_excel_cell(sheet, 'B21'),
-                    "kiosk": read_excel_cell(sheet, 'B22')
+                    "fresh_ai": fresh_ai,
+                    "edmb": edmb,
+                    "idmb": idmb,
+                    "qb": qb,
+                    "kiosk": kiosk
                 },
-                # Proyectos
                 "projects": {
-                    "quote": read_excel_cell(sheet, 'B27'),
-                    "pending": read_excel_cell(sheet, 'B28')
+                    "quote": quote,
+                    "pending": pending
                 },
-                # Tipos de proyectos
                 "project_types": {
-                    "edmb": read_excel_cell(sheet, 'B33')
+                    "edmb": project_edmb
                 }
             }
+        
+        logger.info(f"✅ Datos procesados para {sheet_name}:")
+        logger.info(f"   📊 Aloha19 Total: {data['aloha19']['total']}")
+        logger.info(f"   📊 Aloha19 Finished: {data['aloha19']['finished']}")
+        logger.info(f"   🔌 Wiring Finished: {data['wiring']['finished']}")
+        logger.info(f"   🤖 Fresh AI: {data['technologies']['fresh_ai']}")
         
         return data
         
     except Exception as e:
-        print(f"Error procesando hoja {sheet_name}: {str(e)}")
+        logger.error(f"❌ Error procesando hoja {sheet_name}: {str(e)}")
         return {}
 
 def combine_regional_data(florida_data, texas_data):
-    """Combina los datos de Florida y Texas para vista global"""
+    """Combina los datos de Florida y Texas para vista global con DEBUG"""
     try:
+        logger.info("🌍 === COMBINANDO DATOS GLOBALES ===")
+        
+        # Helper para obtener valores seguros
+        def safe_get(data, path, default=0):
+            try:
+                result = data
+                for key in path.split('.'):
+                    result = result[key]
+                return result or default
+            except:
+                return default
+        
+        fl_total = safe_get(florida_data, 'aloha19.total')
+        tx_total = safe_get(texas_data, 'aloha19.total')
+        
+        fl_finished = safe_get(florida_data, 'aloha19.finished')
+        tx_finished = safe_get(texas_data, 'aloha19.finished')
+        
+        logger.info(f"🏖️ Florida - Total: {fl_total}, Finished: {fl_finished}")
+        logger.info(f"🤠 Texas - Total: {tx_total}, Finished: {tx_finished}")
+        
         global_data = {
             "aloha19": {
-                "stage1": florida_data.get("aloha19", {}).get("stage1", 0) + texas_data.get("aloha19", {}).get("stage1", 0),
-                "stage2": florida_data.get("aloha19", {}).get("stage2", 0) + texas_data.get("aloha19", {}).get("stage2", 0),
-                "close": texas_data.get("aloha19", {}).get("close", 0),  # Solo Texas tiene "close"
-                "finished": florida_data.get("aloha19", {}).get("finished", 0) + texas_data.get("aloha19", {}).get("finished", 0),
-                "total": florida_data.get("aloha19", {}).get("total", 0) + texas_data.get("aloha19", {}).get("total", 0)
+                "stage1": safe_get(florida_data, 'aloha19.stage1') + safe_get(texas_data, 'aloha19.stage1'),
+                "stage2": safe_get(florida_data, 'aloha19.stage2') + safe_get(texas_data, 'aloha19.stage2'),
+                "close": safe_get(texas_data, 'aloha19.close'),  # Solo Texas tiene "close"
+                "finished": fl_finished + tx_finished,
+                "total": fl_total + tx_total
             },
             "wiring": {
-                "pending": florida_data.get("wiring", {}).get("pending", 0) + texas_data.get("wiring", {}).get("pending", 0),
-                "finished": florida_data.get("wiring", {}).get("finished", 0) + texas_data.get("wiring", {}).get("finished", 0)
+                "pending": safe_get(florida_data, 'wiring.pending') + safe_get(texas_data, 'wiring.pending'),
+                "finished": safe_get(florida_data, 'wiring.finished') + safe_get(texas_data, 'wiring.finished')
             },
             "technologies": {
-                "fresh_ai": florida_data.get("technologies", {}).get("fresh_ai", 0) + texas_data.get("technologies", {}).get("fresh_ai", 0),
-                "edmb": florida_data.get("technologies", {}).get("edmb", 0) + texas_data.get("technologies", {}).get("edmb", 0),
-                "idmb": florida_data.get("technologies", {}).get("idmb", 0) + texas_data.get("technologies", {}).get("idmb", 0),
-                "qb": florida_data.get("technologies", {}).get("qb", 0) + texas_data.get("technologies", {}).get("qb", 0),
-                "kiosk": florida_data.get("technologies", {}).get("kiosk", 0) + texas_data.get("technologies", {}).get("kiosk", 0)
+                "fresh_ai": safe_get(florida_data, 'technologies.fresh_ai') + safe_get(texas_data, 'technologies.fresh_ai'),
+                "edmb": safe_get(florida_data, 'technologies.edmb') + safe_get(texas_data, 'technologies.edmb'),
+                "idmb": safe_get(florida_data, 'technologies.idmb') + safe_get(texas_data, 'technologies.idmb'),
+                "qb": safe_get(florida_data, 'technologies.qb') + safe_get(texas_data, 'technologies.qb'),
+                "kiosk": safe_get(florida_data, 'technologies.kiosk') + safe_get(texas_data, 'technologies.kiosk')
             }
         }
+        
+        logger.info(f"🌍 Global combinado - Total: {global_data['aloha19']['total']}, Finished: {global_data['aloha19']['finished']}")
+        logger.info(f"🌍 Global Fresh AI: {global_data['technologies']['fresh_ai']}")
+        
         return global_data
+        
     except Exception as e:
-        print(f"Error combinando datos: {str(e)}")
+        logger.error(f"❌ Error combinando datos: {str(e)}")
         return {}
 
-# Rutas de la API
+# Rutas de la API (sin cambios)
 @app.route('/')
 def home():
     return jsonify({
@@ -197,6 +334,7 @@ def home():
 @app.route('/api/data')
 def get_dashboard_data():
     """Endpoint principal que devuelve todos los datos"""
+    logger.info(f"📡 API request - Status: {dashboard_data['status']}")
     return jsonify(dashboard_data)
 
 @app.route('/api/florida')
@@ -220,20 +358,38 @@ def get_texas_data():
 @app.route('/api/refresh')
 def manual_refresh():
     """Endpoint para forzar actualización manual"""
+    logger.info("🔄 Refresh manual solicitado")
     threading.Thread(target=download_and_process_excel).start()
     return jsonify({"message": "Actualización iniciada"})
+
+# Nueva ruta para debug
+@app.route('/api/debug')
+def debug_info():
+    """Endpoint para información de debug"""
+    return jsonify({
+        "status": dashboard_data["status"],
+        "last_update": dashboard_data["last_update"],
+        "data_summary": {
+            "florida_total": dashboard_data.get("florida_data", {}).get("aloha19", {}).get("total", 0),
+            "texas_total": dashboard_data.get("texas_data", {}).get("aloha19", {}).get("total", 0),
+            "global_total": dashboard_data.get("global_data", {}).get("aloha19", {}).get("total", 0)
+        }
+    })
 
 def run_scheduler():
     """Ejecuta el scheduler en un hilo separado"""
     while True:
         schedule.run_pending()
-        time.sleep(60)  # Revisar cada minuto
+        time.sleep(60)
 
 if __name__ == '__main__':
+    logger.info("🚀 Iniciando 916 Foods Dashboard API...")
+    
     # Configurar actualizaciones automáticas cada 30 minutos
     schedule.every(30).minutes.do(download_and_process_excel)
     
     # Ejecutar una vez al inicio
+    logger.info("🔄 Ejecutando carga inicial de datos...")
     download_and_process_excel()
     
     # Iniciar scheduler en hilo separado
@@ -243,4 +399,5 @@ if __name__ == '__main__':
     
     # Iniciar servidor Flask
     port = int(os.environ.get('PORT', 5000))
+    logger.info(f"🌐 Servidor iniciando en puerto {port}")
     app.run(host='0.0.0.0', port=port, debug=False)
