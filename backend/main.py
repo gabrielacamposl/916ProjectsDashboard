@@ -91,7 +91,7 @@ def download_and_process_excel():
         
     except Exception as e:
         error_msg = f"Error procesando datos: {str(e)}"
-        logger.error(f"❌ {error_msg}")
+        logger.error(f" {error_msg}")
         dashboard_data["status"] = f"error: {str(e)}"
 
 def read_excel_cell(sheet, cell):
@@ -381,6 +381,74 @@ def run_scheduler():
     while True:
         schedule.run_pending()
         time.sleep(60)
+
+# Agregar variable global para el workbook
+workbook = None
+
+@app.route('/api/inspect')
+def inspect_cells():
+    """Ver exactamente qué hay en cada celda"""
+    try:
+        global workbook
+        if not workbook:
+            return jsonify({"error": "No workbook loaded"})
+        
+        inspection = {
+            "sheets": workbook.sheetnames,
+            "florida": {},
+            "texas": {}
+        }
+        
+        # Florida cells
+        if 'FLO' in workbook.sheetnames:
+            flo = workbook['FLO']
+            fl_cells = ['B3','B4','B5','B6','B10','B11','C15','C16','C17','C18','C19','B24','B25','B26','B30','B31']
+            for cell in fl_cells:
+                try:
+                    inspection["florida"][cell] = {"value": flo[cell].value, "type": str(type(flo[cell].value))}
+                except: 
+                    inspection["florida"][cell] = {"error": "no existe"}
+        
+        # Texas cells  
+        if 'TEX' in workbook.sheetnames:
+            tex = workbook['TEX']
+            tx_cells = ['B3','B4','B5','B6','B7','B12','B13','B18','B19','B20','B21','B22','B27','B28','B33']
+            for cell in tx_cells:
+                try:
+                    inspection["texas"][cell] = {"value": tex[cell].value, "type": str(type(tex[cell].value))}
+                except:
+                    inspection["texas"][cell] = {"error": "no existe"}
+        
+        return jsonify(inspection)
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+@app.route('/api/preview/<sheet>')
+def preview_sheet(sheet):
+    """Ver primeras filas de una hoja"""
+    try:
+        global workbook
+        if not workbook or sheet not in workbook.sheetnames:
+            return jsonify({"error": f"Sheet {sheet} not found"})
+        
+        ws = workbook[sheet]
+        preview = {}
+        
+        # Primeras 15 filas, columnas A-F
+        for row in range(1, 16):
+            for col in ['A','B','C','D','E','F']:
+                cell_addr = f"{col}{row}"
+                try:
+                    val = ws[cell_addr].value
+                    if val is not None:
+                        preview[cell_addr] = val
+                except:
+                    pass
+        
+        return jsonify(preview)
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
 
 if __name__ == '__main__':
     logger.info("🚀 Iniciando 916 Foods Dashboard API...")
