@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>916 Foods Executive Dashboard - Aloha 19 & Projects</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
+        
+        :root {
+            --wendy-red: #E31837;
+            --wendy-dark-red: #B91C3C;
+            --wendy-blue: #0085CA;
+            --wendy-yellow: #FFC72C;
+            --wendy-dark-blue: #1E40AF;
+            --wendy-gray: #F3F4F6;
+            --wendy-dark-gray: #374151;
+            --wendy-light-gray: #F9FAFB;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--wendy-red) 0%, var(--wendy-dark-red) 100%);
+            min-height: 100vh;
+            color: var(--wendy-dark-gray);
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 4px solid var(--wendy-red);
+            padding-bottom: 30px;
+            background: linear-gradient(135deg, var(--wendy-light-gray) 0%, white 100%);
+            margin: -40px -40px 40px -40px;
+            padding: 40px 40px 30px 40px;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .title {
+            color: var(--wendy-red);
+            font-size: 2.8em;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .company-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--wendy-red), var(--wendy-dark-red));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 1.8em;
+            border: 4px solid white;
+            box-shadow: 0 4px 20px rgba(227, 24, 55, 0.3);
+        }
+        
+        .subtitle {
+            color: var(--wendy-dark-gray);
+            font-size: 1.2em;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        
+        .status-section {
+            background: linear-gradient(135deg, var(--wendy-light-gray) 0%, #E5F3FF 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border-left: 6px solid var(--wendy-blue);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        
+        .section-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: var(--wendy-dark-gray);
+            margin: 0 0 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, var(--wendy-red) 0%, var(--wendy-dark-red) 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 15px 10px 0;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(227, 24, 55, 0.4);
+        }
+        
+        .btn.refresh {
+            background: linear-gradient(135deg, var(--wendy-yellow) 0%, #F59E0B 100%);
+            color: var(--wendy-dark-gray);
+        }
+        
+        .status {
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .status.success {
+            background: #ECFDF5;
+            color: #065F46;
+            border: 3px solid #10B981;
+        }
+        
+        .status.error {
+            background: #FEF2F2;
+            color: #991B1B;
+            border: 3px solid #EF4444;
+        }
+        
+        .status.loading {
+            background: #EFF6FF;
+            color: #1E40AF;
+            border: 3px solid var(--wendy-blue);
+        }
+        
+        .status.warning {
+            background: #FFFBEB;
+            color: #92400E;
+            border: 3px solid var(--wendy-yellow);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--wendy-red) 0%, var(--wendy-dark-red) 100%);
+            color: white;
+            padding: 15px 12px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(227, 24, 55, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--wendy-yellow), white, var(--wendy-blue));
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(227, 24, 55, 0.3);
+        }
+        
+        .stat-card.finished {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+        
+        .stat-number {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 4px;
+            line-height: 1;
+        }
+        
+        .stat-label {
+            font-size: 0.75em;
+            font-weight: 500;
+            opacity: 0.95;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            line-height: 1.2;
+        }
+        
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .chart-wrapper {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #E5E7EB;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--wendy-red), var(--wendy-yellow), var(--wendy-blue));
+        }
+        
+        .chart-wrapper:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .chart-title {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--wendy-dark-gray);
+            font-size: 1.4em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .region-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            background: var(--wendy-gray);
+            border-radius: 15px;
+            padding: 8px;
+            border: 2px solid #E5E7EB;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .tab.active {
+            background: linear-gradient(135deg, var(--wendy-red) 0%, var(--wendy-dark-red) 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(227, 24, 55, 0.3);
+        }
+        
+        .tab:hover:not(.active) {
+            background: #E5E7EB;
+            transform: translateY(-1px);
+        }
+        
+        .last-update {
+            text-align: center;
+            color: var(--wendy-dark-gray);
+            font-style: italic;
+            font-weight: 500;
+            margin-top: 30px;
+            padding: 20px;
+            background: var(--wendy-light-gray);
+            border-radius: 12px;
+            border-left: 4px solid var(--wendy-red);
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #F3F4F6;
+            border-top: 3px solid var(--wendy-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .regional-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 0;
+        }
+        
+        .regional-stat-card {
+            background: linear-gradient(135deg, var(--wendy-red) 0%, var(--wendy-dark-red) 100%);
+            color: white;
+            padding: 12px 8px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(227, 24, 55, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            min-height: 70px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .regional-stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--wendy-yellow), white);
+        }
+        
+        .regional-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(227, 24, 55, 0.3);
+        }
+        
+        .regional-stat-number {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 3px;
+            line-height: 1;
+        }
+        
+        .regional-stat-label {
+            font-size: 0.65em;
+            font-weight: 500;
+            opacity: 0.95;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            line-height: 1.1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">
+                <div class="company-logo">916</div>
+                916 Foods Executive Dashboard
+            </h1>
+            <p class="subtitle">Aloha 19 Implementation & Project Management System</p>
+        </div>
+        
+        <div class="status-section">
+            <h4 class="section-title">🔄 Dashboard en tiempo real</h4>
+            <div style="margin-bottom: 15px;">
+                <div id="connectionStatus">Conectando con el servidor...</div>
+            </div>
+            <button onclick="refreshData()" class="btn refresh">🔄 Actualizar datos</button>
+        </div>
+        
+        <div id="statusMessage"></div>
+        
+        <div class="region-tabs">
+            <button class="tab active" onclick="handleTabClick('global', this)">Global View (FL + TX)</button>
+            <button class="tab" onclick="handleTabClick('florida', this)">Florida Region</button>
+            <button class="tab" onclick="handleTabClick('texas', this)">Texas Region</button>
+        </div>
+        
+        <div id="alohaStats" class="stats-grid">
+            <!-- Statistics cards generated here -->
+        </div>
+        
+        <!-- Regional Statistics - Only visible in Global View -->
+        <div id="regionalStats" style="display: none;">
+            <h3 style="text-align: center; color: var(--wendy-dark-gray); margin: 30px 0 25px 0; font-weight: 700;">Regional Performance</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 50px; max-width: 900px; margin: 0 auto;">
+                <!-- Florida Section -->
+                <div>
+                    <h4 style="color: var(--wendy-red); margin-bottom: 15px; font-weight: 600; font-size: 1.1em; text-align: center;">Florida Region</h4>
+                    <div class="regional-stats-grid" id="floridaRegionalStats">
+                        <!-- Florida regional cards -->
+                    </div>
+                </div>
+                
+                <!-- Texas Section -->
+                <div>
+                    <h4 style="color: var(--wendy-red); margin-bottom: 15px; font-weight: 600; font-size: 1.1em; text-align: center;">Texas Region</h4>
+                    <div class="regional-stats-grid" id="texasRegionalStats">
+                        <!-- Texas regional cards -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="charts-container">
+            <div class="chart-wrapper">
+                <div class="chart-title">Aloha 19 Implementation Status</div>
+                <canvas id="aloha19Chart"></canvas>
+            </div>
+            
+            <div class="chart-wrapper">
+                <div class="chart-title">Wiring Progress</div>
+                <canvas id="wiringChart"></canvas>
+            </div>
+            
+            <div class="chart-wrapper">
+                <div class="chart-title">Technology Deployment</div>
+                <canvas id="techChart"></canvas>
+            </div>
+            
+            <div class="chart-wrapper">
+                <div class="chart-title">Project Status Overview</div>
+                <canvas id="projectsChart"></canvas>
+            </div>
+            
+            <div class="chart-wrapper">
+                <div class="chart-title">Project Type Distribution</div>
+                <canvas id="projectTypesChart"></canvas>
+            </div>
+        </div>
+        
+        <div id="lastUpdate" class="last-update"></div>
+    </div>
+
+    <script>
+        // Configuración de la API
+        const API_BASE_URL = 'https://tu-backend.up.railway.app'; // Cambiar por tu URL de Railway
+        
+        // Variables globales
+        let dashboardData = null;
+        let allCharts = {};
+        let currentRegion = 'global';
+        
+        // Función para cargar datos desde la API
+        async function loadDataFromAPI() {
+            try {
+                showStatus('Cargando datos desde SharePoint...', 'loading');
+                
+                const response = await fetch(`${API_BASE_URL}/api/data`);
+                
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.status.includes('error')) {
+                    throw new Error(data.status);
+                }
+                
+                dashboardData = data;
+                
+                document.getElementById('connectionStatus').innerHTML = `
+                    <span style="color: #10B981;"> Conectado al servidor</span>
+                `;
+                
+                showStatus('Datos cargados exitosamente desde SharePoint', 'success');
+                updateDashboard();
+                updateLastUpdate();
+                
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+                showStatus(`Error conectando con el servidor: ${error.message}`, 'error');
+                
+                document.getElementById('connectionStatus').innerHTML = `
+                    <span style="color: #EF4444;">❌ Error de conexión</span>
+                `;
+            }
+        }
+        
+        // Función para refrescar datos manualmente
+        async function refreshData() {
+            try {
+                showStatus('Solicitando actualización...', 'loading');
+                
+                // Primero, solicitar actualización
+                await fetch(`${API_BASE_URL}/api/refresh`);
+                
+                // Esperar un poco y luego cargar los nuevos datos
+                setTimeout(loadDataFromAPI, 3000);
+                
+            } catch (error) {
+                showStatus(`Error solicitando actualización: ${error.message}`, 'error');
+            }
+        }
+        
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            const spinner = type === 'loading' ? '<span class="loading-spinner"></span> ' : '';
+            statusDiv.innerHTML = `<div class="status ${type}">${spinner}${message}</div>`;
+            
+            if (type === 'success') {
+                setTimeout(() => statusDiv.innerHTML = '', 4000);
+            }
+        }
+        
+        function updateLastUpdate() {
+            if (!dashboardData || !dashboardData.last_update) return;
+            
+            const updateDate = new Date(dashboardData.last_update);
+            document.getElementById('lastUpdate').innerHTML = 
+                `Última actualización: ${updateDate.toLocaleString('es-ES')} | 🔄 Automático cada 30 minutos | ☁️ Datos en tiempo real desde SharePoint`;
+        }
+        
+        function getCurrentData() {
+            if (!dashboardData) return null;
+            
+            switch(currentRegion) {
+                case 'florida': return dashboardData.florida_data;
+                case 'texas': return dashboardData.texas_data;
+                case 'global': return dashboardData.global_data;
+                default: return dashboardData.global_data;
+            }
+        }
+        
+        // Function to handle tab clicks
+        function handleTabClick(region, tabElement) {
+            currentRegion = region;
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            tabElement.classList.add('active');
+            
+            updateDashboard();
+        }
+        
+        function showRegion(region) {
+            currentRegion = region;
+            
+            // Update active tab
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            
+            // Find and activate the corresponding tab
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                const tabText = tab.textContent.toLowerCase();
+                if ((region === 'global' && tabText.includes('global')) ||
+                    (region === 'florida' && tabText.includes('florida')) ||
+                    (region === 'texas' && tabText.includes('texas'))) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            updateDashboard();
+        }
+        
+        function updateAlohaStats(data) {
+            if (!data || !data.aloha19) return;
+            
+            const statsGrid = document.getElementById('alohaStats');
+            const regionalStats = document.getElementById('regionalStats');
+            
+            // Determine total stores by region
+            let totalStores = data.aloha19.total || 0;
+            let regionInfo;
+            
+            if (currentRegion === 'florida') {
+                regionInfo = 'Florida Stores';
+            } else if (currentRegion === 'texas') {
+                regionInfo = 'Texas Stores';
+            } else {
+                regionInfo = 'Total Stores';
+            }
+            
+            // Calculate percentages
+            const finishedPercentage = totalStores > 0 ? ((data.aloha19.finished / totalStores) * 100).toFixed(1) : 0;
+            const wiringFinishedPercentage = totalStores > 0 ? ((data.wiring.finished / totalStores) * 100).toFixed(1) : 0;
+            
+            let statsHTML = `
+                <div class="stat-card" onclick="scrollToChart('aloha19Chart')">
+                    <div class="stat-number">${totalStores}</div>
+                    <div class="stat-label">${regionInfo}</div>
+                </div>
+            `;
+            
+            if (currentRegion === 'global') {
+                // Global View - Show only 4 main cards
+                statsHTML += `
+                    <div class="stat-card finished" onclick="scrollToChart('aloha19Chart')">
+                        <div class="stat-number">${data.aloha19.finished}</div>
+                        <div class="stat-label">Aloha 19 Complete (${finishedPercentage}%)</div>
+                    </div>
+
+                    <div class="stat-card finished" onclick="scrollToChart('wiringChart')">
+                        <div class="stat-number">${data.wiring.finished}</div>
+                        <div class="stat-label">Wiring Complete (${wiringFinishedPercentage}%)</div>
+                    </div>
+                    
+                    <div class="stat-card" onclick="scrollToChart('techChart')">
+                        <div class="stat-number">${data.technologies.fresh_ai}</div>
+                        <div class="stat-label">Fresh AI Deployed</div>
+                    </div>
+                `;
+                
+                // Show regional stats
+                regionalStats.style.display = 'block';
+                updateRegionalStats();
+                
+            } else {
+                // Regional views - Show traditional details
+                statsHTML += `
+                    <div class="stat-card finished" onclick="scrollToChart('aloha19Chart')">
+                        <div class="stat-number">${data.aloha19.finished}</div>
+                        <div class="stat-label">Aloha 19 Complete (${finishedPercentage}%)</div>
+                    </div>
+                    <div class="stat-card finished" onclick="scrollToChart('wiringChart')">
+                        <div class="stat-number">${data.wiring.finished}</div>
+                        <div class="stat-label">Wiring Complete (${wiringFinishedPercentage}%)</div>
+                    </div>
+                    <div class="stat-card" onclick="scrollToChart('techChart')">
+                        <div class="stat-number">${data.technologies.fresh_ai}</div>
+                        <div class="stat-label">Fresh AI Deployed</div>
+                    </div>
+                `;
+                
+                // Hide regional stats
+                regionalStats.style.display = 'none';
+            }
+            
+            statsGrid.innerHTML = statsHTML;
+        }
+        
+        // New function to update regional statistics
+        function updateRegionalStats() {
+            if (!dashboardData) return;
+            
+            // Calculate Florida stats
+            const floridaData = dashboardData.florida_data;
+            const floridaTotal = floridaData.aloha19?.total || 0;
+            const floridaAlohaPercent = floridaTotal > 0 ? ((floridaData.aloha19.finished / floridaTotal) * 100).toFixed(1) : 0;
+            const floridaWiringPercent = floridaTotal > 0 ? ((floridaData.wiring.finished / floridaTotal) * 100).toFixed(1) : 0;
+            
+            // Calculate Texas stats
+            const texasData = dashboardData.texas_data;
+            const texasTotal = texasData.aloha19?.total || 0;
+            const texasAlohaPercent = texasTotal > 0 ? ((texasData.aloha19.finished / texasTotal) * 100).toFixed(1) : 0;
+            const texasWiringPercent = texasTotal > 0 ? ((texasData.wiring.finished / texasTotal) * 100).toFixed(1) : 0;
+            
+            const floridaContainer = document.getElementById('floridaRegionalStats');
+            const texasContainer = document.getElementById('texasRegionalStats');
+            
+            floridaContainer.innerHTML = `
+                <div class="regional-stat-card" onclick="showRegion('florida')">
+                    <div class="regional-stat-number">${floridaTotal}</div>
+                    <div class="regional-stat-label">Total Stores</div>
+                </div>
+                <div class="regional-stat-card" onclick="showRegion('florida')">
+                    <div class="regional-stat-number">${floridaData.aloha19.finished}</div>
+                    <div class="regional-stat-label">Aloha Complete (${floridaAlohaPercent}%)</div>
+                </div>
+                <div class="regional-stat-card" onclick="showRegion('florida')">
+                    <div class="regional-stat-number">${floridaData.wiring.finished}</div>
+                    <div class="regional-stat-label">Wiring Complete (${floridaWiringPercent}%)</div>
+                </div>
+                <div class="regional-stat-card" onclick="showRegion('florida')">
+                    <div class="regional-stat-number">${floridaData.technologies.fresh_ai}</div>
+                    <div class="regional-stat-label">Fresh AI</div>
+                </div>
+            `;
+            
+            texasContainer.innerHTML = `
+                <div class="regional-stat-card" onclick="showRegion('texas')">
+                    <div class="regional-stat-number">${texasTotal}</div>
+                    <div class="regional-stat-label">Total Stores</div>
+                </div>
+                <div class="regional-stat-card" onclick="showRegion('texas')">
+                    <div class="regional-stat-number">${texasData.aloha19.finished}</div>
+                    <div class="regional-stat-label">Aloha Complete (${texasAlohaPercent}%)</div>
+                </div>
+                <div class="regional-stat-card" onclick="showRegion('texas')">
+                    <div class="regional-stat-number">${texasData.wiring.finished}</div>
+                    <div class="regional-stat-label">Wiring Complete (${texasWiringPercent}%)</div>
+                </div>
+                <div class="regional-stat-card" onclick="showRegion('texas')">
+                    <div class="regional-stat-number">${texasData.technologies.fresh_ai}</div>
+                    <div class="regional-stat-label">Fresh AI</div>
+                </div>
+            `;
+        }
+        
+        // Function to scroll to specific chart
+        function scrollToChart(chartId) {
+            const chartElement = document.getElementById(chartId);
+            if (chartElement) {
+                chartElement.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+                // Add a subtle highlight effect
+                const wrapper = chartElement.closest('.chart-wrapper');
+                if (wrapper) {
+                    wrapper.style.boxShadow = '0 15px 40px rgba(227, 24, 55, 0.3)';
+                    setTimeout(() => {
+                        wrapper.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)';
+                    }, 2000);
+                }
+            }
+        }
+        
+        // Updated function to create charts with specified type
+        function createChart(ctx, data, title, colors = null, showValues = true, chartType = 'doughnut') {
+            if (allCharts[ctx.canvas.id]) {
+                allCharts[ctx.canvas.id].destroy();
+            }
+            
+            const defaultColors = ['#E31837', '#FFC72C', '#8B5CF6', '#10B981', '#0085CA', '#6B7280'];
+            const chartColors = colors || defaultColors;
+            
+            const config = {
+                type: chartType,
+                data: {
+                    labels: Object.keys(data),
+                    datasets: [{
+                        data: Object.values(data),
+                        backgroundColor: chartColors,
+                        borderWidth: 3,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: chartType === 'bar' ? 'top' : 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 12,
+                                    family: 'Montserrat',
+                                    weight: '600'
+                                }
+                            }
+                        },
+                        datalabels: showValues ? {
+                            color: chartType === 'bar' ? '#374151' : 'white',
+                            font: {
+                                weight: 'bold',
+                                size: 14,
+                                family: 'Montserrat'
+                            },
+                            formatter: (value, context) => {
+                                return value > 0 ? value : '';
+                            },
+                            anchor: chartType === 'bar' ? 'end' : 'center',
+                            align: chartType === 'bar' ? 'top' : 'center'
+                        } : false
+                    }
+                },
+                plugins: showValues ? [ChartDataLabels] : []
+            };
+
+            // Specific configurations for bar charts
+            if (chartType === 'bar') {
+                config.options.scales = {
+                    y: {
+                        beginAtZero: true,
+                        max: 80,
+                        ticks: {
+                            stepSize: 10,
+                            font: {
+                                family: 'Montserrat',
+                                weight: '500'
+                            }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 0,
+                            font: {
+                                family: 'Montserrat',
+                                weight: '500'
+                            }
+                        }
+                    }
+                };
+                config.options.plugins.legend.display = false;
+            }
+            
+            allCharts[ctx.canvas.id] = new Chart(ctx, config);
+        }
+        
+        function updateDashboard() {
+            const data = getCurrentData();
+            if (!data) {
+                showStatus('No hay datos disponibles. Conectando...', 'warning');
+                return;
+            }
+            
+            // Update Aloha 19 statistics
+            updateAlohaStats(data);
+            
+            // Main Aloha 19 chart
+            if (data.aloha19) {
+                const alohaChartData = {
+                    'Stage 1': data.aloha19.stage1 || 0,
+                    'Stage 2': data.aloha19.stage2 || 0,
+                    'Finished': data.aloha19.finished || 0
+                };
+                
+                // Add Close for Texas
+                if (data.aloha19.close && data.aloha19.close > 0) {
+                    alohaChartData['Close'] = data.aloha19.close;
+                }
+                
+                createChart(
+                    document.getElementById('aloha19Chart').getContext('2d'), 
+                    alohaChartData,
+                    'Aloha 19 Status',
+                    ['#FFC72C', '#FF8C00', '#E31837', '#10B981'], 
+                    true,
+                    'doughnut'
+                );
+            }
+            
+            // Wiring chart
+            if (data.wiring) {
+                createChart(
+                    document.getElementById('wiringChart').getContext('2d'), 
+                    {
+                        'Pending': data.wiring.pending || 0,
+                        'Finished': data.wiring.finished || 0
+                    },
+                    'Wiring Status',
+                    ['#FFC72C', '#10B981'], 
+                    true,
+                    'doughnut'
+                );
+            }
+            
+            // Technologies chart
+            if (data.technologies) {
+                createChart(
+                    document.getElementById('techChart').getContext('2d'), 
+                    {
+                        'Fresh AI': data.technologies.fresh_ai || 0,
+                        'EDMB': data.technologies.edmb || 0,
+                        'IDMB': data.technologies.idmb || 0,
+                        'QB': data.technologies.qb || 0,
+                        'KIOSK': data.technologies.kiosk || 0
+                    },
+                    'Technologies Implementation',
+                    ['#0085CA', '#10B981', '#FFC72C', '#8B5CF6', '#E31837'],
+                    true,
+                    'bar'
+                );
+            }
+            
+            // Projects chart
+            if (data.projects) {
+                const projectsData = {};
+                if (data.projects.signed > 0) projectsData['Signed'] = data.projects.signed;
+                if (data.projects.quote > 0) projectsData['Quote'] = data.projects.quote;
+                if (data.projects.pending > 0) projectsData['Pending'] = data.projects.pending;
+                if (data.projects.paid > 0) projectsData['Paid'] = data.projects.paid;
+                
+                if (Object.keys(projectsData).length > 0) {
+                    createChart(
+                        document.getElementById('projectsChart').getContext('2d'), 
+                        projectsData,
+                        'Projects Status',
+                        ['#0085CA', '#FF8C00', '#FFC72C', '#10B981'],
+                        true,
+                        'doughnut'
+                    );
+                }
+            }
+            
+            // Project Types chart
+            if (data.project_types) {
+                const projectTypesData = {};
+                if (currentRegion === 'florida' || currentRegion === 'global') {
+                    if (data.project_types.edmb_idmb_qb > 0) {
+                        projectTypesData['EDMB,IDMB,QB (FL)'] = data.project_types.edmb_idmb_qb;
+                    }
+                    if (data.project_types.fai_edmb_idmb_qb > 0) {
+                        projectTypesData['FAI,EDMB,IDMB,QB (FL)'] = data.project_types.fai_edmb_idmb_qb;
+                    }
+                }
+                if (currentRegion === 'texas' || currentRegion === 'global') {
+                    if (data.project_types.edmb > 0) {
+                        projectTypesData['EDMB (TX)'] = data.project_types.edmb;
+                    }
+                }
+                
+                if (Object.keys(projectTypesData).length > 0) {
+                    createChart(
+                        document.getElementById('projectTypesChart').getContext('2d'), 
+                        projectTypesData,
+                        'Project Types',
+                        ['#8B5CF6', '#0085CA', '#10B981'],
+                        true,
+                        'bar'
+                    );
+                }
+            }
+        }
+        
+        // Auto-refresh every 5 minutes
+        setInterval(loadDataFromAPI, 5 * 60 * 1000);
+        
+        // Initial load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('916 Foods Executive Dashboard iniciado');
+            console.log('Conectando con API para datos en tiempo real...');
+            
+            loadDataFromAPI();
+        });
+    </script>
+</body>
+</html>
