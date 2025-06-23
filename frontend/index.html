@@ -673,11 +673,11 @@
         
         <div class="project-details-section">
             <button onclick="showProjectDetailsTable()" class="btn info">View Detailed Project Information</button>
-            <button onclick="runDiagnostics()" class="btn" style="background: #8B5CF6;">🔍 Run Diagnostics</button>
+            
         </div>
 
         <div id="diagnosticsContainer" style="display: none; margin-top: 25px;">
-            <div class="section-title">📊 SharePoint Diagnostics</div>
+            <div class="section-title">SharePoint Diagnostics</div>
             <button onclick="hideDiagnostics()" class="close-table">✖ Close</button>
             <div id="diagnosticsContent" style="background: #F3F4F6; padding: 20px; border-radius: 10px; font-family: monospace; white-space: pre-wrap; max-height: 400px; overflow-y: auto;">
                 <!-- Diagnostics content will be inserted here -->
@@ -1609,11 +1609,10 @@
                     if (data.projects.signed > 0) projectsData['Signed'] = data.projects.signed;
                     if (data.projects.quote > 0) projectsData['Quote'] = data.projects.quote; // Combinado FL+TX
                     if (data.projects.paid > 0) projectsData['Paid'] = data.projects.paid;
-                    if (data.projects.pending > 0) projectsData['Pending'] = data.projects.pending;
                 } else if (currentRegion === 'texas') {
                     // Vista Texas: solo Quote
                     if (data.projects.quote > 0) projectsData['Quote'] = data.projects.quote;
-                    if (data.projects.pending > 0) projectsData['Pending'] = data.projects.pending;
+                  //  if (data.projects.pending > 0) projectsData['Pending'] = data.projects.pending;
                 } else if (currentRegion === 'florida') {
                     // Vista Florida: Signed, Quote, Paid
                     if (data.projects.signed > 0) projectsData['Signed'] = data.projects.signed;
