@@ -452,14 +452,14 @@
         .excel-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.9em;
+            font-size: 0.85em;
             font-family: 'Montserrat', sans-serif;
         }
 
         .excel-table th {
             background: linear-gradient(135deg, var(--wendy-red) 0%, var(--wendy-dark-red) 100%);
             color: white;
-            padding: 12px 10px;
+            padding: 10px 8px;
             text-align: center;
             position: sticky;
             top: 0;
@@ -467,14 +467,20 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            font-size: 0.8em;
+            font-size: 0.75em;
+            white-space: nowrap;
         }
 
         .excel-table td {
-            padding: 10px;
+            padding: 8px 6px;
             border: 1px solid #E5E7EB;
             text-align: center;
             font-weight: 500;
+            font-size: 0.8em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
         }
 
         .excel-table tr:nth-child(even) {
@@ -515,13 +521,48 @@
             margin-top: 25px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
+
+        .region-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7em;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-right: 5px;
+        }
+
+        .region-badge.florida {
+            background: #FFF3CD;
+            color: #856404;
+            border: 1px solid #FFC107;
+        }
+
+        .region-badge.texas {
+            background: #D1ECF1;
+            color: #0C5460;
+            border: 1px solid #17A2B8;
+        }
+
+        .data-source-info {
+            margin-top: 15px;
+            padding: 15px;
+            background: #F8F9FA;
+            border-radius: 8px;
+            border-left: 4px solid var(--wendy-blue);
+            font-size: 0.9em;
+            color: var(--wendy-dark-gray);
+        }
+
+        .data-source-info strong {
+            color: var(--wendy-red);
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1 class="title">
-                
                 916 Dashboard
             </h1>
             <p class="subtitle">Aloha 19 Implementation & Project Management System</p>
@@ -591,22 +632,32 @@
             </div>
             
             <div class="chart-wrapper">
-    <div class="chart-title">Project Type Distribution</div>
-    <canvas id="projectTypesChart"></canvas>
-    <canvas id="projectTypesChartTexas"></canvas>
-</div>
+                <div class="chart-title">Project Type Distribution</div>
+                <canvas id="projectTypesChart"></canvas>
+                <canvas id="projectTypesChartTexas"></canvas>
+            </div>
         </div>
 
         <div class="project-details-section">
             <button onclick="showProjectDetailsTable()" class="btn info">View Detailed Project Information</button>
+            <p style="margin-top: 15px; color: var(--wendy-dark-gray); font-size: 0.9em;">
+                📊 Real-time data from FLO-COM and TEX-COM Excel sheets
+            </p>
         </div>
 
         <div id="projectDetailsContainer" style="display: none; margin-top: 25px;">
-            <div class="section-title">Detailed Project Information</div>
+            <div class="section-title">📋 Detailed Project Information - Real Data</div>
             <button onclick="hideProjectDetailsTable()" class="close-table">✖ Close</button>
+            
+            <div class="data-source-info">
+                <strong>Data Source:</strong> Live data extracted from <strong>FLO-COM</strong> (A1:T28) and <strong>TEX-COM</strong> (A1:T59) Excel sheets. 
+                Updates automatically every 30 minutes from SharePoint.
+                <div id="comDataSummary" style="margin-top: 10px;"></div>
+            </div>
+            
             <div class="table-container">
                 <table id="projectDetailsTable" class="excel-table">
-                    <!-- Table generated dynamically -->
+                    <!-- Table generated dynamically from real COM data -->
                 </table>
             </div>
         </div>
@@ -635,6 +686,7 @@
         let dashboardData = null;
         let allCharts = {};
         let currentRegion = 'global';
+        let comData = null; // Para almacenar datos COM
         
         // Function to handle logo upload
         function handleLogoUpload(event) {
@@ -677,6 +729,9 @@
                 
                 dashboardData = data;
                 
+                // También cargar datos COM
+                await loadCOMData();
+                
                 document.getElementById('connectionStatus').innerHTML = `
                     <span style="color: #10B981;">✅ Connected to server</span>
                 `;
@@ -692,6 +747,41 @@
                 document.getElementById('connectionStatus').innerHTML = `
                     <span style="color: #EF4444;">❌ Connection error</span>
                 `;
+            }
+        }
+
+        // Nueva función para cargar datos COM
+        async function loadCOMData() {
+            try {
+                console.log('🔄 Loading COM data...');
+                
+                // Cargar datos de ambas regiones COM
+                const [floridaCOMResponse, texasCOMResponse] = await Promise.all([
+                    fetch(`${API_BASE_URL}/api/florida-com`),
+                    fetch(`${API_BASE_URL}/api/texas-com`)
+                ]);
+                
+                if (floridaCOMResponse.ok && texasCOMResponse.ok) {
+                    const floridaCOM = await floridaCOMResponse.json();
+                    const texasCOM = await texasCOMResponse.json();
+                    
+                    comData = {
+                        florida: floridaCOM.data,
+                        texas: texasCOM.data
+                    };
+                    
+                    console.log('✅ COM data loaded:', {
+                        florida_rows: floridaCOM.data?.data?.length || 0,
+                        texas_rows: texasCOM.data?.data?.length || 0
+                    });
+                } else {
+                    console.warn('⚠️ COM data not available');
+                    comData = null;
+                }
+                
+            } catch (error) {
+                console.error('❌ Error loading COM data:', error);
+                comData = null;
             }
         }
         
@@ -722,22 +812,21 @@
         }
         
         function updateLastUpdate() {
-    if (!dashboardData || !dashboardData.last_update) return;
-    
-    const updateDate = new Date(dashboardData.last_update);
+            if (!dashboardData || !dashboardData.last_update) return;
+            
+            const updateDate = new Date(dashboardData.last_update);
 
-    const formattedDate = updateDate.toLocaleString('en-US', {
-        timeZone: 'America/Chicago', // Hora del Este de EE.UU.
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-    });
+            const formattedDate = updateDate.toLocaleString('en-US', {
+                timeZone: 'America/Chicago',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+            });
 
-    document.getElementById('lastUpdate').innerHTML =
-        `Last update: ${formattedDate} (ET) | Automatic every 30 minutes | Real-time data`;
-}
+            document.getElementById('lastUpdate').innerHTML =
+                `Last update: ${formattedDate} (ET) | Automatic every 30 minutes | Real-time data`;
+        }
 
-        
         function getCurrentData() {
             if (!dashboardData) return null;
             
@@ -950,63 +1039,235 @@
             }
         }
         
-        // Function to show detailed project details table (simulated)
-        function showProjectDetailsTable() {
+        // NUEVA FUNCIÓN PRINCIPAL para mostrar tabla con datos reales COM
+        async function showProjectDetailsTable() {
             try {
-                // Simulated project data since we don't have Excel access in API mode
-                const projectData = generateSimulatedProjectData();
+                showStatus('Loading real project data from COM sheets...', 'loading');
                 
-                if (projectData.length === 0) {
-                    showStatus('No project data available in API mode', 'warning');
+                // Si no tenemos datos COM, intentar cargarlos
+                if (!comData) {
+                    await loadCOMData();
+                }
+                
+                if (!comData) {
+                    showStatus('COM data not available. Please try refreshing.', 'error');
                     return;
                 }
                 
-                // Generate table HTML
-                const table = document.getElementById('projectDetailsTable');
-                let tableHTML = `
-                    <tr>
-                        <th>Store</th>
-                        <th>Address</th>
-                        <th>Project</th>
-                        <th>Status</th>
-                        <th>Start Project</th>
-                       
-                        <th>Cost</th>
-                    </tr>
-                `;
+                // Procesar y mostrar datos según la región actual
+                const tableData = processRealCOMData();
                 
-                projectData.forEach(project => {
-                    // Format cost as currency
-                    let formattedCost = project.cost || 'N/A';
-                    if (formattedCost !== 'N/A' && !isNaN(formattedCost) && formattedCost !== '') {
-                        formattedCost = new Intl.NumberFormat('en-US', {
-                            style: 'currency',
-                            currency: 'USD'
-                        }).format(parseFloat(formattedCost));
-                    }
-                    
-                    tableHTML += `
-                        <tr>
-                            <td>${project.store || 'N/A'}</td>
-                            <td>${project.address || 'N/A'}</td>
-                            <td>${project.project || 'N/A'}</td>
-                            <td>${project.status || 'N/A'}</td>
-                            <td>${project.startProject || '---'}</td>
-                          
-                            <td>${formattedCost}</td>
-                        </tr>
-                    `;
-                });
+                if (tableData.length === 0) {
+                    showStatus('No project data available in selected region', 'warning');
+                    return;
+                }
                 
-                table.innerHTML = tableHTML;
+                // Generar tabla con datos reales
+                generateRealProjectTable(tableData);
+                
+                // Mostrar información de resumen
+                updateCOMDataSummary();
+                
+                // Mostrar el contenedor
                 document.getElementById('projectDetailsContainer').style.display = 'block';
                 
-                showStatus(`Projects table loaded (${projectData.length} records)`, 'success');
+                showStatus(`Real project data loaded (${tableData.length} records from COM sheets)`, 'success');
                 
             } catch (error) {
-                showStatus(`Error loading project details: ${error.message}`, 'error');
+                showStatus(`Error loading real project data: ${error.message}`, 'error');
                 console.error('Error:', error);
             }
+        }
+
+        // Función para procesar datos reales COM según la región
+        function processRealCOMData() {
+            if (!comData) return [];
+            
+            let processedData = [];
+            
+            // Función auxiliar para limpiar y procesar filas
+            function processRegionData(regionData, regionName) {
+                if (!regionData || !regionData.data || !Array.isArray(regionData.data)) {
+                    console.warn(`No valid data for ${regionName}`);
+                    return [];
+                }
+                
+                return regionData.data
+                    .filter(row => {
+                        // Filtrar filas que no estén completamente vacías
+                        return row && Object.values(row).some(value => 
+                            value !== null && value !== undefined && value !== '' && value !== 'None'
+                        );
+                    })
+                    .map(row => {
+                        // Crear objeto procesado con manejo seguro de propiedades
+                        return {
+                            region: regionName,
+                            // Usar diferentes variaciones de nombres de columnas que podrían existir
+                            store: getRowValue(row, ['Store', 'store', 'Store #', 'Store Number', 'STORE']),
+                            address: getRowValue(row, ['Address', 'address', 'LOCATION', 'Location']),
+                            project: getRowValue(row, ['Project', 'project', 'PROJECT TYPE', 'Project Type']),
+                            status: getRowValue(row, ['Status', 'status', 'PROJECT STATUS', 'Project Status']),
+                            startProject: getRowValue(row, ['Start Project', 'Start Date', 'START PROJECT', 'Date Started']),
+                            cost: getRowValue(row, ['Cost', 'cost', 'COST', 'Project Cost', 'Total Cost']),
+                            manager: getRowValue(row, ['Manager', 'Project Manager', 'PM', 'MANAGER']),
+                            progress: getRowValue(row, ['Progress', 'progress', 'PROGRESS', '% Complete']),
+                            notes: getRowValue(row, ['Notes', 'notes', 'NOTES', 'Comments']),
+                            // Campos adicionales que podrían estar en las hojas COM
+                            priority: getRowValue(row, ['Priority', 'priority', 'PRIORITY']),
+                            completion: getRowValue(row, ['Completion', 'completion', 'COMPLETION', 'Completed']),
+                            // Agregar todos los campos disponibles en el objeto original
+                            ...row
+                        };
+                    });
+            }
+            
+            // Función auxiliar para obtener valor de fila con múltiples posibles nombres de columna
+            function getRowValue(row, possibleKeys) {
+                for (const key of possibleKeys) {
+                    if (row[key] !== undefined && row[key] !== null && row[key] !== '') {
+                        return row[key];
+                    }
+                }
+                return 'N/A';
+            }
+            
+            // Procesar según la región actual
+            switch(currentRegion) {
+                case 'florida':
+                    processedData = processRegionData(comData.florida, 'FL');
+                    break;
+                case 'texas':
+                    processedData = processRegionData(comData.texas, 'TX');
+                    break;
+                case 'global':
+                default:
+                    // Combinar ambas regiones
+                    const floridaData = processRegionData(comData.florida, 'FL');
+                    const texasData = processRegionData(comData.texas, 'TX');
+                    processedData = [...floridaData, ...texasData];
+                    break;
+            }
+            
+            console.log(`Processed ${processedData.length} records for region: ${currentRegion}`);
+            return processedData;
+        }
+
+        // Función para generar tabla con datos reales
+        function generateRealProjectTable(tableData) {
+            const table = document.getElementById('projectDetailsTable');
+            
+            // Obtener todas las columnas únicas de los datos
+            const allColumns = new Set();
+            tableData.forEach(row => {
+                Object.keys(row).forEach(key => {
+                    // Excluir algunas columnas internas o muy técnicas
+                    if (!['None', 'null', 'undefined', ''].includes(key) && key.length > 0) {
+                        allColumns.add(key);
+                    }
+                });
+            });
+            
+            const columns = Array.from(allColumns);
+            
+            // Priorizar columnas importantes al inicio
+            const priorityColumns = ['region', 'store', 'address', 'project', 'status', 'startProject', 'cost', 'manager', 'progress'];
+            const otherColumns = columns.filter(col => !priorityColumns.includes(col));
+            const orderedColumns = [...priorityColumns.filter(col => columns.includes(col)), ...otherColumns];
+            
+            // Generar encabezados
+            let tableHTML = '<tr>';
+            orderedColumns.forEach(column => {
+                const displayName = formatColumnName(column);
+                tableHTML += `<th>${displayName}</th>`;
+            });
+            tableHTML += '</tr>';
+            
+            // Generar filas de datos
+            tableData.forEach(row => {
+                tableHTML += '<tr>';
+                orderedColumns.forEach(column => {
+                    let value = row[column];
+                    
+                    // Formatear valores especiales
+                    if (column === 'region') {
+                        value = value ? `<span class="region-badge ${value.toLowerCase()}">${value}</span>` : 'N/A';
+                    } else if (column === 'cost' && value && value !== 'N/A' && !isNaN(value)) {
+                        value = new Intl.NumberFormat('en-US', {
+                            style: 'currency',
+                            currency: 'USD'
+                        }).format(parseFloat(value));
+                    } else if (column === 'startProject' && value && value !== 'N/A') {
+                        // Intentar formatear fecha si es posible
+                        try {
+                            const date = new Date(value);
+                            if (!isNaN(date.getTime())) {
+                                value = date.toLocaleDateString();
+                            }
+                        } catch (e) {
+                            // Mantener valor original si no se puede parsear como fecha
+                        }
+                    }
+                    
+                    // Valor por defecto si está vacío
+                    if (value === null || value === undefined || value === '' || value === 'None') {
+                        value = '---';
+                    }
+                    
+                    tableHTML += `<td title="${value}">${value}</td>`;
+                });
+                tableHTML += '</tr>';
+            });
+            
+            table.innerHTML = tableHTML;
+        }
+
+        // Función auxiliar para formatear nombres de columnas
+        function formatColumnName(column) {
+            // Mapeo de nombres de columnas conocidos
+            const columnMapping = {
+                'region': 'Region',
+                'store': 'Store',
+                'address': 'Address',
+                'project': 'Project',
+                'status': 'Status',
+                'startProject': 'Start Date',
+                'cost': 'Cost',
+                'manager': 'Manager',
+                'progress': 'Progress',
+                'notes': 'Notes',
+                'priority': 'Priority',
+                'completion': 'Completion'
+            };
+            
+            return columnMapping[column] || column.replace(/([A-Z])/g, ' $1').trim();
+        }
+
+        // Función para actualizar resumen de datos COM
+        function updateCOMDataSummary() {
+            if (!comData) return;
+            
+            const floridaCount = comData.florida?.data?.length || 0;
+            const texasCount = comData.texas?.data?.length || 0;
+            const totalCount = floridaCount + texasCount;
+            
+            const summaryContainer = document.getElementById('comDataSummary');
+            summaryContainer.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 10px;">
+                    <div style="background: white; padding: 10px; border-radius: 6px; border-left: 3px solid var(--wendy-yellow);">
+                        <strong>Florida COM:</strong> ${floridaCount} records<br>
+                        <small>Range: A1:T28 from FLO-COM sheet</small>
+                    </div>
+                    <div style="background: white; padding: 10px; border-radius: 6px; border-left: 3px solid var(--wendy-blue);">
+                        <strong>Texas COM:</strong> ${texasCount} records<br>
+                        <small>Range: A1:T59 from TEX-COM sheet</small>
+                    </div>
+                    <div style="background: white; padding: 10px; border-radius: 6px; border-left: 3px solid var(--wendy-red);">
+                        <strong>Total Records:</strong> ${totalCount}<br>
+                        <small>Showing: ${currentRegion === 'global' ? 'All regions' : currentRegion.toUpperCase()}</small>
+                    </div>
+                </div>
+            `;
         }
         
         // Function to hide project details table
@@ -1014,7 +1275,7 @@
             document.getElementById('projectDetailsContainer').style.display = 'none';
         }
         
-        // Function to show detailed regional table (simulated)
+        // Function to show detailed regional table (mantener la función original)
         function showDetailedTable() {
             try {
                 if (currentRegion === 'global') {
@@ -1078,38 +1339,7 @@
             document.getElementById('detailedTableContainer').style.display = 'none';
         }
         
-        // Function to generate simulated project data
-        function generateSimulatedProjectData() {
-            const data = getCurrentData();
-            if (!data) return [];
-            
-            const projectData = [];
-            const projects = ['EDMB,IDMB,QB', 'FAI,EDMB,IDMB,QB', 'EDMB', 'Fresh AI Implementation'];
-            const statuses = ['Signed', 'Quote', 'Pending', 'Paid'];
-            const auvValues = ['High', 'Medium', 'Low'];
-            
-            // Generate sample data based on current region
-            const baseStore = currentRegion === 'florida' ? 200 : currentRegion === 'texas' ? 100 : 100;
-            const storeCount = currentRegion === 'florida' ? 15 : currentRegion === 'texas' ? 20 : 35;
-            
-            for (let i = 0; i < storeCount; i++) {
-                if (Math.random() > 0.7) { // Only 30% have active projects
-                    projectData.push({
-                        store: baseStore + (i * 10),
-                        address: `Store ${baseStore + (i * 10)} Address, ${currentRegion === 'florida' ? 'FL' : currentRegion === 'texas' ? 'TX' : 'US'}`,
-                        project: projects[Math.floor(Math.random() * projects.length)],
-                        status: statuses[Math.floor(Math.random() * statuses.length)],
-                        startProject: Math.random() > 0.5 ? new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28)).toLocaleDateString() : '---',
-                        auv: auvValues[Math.floor(Math.random() * auvValues.length)],
-                        cost: Math.floor(Math.random() * 100000) + 25000
-                    });
-                }
-            }
-            
-            return projectData;
-        }
-        
-        // Function to generate simulated detailed data
+        // Function to generate simulated detailed data (mantener para compatibilidad)
         function generateSimulatedDetailedData() {
             const data = getCurrentData();
             if (!data) return [];
@@ -1314,97 +1544,93 @@
                     ); 
                 }
             }
-            // PAID verde, SIGNED amarillo, QUOTE naranja
             
             // Project Types chart
-            
-               // Project Types chart
-if (data.project_types) {
-    const mainCanvas = document.getElementById('projectTypesChart');
-    const texasCanvas = document.getElementById('projectTypesChartTexas');
-    
-    // Si la región es 'global', mostrar ambos gráficos
-    if (currentRegion === 'global') {
-        // Mostrar ambos canvas
-        mainCanvas.style.display = 'block';
-        texasCanvas.style.display = 'block';
-        
-        // Datos para Florida
-        const floridaData = {};
-        if (data.project_types.fai_edmb_idmb_qb > 0) {
-            floridaData['FAI,EDMB,IDMB,QB'] = data.project_types.fai_edmb_idmb_qb;
-        }
-        if (data.project_types.edmb_idmb_qb > 0) {
-            floridaData['EDMB,IDMB,QB'] = data.project_types.edmb_idmb_qb;
-        }
-        
-        // Datos para Texas
-        const texasData = {};
-        if (data.project_types.edmb > 0) {
-            texasData['EDMB'] = data.project_types.edmb;
-        }
-        
-        // Crear gráfico de Florida
-        if (Object.keys(floridaData).length > 0) {
-            createChart(
-                mainCanvas.getContext('2d'), 
-                floridaData,
-                'Florida Projects',
-                ['#8B5CF6', '#0085CA'],
-                true,
-                'bar'
-            );
-        }
-        
-        // Crear gráfico de Texas
-        if (Object.keys(texasData).length > 0) {
-            createChart(
-                texasCanvas.getContext('2d'), 
-                texasData,
-                'Texas Projects',
-                ['#10B981'],
-                true,
-                'bar'
-            );
-        }
-    } else {
-        // En vistas específicas, ocultar el canvas de Texas y usar solo el principal
-        mainCanvas.style.display = 'block';
-        texasCanvas.style.display = 'none';
-        
-        const projectTypesData = {};
-        
-        // Agregar datos según la región actual
-        if (data.project_types.fai_edmb_idmb_qb > 0) {
-            projectTypesData['FAI,EDMB,IDMB,QB (FL)'] = data.project_types.fai_edmb_idmb_qb;
-        }
-        
-        if (currentRegion === 'florida') {
-            if (data.project_types.edmb_idmb_qb > 0) {
-                projectTypesData['EDMB,IDMB,QB (FL)'] = data.project_types.edmb_idmb_qb;
+            if (data.project_types) {
+                const mainCanvas = document.getElementById('projectTypesChart');
+                const texasCanvas = document.getElementById('projectTypesChartTexas');
+                
+                // Si la región es 'global', mostrar ambos gráficos
+                if (currentRegion === 'global') {
+                    // Mostrar ambos canvas
+                    mainCanvas.style.display = 'block';
+                    texasCanvas.style.display = 'block';
+                    
+                    // Datos para Florida
+                    const floridaData = {};
+                    if (data.project_types.fai_edmb_idmb_qb > 0) {
+                        floridaData['FAI,EDMB,IDMB,QB'] = data.project_types.fai_edmb_idmb_qb;
+                    }
+                    if (data.project_types.edmb_idmb_qb > 0) {
+                        floridaData['EDMB,IDMB,QB'] = data.project_types.edmb_idmb_qb;
+                    }
+                    
+                    // Datos para Texas
+                    const texasData = {};
+                    if (data.project_types.edmb > 0) {
+                        texasData['EDMB'] = data.project_types.edmb;
+                    }
+                    
+                    // Crear gráfico de Florida
+                    if (Object.keys(floridaData).length > 0) {
+                        createChart(
+                            mainCanvas.getContext('2d'), 
+                            floridaData,
+                            'Florida Projects',
+                            ['#8B5CF6', '#0085CA'],
+                            true,
+                            'bar'
+                        );
+                    }
+                    
+                    // Crear gráfico de Texas
+                    if (Object.keys(texasData).length > 0) {
+                        createChart(
+                            texasCanvas.getContext('2d'), 
+                            texasData,
+                            'Texas Projects',
+                            ['#10B981'],
+                            true,
+                            'bar'
+                        );
+                    }
+                } else {
+                    // En vistas específicas, ocultar el canvas de Texas y usar solo el principal
+                    mainCanvas.style.display = 'block';
+                    texasCanvas.style.display = 'none';
+                    
+                    const projectTypesData = {};
+                    
+                    // Agregar datos según la región actual
+                    if (data.project_types.fai_edmb_idmb_qb > 0) {
+                        projectTypesData['FAI,EDMB,IDMB,QB (FL)'] = data.project_types.fai_edmb_idmb_qb;
+                    }
+                    
+                    if (currentRegion === 'florida') {
+                        if (data.project_types.edmb_idmb_qb > 0) {
+                            projectTypesData['EDMB,IDMB,QB (FL)'] = data.project_types.edmb_idmb_qb;
+                        }
+                    }
+                    
+                    if (currentRegion === 'texas') {
+                        if (data.project_types.edmb > 0) {
+                            projectTypesData['EDMB (TX)'] = data.project_types.edmb;
+                        }
+                    }
+                    
+                    // Crear el gráfico único para la región específica
+                    if (Object.keys(projectTypesData).length > 0) {
+                        createChart(
+                            mainCanvas.getContext('2d'), 
+                            projectTypesData,
+                            'Project Types',
+                            ['#8B5CF6', '#0085CA', '#10B981'],
+                            true,
+                            'bar'
+                        );
+                    }
+                }
             }
-        }
-        
-        if (currentRegion === 'texas') {
-            if (data.project_types.edmb > 0) {
-                projectTypesData['EDMB (TX)'] = data.project_types.edmb;
-            }
-        }
-        
-        // Crear el gráfico único para la región específica
-        if (Object.keys(projectTypesData).length > 0) {
-            createChart(
-                mainCanvas.getContext('2d'), 
-                projectTypesData,
-                'Project Types',
-                ['#8B5CF6', '#0085CA', '#10B981'],
-                true,
-                'bar'
-            );
-        }
-    }
-}
-             
         }
         
         // Auto-refresh every 5 minutes
@@ -1412,7 +1638,7 @@ if (data.project_types) {
         
         // Initial load
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Wendy\'s Executive Dashboard started');
+            console.log('916 Foods Executive Dashboard started');
             console.log('Connecting to API for real-time data...');
             
             loadDataFromAPI();

@@ -1,4 +1,4 @@
-# main.py - Backend completo corregido
+# main.py - Backend completo con soporte para TEX-COM y FLO-COM
 from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 import requests
@@ -23,6 +23,8 @@ dashboard_data = {
     "last_update": None,
     "florida_data": {},
     "texas_data": {},
+    "florida_com_data": {},  # Nueva sección para FLO-COM
+    "texas_com_data": {},    # Nueva sección para TEX-COM
     "global_data": {},
     "status": "waiting"
 }
@@ -31,7 +33,7 @@ workbook = None  # Variable global para el workbook
 
 def download_and_process_excel():
     """Descarga el Excel de SharePoint y procesa los datos"""
-    global dashboard_data, workbook  # ← CORREGIDO: Agregar workbook aquí
+    global dashboard_data, workbook
     
     try:
         logger.info("🔄 Iniciando descarga de SharePoint...")
@@ -55,25 +57,47 @@ def download_and_process_excel():
         
         # Cargar el Excel en memoria
         logger.info("📊 Cargando archivo Excel...")
-        workbook = openpyxl.load_workbook(BytesIO(response.content), data_only=True)  # ← CORREGIDO: data_only=True
+        workbook = openpyxl.load_workbook(BytesIO(response.content), data_only=True)
         
         logger.info(f"📋 Hojas encontradas en Excel: {workbook.sheetnames}")
         
         # Verificar que existen las hojas necesarias
-        required_sheets = ['FLO', 'TEX']
+        required_sheets = ['FLO', 'TEX', 'FLO-COM', 'TEX-COM']
+        missing_sheets = []
         for sheet_name in required_sheets:
             if sheet_name not in workbook.sheetnames:
-                raise Exception(f"Hoja '{sheet_name}' no encontrada. Disponibles: {workbook.sheetnames}")
+                missing_sheets.append(sheet_name)
+        
+        if missing_sheets:
+            logger.warning(f"⚠️ Hojas faltantes: {missing_sheets}. Disponibles: {workbook.sheetnames}")
         
         logger.info("✅ Archivo Excel cargado correctamente")
         
+        # Procesar datos existentes
+        florida_data = {}
+        texas_data = {}
+        florida_com_data = {}
+        texas_com_data = {}
+        
         # Procesar datos de Florida
-        logger.info("🏖️ Procesando datos de Florida...")
-        florida_data = process_sheet_data(workbook, 'FLO')
+        if 'FLO' in workbook.sheetnames:
+            logger.info("🏖️ Procesando datos de Florida...")
+            florida_data = process_sheet_data(workbook, 'FLO')
         
         # Procesar datos de Texas  
-        logger.info("🤠 Procesando datos de Texas...")
-        texas_data = process_sheet_data(workbook, 'TEX')
+        if 'TEX' in workbook.sheetnames:
+            logger.info("🤠 Procesando datos de Texas...")
+            texas_data = process_sheet_data(workbook, 'TEX')
+        
+        # Procesar datos de FLO-COM
+        if 'FLO-COM' in workbook.sheetnames:
+            logger.info("🏖️📊 Procesando datos de Florida COM...")
+            florida_com_data = process_com_sheet_data(workbook, 'FLO-COM', 'A1:T28')
+        
+        # Procesar datos de TEX-COM
+        if 'TEX-COM' in workbook.sheetnames:
+            logger.info("🤠📊 Procesando datos de Texas COM...") 
+            texas_com_data = process_com_sheet_data(workbook, 'TEX-COM', 'A1:T59')
         
         # Combinar datos globales
         logger.info("🌍 Combinando datos globales...")
@@ -84,17 +108,98 @@ def download_and_process_excel():
             "last_update": datetime.now().isoformat(),
             "florida_data": florida_data,
             "texas_data": texas_data,
+            "florida_com_data": florida_com_data,
+            "texas_com_data": texas_com_data,
             "global_data": global_data,
             "status": "success"
         }
         
         logger.info("✅ Datos procesados correctamente")
         logger.info(f"📊 Resumen - FL: {florida_data.get('aloha19', {}).get('total', 0)} tiendas, TX: {texas_data.get('aloha19', {}).get('total', 0)} tiendas")
+        logger.info(f"📊 COM - FL: {len(florida_com_data.get('data', []))} filas, TX: {len(texas_com_data.get('data', []))} filas")
         
     except Exception as e:
         error_msg = f"Error procesando datos: {str(e)}"
         logger.error(f"❌ {error_msg}")
         dashboard_data["status"] = f"error: {str(e)}"
+
+def process_com_sheet_data(workbook, sheet_name, cell_range):
+    """Procesa los datos de las hojas COM con rangos específicos"""
+    try:
+        sheet = workbook[sheet_name]
+        logger.info(f"📋 Procesando hoja COM: {sheet_name} - Rango: {cell_range}")
+        
+        # Parsear el rango (ej: "A1:T28")
+        start_cell, end_cell = cell_range.split(':')
+        
+        # Convertir coordenadas de letra a número
+        def col_letter_to_num(letter):
+            num = 0
+            for char in letter:
+                num = num * 26 + (ord(char) - ord('A') + 1)
+            return num
+        
+        def parse_cell(cell):
+            col_letters = ''.join([c for c in cell if c.isalpha()])
+            row_num = int(''.join([c for c in cell if c.isdigit()]))
+            col_num = col_letter_to_num(col_letters)
+            return row_num, col_num
+        
+        start_row, start_col = parse_cell(start_cell)
+        end_row, end_col = parse_cell(end_cell)
+        
+        logger.info(f"📏 Procesando desde fila {start_row} col {start_col} hasta fila {end_row} col {end_col}")
+        
+        # Extraer datos del rango especificado
+        data = []
+        headers = []
+        
+        # Primera fila como headers
+        first_row = True
+        for row in sheet.iter_rows(min_row=start_row, max_row=end_row, 
+                                  min_col=start_col, max_col=end_col, 
+                                  values_only=True):
+            if first_row:
+                headers = [str(cell) if cell is not None else f"Col_{i}" for i, cell in enumerate(row)]
+                first_row = False
+                logger.info(f"📝 Headers encontrados: {headers[:5]}...") # Mostrar solo primeros 5
+            else:
+                # Convertir fila a diccionario
+                row_dict = {}
+                for i, cell_value in enumerate(row):
+                    if i < len(headers):
+                        row_dict[headers[i]] = cell_value
+                
+                # Solo agregar filas que no estén completamente vacías
+                if any(value is not None and str(value).strip() != '' for value in row):
+                    data.append(row_dict)
+        
+        result = {
+            "sheet_name": sheet_name,
+            "range_processed": cell_range,
+            "total_rows": len(data),
+            "headers": headers,
+            "data": data,
+            "summary": {
+                "non_empty_rows": len([row for row in data if any(v for v in row.values() if v is not None)]),
+                "total_columns": len(headers)
+            }
+        }
+        
+        logger.info(f"✅ Procesados {len(data)} filas de {sheet_name}")
+        logger.info(f"   📊 Columnas: {len(headers)}")
+        logger.info(f"   📝 Filas no vacías: {result['summary']['non_empty_rows']}")
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"❌ Error procesando hoja COM {sheet_name}: {str(e)}")
+        return {
+            "sheet_name": sheet_name,
+            "error": str(e),
+            "data": [],
+            "headers": []
+        }
 
 def read_excel_cell(sheet, cell):
     """Lee una celda del Excel de forma segura con DEBUG"""
@@ -357,6 +462,48 @@ def get_texas_data():
         "status": dashboard_data["status"]
     })
 
+# NUEVOS ENDPOINTS PARA DATOS COM
+@app.route('/api/florida-com')
+def get_florida_com_data():
+    """Endpoint para datos COM de Florida"""
+    return jsonify({
+        "data": dashboard_data["florida_com_data"],
+        "last_update": dashboard_data["last_update"],
+        "status": dashboard_data["status"]
+    })
+
+@app.route('/api/texas-com') 
+def get_texas_com_data():
+    """Endpoint para datos COM de Texas"""
+    return jsonify({
+        "data": dashboard_data["texas_com_data"],
+        "last_update": dashboard_data["last_update"],
+        "status": dashboard_data["status"]
+    })
+
+@app.route('/api/com-summary')
+def get_com_summary():
+    """Endpoint para resumen de datos COM"""
+    florida_com = dashboard_data.get("florida_com_data", {})
+    texas_com = dashboard_data.get("texas_com_data", {})
+    
+    return jsonify({
+        "florida_com": {
+            "total_rows": len(florida_com.get("data", [])),
+            "columns": len(florida_com.get("headers", [])),
+            "range": florida_com.get("range_processed", "N/A"),
+            "non_empty_rows": florida_com.get("summary", {}).get("non_empty_rows", 0)
+        },
+        "texas_com": {
+            "total_rows": len(texas_com.get("data", [])),
+            "columns": len(texas_com.get("headers", [])),
+            "range": texas_com.get("range_processed", "N/A"),
+            "non_empty_rows": texas_com.get("summary", {}).get("non_empty_rows", 0)
+        },
+        "last_update": dashboard_data["last_update"],
+        "status": dashboard_data["status"]
+    })
+
 @app.route('/api/refresh')
 def manual_refresh():
     """Endpoint para forzar actualización manual"""
@@ -373,7 +520,9 @@ def debug_info():
         "data_summary": {
             "florida_total": dashboard_data.get("florida_data", {}).get("aloha19", {}).get("total", 0),
             "texas_total": dashboard_data.get("texas_data", {}).get("aloha19", {}).get("total", 0),
-            "global_total": dashboard_data.get("global_data", {}).get("aloha19", {}).get("total", 0)
+            "global_total": dashboard_data.get("global_data", {}).get("aloha19", {}).get("total", 0),
+            "florida_com_rows": len(dashboard_data.get("florida_com_data", {}).get("data", [])),
+            "texas_com_rows": len(dashboard_data.get("texas_com_data", {}).get("data", []))
         }
     })
 
@@ -426,9 +575,12 @@ def preview_sheet(sheet):
         ws = workbook[sheet]
         preview = {}
         
-        # Primeras 15 filas, columnas A-F
+        # Primeras 15 filas, columnas A-T para hojas COM, A-F para otras
+        max_col = 'T' if 'COM' in sheet else 'F'
+        cols = [chr(ord('A') + i) for i in range(ord(max_col) - ord('A') + 1)]
+        
         for row in range(1, 16):
-            for col in ['A','B','C','D','E','F']:
+            for col in cols:
                 cell_addr = f"{col}{row}"
                 try:
                     val = ws[cell_addr].value
@@ -469,7 +621,7 @@ def list_all_sheets():
             })
         
         # Cargar Excel
-        workbook_temp = openpyxl.load_workbook(BytesIO(response.content), data_only=True)  # ← CORREGIDO: data_only=True
+        workbook_temp = openpyxl.load_workbook(BytesIO(response.content), data_only=True)
         
         logger.info(f"📋 Hojas encontradas: {workbook_temp.sheetnames}")
         
@@ -478,9 +630,11 @@ def list_all_sheets():
             "file_size_bytes": len(response.content),
             "total_sheets": len(workbook_temp.sheetnames),
             "sheet_names": workbook_temp.sheetnames,
-            "looking_for": ["FLO", "TEX"],
+            "looking_for": ["FLO", "TEX", "FLO-COM", "TEX-COM"],
             "flo_exists": "FLO" in workbook_temp.sheetnames,
-            "tex_exists": "TEX" in workbook_temp.sheetnames
+            "tex_exists": "TEX" in workbook_temp.sheetnames,
+            "flo_com_exists": "FLO-COM" in workbook_temp.sheetnames,
+            "tex_com_exists": "TEX-COM" in workbook_temp.sheetnames
         })
         
     except Exception as e:
@@ -505,7 +659,7 @@ def inspect_specific_cells():
         response = requests.get(url, headers=headers, timeout=30)
         response.raise_for_status()
         
-        workbook_temp = openpyxl.load_workbook(BytesIO(response.content), data_only=True)  # ← CORREGIDO: data_only=True
+        workbook_temp = openpyxl.load_workbook(BytesIO(response.content), data_only=True)
         
         result = {
             "status": "success",
@@ -523,9 +677,18 @@ def inspect_specific_cells():
                     "sample_cells": {}
                 }
                 
-                # Leer muestra de celdas de las primeras 10 filas, columnas A-F
-                for row in range(1, min(11, sheet.max_row + 1)):
-                    for col_letter in ['A', 'B', 'C', 'D', 'E', 'F']:
+                # Para hojas COM, mostrar más columnas
+                if 'COM' in sheet_name:
+                    # Leer muestra de celdas de las primeras 10 filas, columnas A-T
+                    cols = [chr(ord('A') + i) for i in range(20)]  # A-T
+                    max_rows = min(11, sheet.max_row + 1)
+                else:
+                    # Para otras hojas, columnas A-F
+                    cols = ['A', 'B', 'C', 'D', 'E', 'F']
+                    max_rows = min(11, sheet.max_row + 1)
+                
+                for row in range(1, max_rows):
+                    for col_letter in cols:
                         cell_addr = f"{col_letter}{row}"
                         try:
                             cell_value = sheet[cell_addr].value
