@@ -612,6 +612,143 @@ def list_available_sheets():
     except Exception as e:
         return jsonify({"error": str(e)})
 
+@app.route('/api/debug/sheet-preview/<sheet_name>')
+def preview_sheet_data(sheet_name):
+    """Previsualizar datos de una hoja específica"""
+    try:
+        global workbook
+        if not workbook:
+            return jsonify({"error": "No workbook loaded"})
+        
+        if sheet_name not in workbook.sheetnames:
+            return jsonify({
+                "error": f"Hoja '{sheet_name}' no encontrada",
+                "available_sheets": workbook.sheetnames
+            })
+        
+        sheet = workbook[sheet_name]
+        
+        # Leer primeras 10 filas para preview
+        preview_data = []
+        max_preview_rows = min(10, sheet.max_row)
+        
+        for row_num in range(1, max_preview_rows + 1):
+            row_data = {}
+            for col_num in range(1, min(21, sheet.max_column + 1)):  # A-T
+                col_letter = chr(64 + col_num)  # A=65, B=66, etc.
+                try:
+                    cell_value = sheet[f"{col_letter}{row_num}"].value
+                    row_data[col_letter] = str(cell_value) if cell_value is not None else "NULL"
+                except:
+                    row_data[col_letter] = "ERROR"
+            
+            preview_data.append({"row": row_num, "data": row_data})
+        
+        return jsonify({
+            "status": "success",
+            "sheet_name": sheet_name,
+            "max_row": sheet.max_row,
+            "max_column": sheet.max_column,
+            "preview_rows": max_preview_rows,
+            "data": preview_data
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Error en preview de {sheet_name}: {str(e)}")
+        return jsonify({"error": str(e)})
+
+@app.route('/api/debug/project-filter-test')
+def test_project_filters():
+    """Probar filtros de proyecto sin aplicar filtros estrictos"""
+    try:
+        global workbook
+        if not workbook:
+            return jsonify({"error": "No workbook loaded"})
+        
+        # Filtros que buscamos
+        valid_projects = ['FAI,EDMB,IDMB,QB', 'EDMB,IDMB,QB', 'EDMB']
+        
+        results = {
+            "sheets_checked": [],
+            "total_rows_found": 0,
+            "rows_with_project_data": 0,
+            "rows_matching_filters": 0,
+            "sample_project_values": [],
+            "debug_info": []
+        }
+        
+        for sheet_name in ['FLO-COM', 'TEX-COM']:
+            if sheet_name not in workbook.sheetnames:
+                results["debug_info"].append(f"❌ Hoja {sheet_name} no existe")
+                continue
+                
+            results["sheets_checked"].append(sheet_name)
+            sheet = workbook[sheet_name]
+            
+            # Determinar rango
+            max_row = 28 if sheet_name == 'FLO-COM' else 59
+            actual_max = min(max_row, sheet.max_row)
+            
+            sheet_info = {
+                "sheet": sheet_name,
+                "max_row_used": actual_max,
+                "rows_found": 0,
+                "project_samples": []
+            }
+            
+            # Revisar desde fila 2 (skip headers)
+            for row_num in range(2, actual_max + 1):
+                try:
+                    # Columna N = PROJECT
+                    project_cell = sheet[f"N{row_num}"].value
+                    store_cell = sheet[f"A{row_num}"].value  # Para verificar que hay datos
+                    
+                    results["total_rows_found"] += 1
+                    
+                    if project_cell is not None and str(project_cell).strip() != "":
+                        project_value = str(project_cell).strip()
+                        results["rows_with_project_data"] += 1
+                        sheet_info["rows_found"] += 1
+                        
+                        # Guardar muestra de valores de proyecto
+                        if len(sheet_info["project_samples"]) < 5:
+                            sheet_info["project_samples"].append({
+                                "row": row_num,
+                                "store": str(store_cell) if store_cell else "NULL",
+                                "project": project_value
+                            })
+                        
+                        # Verificar si coincide con filtros
+                        for valid_project in valid_projects:
+                            if valid_project.upper() in project_value.upper():
+                                results["rows_matching_filters"] += 1
+                                if len(results["sample_project_values"]) < 10:
+                                    results["sample_project_values"].append({
+                                        "sheet": sheet_name,
+                                        "row": row_num,
+                                        "store": str(store_cell) if store_cell else "NULL",
+                                        "project": project_value,
+                                        "matched_filter": valid_project
+                                    })
+                                break
+                                
+                except Exception as e:
+                    sheet_info["project_samples"].append({
+                        "row": row_num,
+                        "error": str(e)
+                    })
+            
+            results["debug_info"].append(sheet_info)
+        
+        results["filters_used"] = valid_projects
+        results["success"] = True
+        
+        return jsonify(results)
+        
+    except Exception as e:
+        logger.error(f"❌ Error en test de filtros: {str(e)}")
+        return jsonify({"error": str(e), "success": False})
+
 def run_scheduler():
     """Ejecuta el scheduler en un hilo separado"""
     while True:

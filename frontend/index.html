@@ -516,6 +516,29 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
 
+        #diagnosticsContainer {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 6px solid #F59E0B;
+            margin-top: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        #diagnosticsContent {
+            background: #F3F4F6;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+            border: 2px solid #E5E7EB;
+            color: #374151;
+            line-height: 1.4;
+        }
+
         /* NUEVOS ESTILOS PARA GRÁFICAS SEPARADAS */
         .project-types-container {
             display: grid;
@@ -645,6 +668,15 @@
         
         <div class="project-details-section">
             <button onclick="showProjectDetailsTable()" class="btn info">View Detailed Project Information</button>
+            <button onclick="runDiagnostics()" class="btn" style="background: #8B5CF6;">🔍 Run Diagnostics</button>
+        </div>
+
+        <div id="diagnosticsContainer" style="display: none; margin-top: 25px;">
+            <div class="section-title">📊 SharePoint Diagnostics</div>
+            <button onclick="hideDiagnostics()" class="close-table">✖ Close</button>
+            <div id="diagnosticsContent" style="background: #F3F4F6; padding: 20px; border-radius: 10px; font-family: monospace; white-space: pre-wrap; max-height: 400px; overflow-y: auto;">
+                <!-- Diagnostics content will be inserted here -->
+            </div>
         </div>
 
         <div id="projectDetailsContainer" style="display: none; margin-top: 25px;">
@@ -738,7 +770,11 @@
         function showStatus(message, type) {
             const statusDiv = document.getElementById('statusMessage');
             const spinner = type === 'loading' ? '<span class="loading-spinner"></span> ' : '';
-            statusDiv.innerHTML = `<div class="status ${type}">${spinner}${message}</div>`;
+            
+            // Handle multiline messages
+            const formattedMessage = message.replace(/\n/g, '<br>');
+            
+            statusDiv.innerHTML = `<div class="status ${type}" style="text-align: left; white-space: pre-wrap;">${spinner}${formattedMessage}</div>`;
             
             if (type === 'success') {
                 setTimeout(() => statusDiv.innerHTML = '', 4000);
@@ -990,8 +1026,28 @@
                     throw new Error(result.error);
                 }
                 
+                // Mostrar información de debug si está disponible
+                if (result.debug_info) {
+                    console.log('📊 Debug Info:', result.debug_info);
+                    console.log(`📋 Sheets processed: ${result.debug_info.sheets_processed.join(', ')}`);
+                    console.log(`📊 Total rows checked: ${result.debug_info.total_rows_checked}`);
+                    console.log(`📋 Rows with project data: ${result.debug_info.rows_with_project_data}`);
+                    console.log(`✅ Rows matching filters: ${result.debug_info.rows_matching_filters}`);
+                }
+                
                 if (!result.data || result.data.length === 0) {
-                    showStatus('No project data found in SharePoint', 'warning');
+                    let debugMessage = 'No project data found in SharePoint';
+                    
+                    if (result.debug_info) {
+                        debugMessage += `\n\nDebug Info:`;
+                        debugMessage += `\n• Sheets processed: ${result.debug_info.sheets_processed.join(', ')}`;
+                        debugMessage += `\n• Total rows checked: ${result.debug_info.total_rows_checked}`;
+                        debugMessage += `\n• Rows with project data: ${result.debug_info.rows_with_project_data}`;
+                        debugMessage += `\n• Rows matching filters: ${result.debug_info.rows_matching_filters}`;
+                        debugMessage += `\n\n💡 Try clicking "🔍 Run Diagnostics" for detailed analysis`;
+                    }
+                    
+                    showStatus(debugMessage, 'warning');
                     return;
                 }
                 
@@ -1044,10 +1100,11 @@
                 document.getElementById('projectDetailsContainer').style.display = 'block';
                 
                 const filterNote = result.filters_applied ? result.filters_applied.note : '';
-                showStatus(`Project details loaded (${result.total_rows} records). ${filterNote}`, 'success');
+                const debugNote = result.debug_info ? ` (${result.debug_info.total_rows_checked} rows checked)` : '';
+                showStatus(`Project details loaded (${result.total_rows} records)${debugNote}. ${filterNote}`, 'success');
                 
             } catch (error) {
-                showStatus(`Error loading project details: ${error.message}`, 'error');
+                showStatus(`Error loading project details: ${error.message}\n\n💡 Try clicking "🔍 Run Diagnostics" for detailed analysis`, 'error');
                 console.error('Error:', error);
             }
         }
@@ -1145,6 +1202,138 @@
         // Function to hide detailed table
         function hideDetailedTable() {
             document.getElementById('detailedTableContainer').style.display = 'none';
+        }
+        
+        // NUEVAS FUNCIONES DE DIAGNÓSTICO
+        async function runDiagnostics() {
+            try {
+                showStatus('Running SharePoint diagnostics...', 'loading');
+                document.getElementById('diagnosticsContainer').style.display = 'block';
+                
+                const content = document.getElementById('diagnosticsContent');
+                content.innerHTML = '🔍 Iniciando diagnósticos...\n\n';
+                
+                // 1. Verificar hojas disponibles
+                content.innerHTML += '📋 PASO 1: Verificando hojas disponibles...\n';
+                const sheetsResponse = await fetch(`${API_BASE_URL}/api/sheets-available`);
+                const sheetsData = await sheetsResponse.json();
+                
+                if (sheetsData.error) {
+                    content.innerHTML += `❌ Error: ${sheetsData.error}\n\n`;
+                    return;
+                }
+                
+                content.innerHTML += `✅ Hojas encontradas: ${sheetsData.sheets.join(', ')}\n`;
+                content.innerHTML += `📄 FLO-COM existe: ${sheetsData.com_sheets_available['FLO-COM'] ? 'SÍ' : 'NO'}\n`;
+                content.innerHTML += `📄 TEX-COM existe: ${sheetsData.com_sheets_available['TEX-COM'] ? 'SÍ' : 'NO'}\n\n`;
+                
+                if (!sheetsData.com_sheets_available['FLO-COM'] && !sheetsData.com_sheets_available['TEX-COM']) {
+                    content.innerHTML += '❌ PROBLEMA: No se encontraron las hojas FLO-COM ni TEX-COM\n';
+                    content.innerHTML += '💡 SOLUCIÓN: Verificar que el archivo Excel tenga estas hojas exactamente\n\n';
+                    showStatus('Diagnostics completed - Missing COM sheets', 'error');
+                    return;
+                }
+                
+                // 2. Previsualizar datos de hojas COM
+                for (const sheetName of ['FLO-COM', 'TEX-COM']) {
+                    if (sheetsData.com_sheets_available[sheetName]) {
+                        content.innerHTML += `\n📊 PASO 2: Previsualizando ${sheetName}...\n`;
+                        
+                        const previewResponse = await fetch(`${API_BASE_URL}/api/debug/sheet-preview/${sheetName}`);
+                        const previewData = await previewResponse.json();
+                        
+                        if (previewData.error) {
+                            content.innerHTML += `❌ Error: ${previewData.error}\n`;
+                            continue;
+                        }
+                        
+                        content.innerHTML += `📏 Dimensiones: ${previewData.max_row} filas x ${previewData.max_column} columnas\n`;
+                        
+                        // Mostrar headers (fila 1)
+                        if (previewData.data && previewData.data.length > 0) {
+                            const headers = previewData.data[0].data;
+                            content.innerHTML += `📋 Headers: `;
+                            for (let col of ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R']) {
+                                if (headers[col] && headers[col] !== 'NULL') {
+                                    content.innerHTML += `${col}:${headers[col]} `;
+                                }
+                            }
+                            content.innerHTML += '\n';
+                        }
+                        
+                        // Mostrar muestra de datos (fila 2)
+                        if (previewData.data && previewData.data.length > 1) {
+                            const sampleRow = previewData.data[1].data;
+                            content.innerHTML += `📄 Muestra fila 2: `;
+                            for (let col of ['A', 'B', 'N']) {  // Store, Address, Project
+                                content.innerHTML += `${col}:${sampleRow[col] || 'NULL'} `;
+                            }
+                            content.innerHTML += '\n';
+                        }
+                    }
+                }
+                
+                // 3. Probar filtros de proyecto
+                content.innerHTML += `\n🔍 PASO 3: Probando filtros de proyecto...\n`;
+                const filterResponse = await fetch(`${API_BASE_URL}/api/debug/project-filter-test`);
+                const filterData = await filterResponse.json();
+                
+                if (filterData.error) {
+                    content.innerHTML += `❌ Error: ${filterData.error}\n`;
+                } else {
+                    content.innerHTML += `📊 Filas totales revisadas: ${filterData.total_rows_found}\n`;
+                    content.innerHTML += `📋 Filas con datos de proyecto: ${filterData.rows_with_project_data}\n`;
+                    content.innerHTML += `✅ Filas que coinciden con filtros: ${filterData.rows_matching_filters}\n`;
+                    content.innerHTML += `🎯 Filtros usados: ${filterData.filters_used.join(', ')}\n\n`;
+                    
+                    if (filterData.sample_project_values && filterData.sample_project_values.length > 0) {
+                        content.innerHTML += `📝 MUESTRAS ENCONTRADAS:\n`;
+                        filterData.sample_project_values.forEach(sample => {
+                            content.innerHTML += `  • ${sample.sheet} fila ${sample.row}: Store=${sample.store}, Project="${sample.project}"\n`;
+                        });
+                    } else {
+                        content.innerHTML += `❌ NO SE ENCONTRARON DATOS QUE COINCIDAN CON LOS FILTROS\n`;
+                        content.innerHTML += `💡 Esto explica por qué no aparecen datos en la tabla\n\n`;
+                        
+                        // Mostrar muestras de lo que SÍ hay
+                        if (filterData.debug_info) {
+                            content.innerHTML += `🔍 DATOS ENCONTRADOS (sin filtros):\n`;
+                            filterData.debug_info.forEach(sheetInfo => {
+                                if (sheetInfo.project_samples) {
+                                    content.innerHTML += `\n📄 ${sheetInfo.sheet}:\n`;
+                                    sheetInfo.project_samples.forEach(sample => {
+                                        if (!sample.error) {
+                                            content.innerHTML += `  • Fila ${sample.row}: Store=${sample.store}, Project="${sample.project}"\n`;
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    }
+                }
+                
+                content.innerHTML += `\n🎯 DIAGNÓSTICO COMPLETADO\n`;
+                
+                if (filterData.rows_matching_filters > 0) {
+                    content.innerHTML += `✅ Se encontraron ${filterData.rows_matching_filters} registros válidos\n`;
+                    showStatus('Diagnostics completed - Data found', 'success');
+                } else {
+                    content.innerHTML += `❌ No se encontraron registros que coincidan con los filtros\n`;
+                    content.innerHTML += `💡 RECOMENDACIONES:\n`;
+                    content.innerHTML += `   • Verificar que la columna N tenga datos de PROJECT\n`;
+                    content.innerHTML += `   • Verificar que los valores contengan: FAI,EDMB,IDMB,QB o EDMB,IDMB,QB o EDMB\n`;
+                    showStatus('Diagnostics completed - No matching data', 'warning');
+                }
+                
+            } catch (error) {
+                const content = document.getElementById('diagnosticsContent');
+                content.innerHTML += `\n❌ ERROR EN DIAGNÓSTICOS: ${error.message}\n`;
+                showStatus(`Diagnostics failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function hideDiagnostics() {
+            document.getElementById('diagnosticsContainer').style.display = 'none';
         }
         
         // Updated function to create charts with specified type
