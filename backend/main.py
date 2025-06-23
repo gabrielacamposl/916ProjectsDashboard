@@ -224,8 +224,13 @@ def process_sheet_data(workbook, sheet_name):
             kiosk = read_excel_cell(sheet, 'B22')
             
             logger.info("📋 Leyendo datos de Proyectos...")
-            quote = read_excel_cell(sheet, 'B27')
-            pending = read_excel_cell(sheet, 'B28')
+            # NOTA: El usuario especificó Quote en B7, pero B7 ya se usa para total de Aloha19
+            # Mantenemos B27 para Quote y agregamos log para verificar
+            quote = read_excel_cell(sheet, 'B27')  # Verificar si debe ser B7 según usuario
+            pending = read_excel_cell(sheet, 'B28')  # Texas Pending
+            
+            logger.info(f"⚠️ VERIFICAR: Usuario dice Quote=5 en B7, pero B7={total} (Aloha19 total)")
+            logger.info(f"📊 Actualmente leyendo Quote desde B27={quote}")
             
             logger.info("🏗️ Leyendo tipos de proyectos...")
             project_edmb = read_excel_cell(sheet, 'B33')
@@ -296,6 +301,17 @@ def combine_regional_data(florida_data, texas_data):
         logger.info(f"🏖️ Florida - Total: {fl_total}, Finished: {fl_finished}")
         logger.info(f"🤠 Texas - Total: {tx_total}, Finished: {tx_finished}")
         
+        # CORREGIDO: Combinar proyectos de ambas regiones
+        fl_signed = safe_get(florida_data, 'projects.signed')
+        fl_quote = safe_get(florida_data, 'projects.quote')
+        fl_paid = safe_get(florida_data, 'projects.paid')
+        
+        tx_quote = safe_get(texas_data, 'projects.quote')
+        tx_pending = safe_get(texas_data, 'projects.pending')
+        
+        logger.info(f"🏖️ Florida Projects - Signed: {fl_signed}, Quote: {fl_quote}, Paid: {fl_paid}")
+        logger.info(f"🤠 Texas Projects - Quote: {tx_quote}, Pending: {tx_pending}")
+        
         global_data = {
             "aloha19": {
                 "stage1": safe_get(florida_data, 'aloha19.stage1') + safe_get(texas_data, 'aloha19.stage1'),
@@ -314,6 +330,13 @@ def combine_regional_data(florida_data, texas_data):
                 "idmb": safe_get(florida_data, 'technologies.idmb') + safe_get(texas_data, 'technologies.idmb'),
                 "qb": safe_get(florida_data, 'technologies.qb') + safe_get(texas_data, 'technologies.qb'),
                 "kiosk": safe_get(florida_data, 'technologies.kiosk') + safe_get(texas_data, 'technologies.kiosk')
+            },
+            # CORREGIDO: Combinar proyectos globales
+            "projects": {
+                "signed": fl_signed,  # Solo Florida tiene signed
+                "quote": fl_quote + tx_quote,  # Florida + Texas quotes
+                "paid": fl_paid,  # Solo Florida tiene paid
+                "pending": tx_pending  # Solo Texas tiene pending
             },
             # AGREGADO: Datos separados para gráficas individuales
             "project_types_florida": {
@@ -336,7 +359,7 @@ def combine_regional_data(florida_data, texas_data):
 
 # NUEVAS FUNCIONES PARA TABLAS DETALLADAS
 
-def get_table_data(sheet_name, columns=None, filter_rows=True):
+def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
     """Obtiene datos de una hoja para tabla con filtros opcionales"""
     try:
         global workbook
@@ -346,15 +369,30 @@ def get_table_data(sheet_name, columns=None, filter_rows=True):
         sheet = workbook[sheet_name]
         logger.info(f"📋 Leyendo tabla de hoja: {sheet_name}")
         
-        # Si no se especifican columnas, leer todas hasta la columna T (20)
+        # Definir rangos específicos por hoja
+        if sheet_name == 'TEX-COM':
+            actual_max_row = min(59, sheet.max_row) if max_row is None else max_row
+        elif sheet_name == 'FLO-COM':
+            actual_max_row = min(28, sheet.max_row) if max_row is None else max_row
+        else:
+            actual_max_row = sheet.max_row if max_row is None else max_row
+        
+        # Si no se especifican columnas, leer de A hasta T (20)
         if not columns:
             columns = [chr(65 + i) for i in range(20)]  # A-T
         
         table_data = []
-        max_row = sheet.max_row
         
-        # Leer datos fila por fila
-        for row_num in range(1, max_row + 1):
+        # Mapeo de columnas a nombres legibles (basado en la fila 1)
+        column_names = {
+            'A': 'STORE', 'B': 'ADDRESS', 'C': 'DM', 'D': 'A19', 'E': 'WIRING',
+            'F': 'FRESH AI', 'G': 'EDMB', 'H': 'IDMB', 'I': 'QB', 'J': 'KIOSK',
+            'K': 'A19 UP', 'L': 'START REMOD', 'M': 'END REMOD', 'N': 'PROJECT',
+            'O': 'AUV', 'P': 'COST', 'Q': 'STATUS', 'R': 'INSTALLATION', 'S': 'Col_S', 'T': 'Col_T'
+        }
+        
+        # Leer datos fila por fila (empezar desde fila 2 para evitar headers)
+        for row_num in range(2, actual_max_row + 1):
             row_data = {}
             valid_row = False
             
@@ -373,6 +411,7 @@ def get_table_data(sheet_name, columns=None, filter_rows=True):
                             cell_value = "---"
                     
                     row_data[col] = cell_value
+                    row_data[f"{col}_name"] = column_names.get(col, f"Col_{col}")
                     
                     # Marcar como fila válida si tiene contenido real
                     if cell_value not in ["---", "", " "]:
@@ -380,13 +419,14 @@ def get_table_data(sheet_name, columns=None, filter_rows=True):
                         
                 except Exception as e:
                     row_data[col] = "---"
+                    row_data[f"{col}_name"] = column_names.get(col, f"Col_{col}")
             
             # Agregar fila solo si es válida o si no estamos filtrando
             if valid_row or not filter_rows:
                 table_data.append({"row": row_num, "data": row_data})
         
-        logger.info(f"✅ Tabla {sheet_name} leída: {len(table_data)} filas")
-        return {"data": table_data, "columns": columns}
+        logger.info(f"✅ Tabla {sheet_name} leída: {len(table_data)} filas (rango hasta fila {actual_max_row})")
+        return {"data": table_data, "columns": columns, "column_names": column_names}
         
     except Exception as e:
         logger.error(f"❌ Error leyendo tabla {sheet_name}: {str(e)}")
@@ -404,7 +444,7 @@ def home():
 @app.route('/api/data')
 def get_dashboard_data():
     """Endpoint principal que devuelve todos los datos"""
-    logger.info(f"API request - Status: {dashboard_data['status']}")
+    logger.info(f"📡 API request - Status: {dashboard_data['status']}")
     return jsonify(dashboard_data)
 
 @app.route('/api/florida')
@@ -428,7 +468,7 @@ def get_texas_data():
 @app.route('/api/refresh')
 def manual_refresh():
     """Endpoint para forzar actualización manual"""
-    logger.info("Refresh manual solicitado")
+    logger.info("🔄 Refresh manual solicitado")
     threading.Thread(target=download_and_process_excel).start()
     return jsonify({"message": "Actualización iniciada"})
 
@@ -466,41 +506,69 @@ def get_detailed_regional_table(region):
 
 @app.route('/api/table/projects')
 def get_project_details_table():
-    """Obtiene tabla de detalles de proyectos con columnas específicas"""
+    """Obtiene tabla de detalles de proyectos con columnas específicas y filtros"""
     try:
-        # Columnas requeridas: A, B, D, F, P, Q, R, S, T
-        required_columns = ['A', 'B', 'D', 'F', 'P', 'Q', 'R', 'S', 'T']
+        # Columnas específicas requeridas: STORE, ADDRESS, PROJECT, AUV, COST, STATUS, INSTALLATION
+        # Mapeo: A=STORE, B=ADDRESS, N=PROJECT, O=AUV, P=COST, Q=STATUS, R=INSTALLATION
+        required_columns = ['A', 'B', 'N', 'O', 'P', 'Q', 'R']
         
-        # Intentar primero con FLO-COM, luego TEX-COM
+        # Filtros válidos para la columna PROJECT
+        valid_projects = ['FAI,EDMB,IDMB,QB', 'EDMB,IDMB,QB', 'EDMB']
+        
+        # Intentar con ambas hojas
         project_data = []
         
         for sheet_name in ['FLO-COM', 'TEX-COM']:
             result = get_table_data(sheet_name, required_columns, filter_rows=False)
             
             if "error" not in result:
-                # Filtrar filas que NO contengan solo "-----"
+                # Filtrar filas según PROJECT
                 for row_info in result["data"]:
                     row_data = row_info["data"]
                     
-                    # Verificar si la fila tiene datos válidos (no solo "-----" o "---")
-                    has_valid_data = False
-                    for col in required_columns:
-                        value = row_data.get(col, "---")
-                        if value not in ["-----", "---", "", " "]:
-                            has_valid_data = True
+                    # Verificar si PROJECT tiene alguno de los valores válidos
+                    project_value = row_data.get('N', '---').strip()
+                    
+                    # Verificar si el proyecto coincide con alguno de los filtros válidos
+                    project_matches = False
+                    for valid_project in valid_projects:
+                        if valid_project.upper() in project_value.upper():
+                            project_matches = True
                             break
                     
-                    if has_valid_data:
-                        # Agregar información de la hoja de origen
-                        row_data['_source_sheet'] = sheet_name
-                        project_data.append(row_info)
+                    # Solo incluir si tiene un proyecto válido y datos completos
+                    if project_matches:
+                        # Verificar que tenga al menos STORE o ADDRESS válidos
+                        store = row_data.get('A', '---')
+                        address = row_data.get('B', '---')
+                        
+                        if store not in ['---', '', ' '] or address not in ['---', '', ' ']:
+                            # Agregar información de la hoja de origen
+                            row_data['_source_sheet'] = sheet_name
+                            row_data['_region'] = 'Florida' if sheet_name == 'FLO-COM' else 'Texas'
+                            project_data.append(row_info)
+        
+        # Mapeo de nombres de columnas para display
+        column_display_names = {
+            'A': 'STORE',
+            'B': 'ADDRESS', 
+            'N': 'PROJECT',
+            'O': 'AUV',
+            'P': 'COST',
+            'Q': 'STATUS',
+            'R': 'INSTALLATION'
+        }
         
         return jsonify({
             "status": "success",
             "data": project_data,
             "columns": required_columns,
+            "column_names": column_display_names,
             "total_rows": len(project_data),
-            "note": "Filas filtradas: solo se muestran las que no contienen únicamente '-----'"
+            "filters_applied": {
+                "project_types": valid_projects,
+                "note": "Solo se muestran filas con PROJECT que contenga: FAI,EDMB,IDMB,QB | EDMB,IDMB,QB | EDMB"
+            }
         })
         
     except Exception as e:

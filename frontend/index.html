@@ -995,37 +995,47 @@
                     return;
                 }
                 
-                // Generate table HTML with real data
+                // Generate table HTML with real data and proper column names
                 const table = document.getElementById('projectDetailsTable');
                 let tableHTML = `
                     <tr>
-                        <th>Column A</th>
-                        <th>Column B</th>
-                        <th>Column D</th>
-                        <th>Column F</th>
-                        <th>Column P</th>
-                        <th>Column Q</th>
-                        <th>Column R</th>
-                        <th>Column S</th>
-                        <th>Column T</th>
-                        <th>Source</th>
+                        <th>Store</th>
+                        <th>Address</th>
+                        <th>Project</th>
+                        <th>AUV</th>
+                        <th>Cost</th>
+                        <th>Status</th>
+                        <th>Installation</th>
+                        <th>Region</th>
                     </tr>
                 `;
                 
                 result.data.forEach(rowInfo => {
                     const row = rowInfo.data;
+                    
+                    // Format cost as currency
+                    let formattedCost = row.P || '---';
+                    if (formattedCost !== '---' && !isNaN(formattedCost) && formattedCost !== '' && formattedCost !== '0') {
+                        try {
+                            formattedCost = new Intl.NumberFormat('en-US', {
+                                style: 'currency',
+                                currency: 'USD'
+                            }).format(parseFloat(formattedCost));
+                        } catch (e) {
+                            // Keep original value if formatting fails
+                        }
+                    }
+                    
                     tableHTML += `
                         <tr>
                             <td>${row.A || '---'}</td>
                             <td>${row.B || '---'}</td>
-                            <td>${row.D || '---'}</td>
-                            <td>${row.F || '---'}</td>
-                            <td>${row.P || '---'}</td>
+                            <td>${row.N || '---'}</td>
+                            <td>${row.O || '---'}</td>
+                            <td>${formattedCost}</td>
                             <td>${row.Q || '---'}</td>
                             <td>${row.R || '---'}</td>
-                            <td>${row.S || '---'}</td>
-                            <td>${row.T || '---'}</td>
-                            <td>${row._source_sheet || 'N/A'}</td>
+                            <td>${row._region || 'N/A'}</td>
                         </tr>
                     `;
                 });
@@ -1033,7 +1043,8 @@
                 table.innerHTML = tableHTML;
                 document.getElementById('projectDetailsContainer').style.display = 'block';
                 
-                showStatus(`Project details loaded (${result.total_rows} records from SharePoint)`, 'success');
+                const filterNote = result.filters_applied ? result.filters_applied.note : '';
+                showStatus(`Project details loaded (${result.total_rows} records). ${filterNote}`, 'success');
                 
             } catch (error) {
                 showStatus(`Error loading project details: ${error.message}`, 'error');
@@ -1073,13 +1084,21 @@
                     return;
                 }
                 
-                // Generate table HTML with real SharePoint data
+                // Generate table HTML with real SharePoint data and proper column names
                 const table = document.getElementById('detailedTable');
                 let tableHTML = `<tr>`;
                 
-                // Create headers from available columns
+                // Create headers with proper names
+                const columnNames = {
+                    'A': 'STORE', 'B': 'ADDRESS', 'C': 'DM', 'D': 'A19', 'E': 'WIRING',
+                    'F': 'FRESH AI', 'G': 'EDMB', 'H': 'IDMB', 'I': 'QB', 'J': 'KIOSK',
+                    'K': 'A19 UP', 'L': 'START REMOD', 'M': 'END REMOD', 'N': 'PROJECT',
+                    'O': 'AUV', 'P': 'COST', 'Q': 'STATUS', 'R': 'INSTALLATION'
+                };
+                
                 result.columns.forEach(col => {
-                    tableHTML += `<th>Column ${col}</th>`;
+                    const displayName = columnNames[col] || `Column ${col}`;
+                    tableHTML += `<th>${displayName}</th>`;
                 });
                 tableHTML += `</tr>`;
                 
@@ -1093,6 +1112,19 @@
                         if (cellValue === 0 || cellValue === '0' || cellValue === '0.0') {
                             cellValue = '---';
                         }
+                        
+                        // Format cost column if it's column P
+                        if (col === 'P' && cellValue !== '---' && !isNaN(cellValue) && cellValue !== '' && cellValue !== '0') {
+                            try {
+                                cellValue = new Intl.NumberFormat('en-US', {
+                                    style: 'currency',
+                                    currency: 'USD'
+                                }).format(parseFloat(cellValue));
+                            } catch (e) {
+                                // Keep original value if formatting fails
+                            }
+                        }
+                        
                         tableHTML += `<td>${cellValue}</td>`;
                     });
                     
