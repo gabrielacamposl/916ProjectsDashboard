@@ -591,9 +591,10 @@
             </div>
             
             <div class="chart-wrapper">
-                <div class="chart-title">Project Type Distribution</div>
-                <canvas id="projectTypesChart"></canvas>
-            </div>
+    <div class="chart-title">Project Type Distribution</div>
+    <canvas id="projectTypesChart"></canvas>
+    <canvas id="projectTypesChartTexas"></canvas>
+</div>
         </div>
 
         <div class="project-details-section">
@@ -1113,8 +1114,8 @@
             const data = getCurrentData();
             if (!data) return [];
             
+            const a19Statuses = ['FINISHED', 'Stage1','TBD',  'CLOSE'];
             const detailedData = [];
-            const a19Statuses = ['Stage1', 'TBD', 'FINISHED', 'CLOSE'];
             const wiringStatuses = ['Pending', 'Finished'];
             const yesNo = ['YES', 'NO'];
             const projects = ['EDMB,IDMB,QB', 'FAI,EDMB,IDMB,QB', 'N/A'];
@@ -1240,9 +1241,10 @@
             // Main Aloha 19 chart
             if (data.aloha19) {
                 const alohaChartData = {
+                    'Finished': data.aloha19.finished || 0,
                     'Stage 1': data.aloha19.stage1 || 0,
                     'Stage 2': data.aloha19.stage2 || 0,
-                    'Finished': data.aloha19.finished || 0
+                    
                 };
                 
                 // Add Close for Texas
@@ -1254,7 +1256,7 @@
                     document.getElementById('aloha19Chart').getContext('2d'), 
                     alohaChartData,
                     'Aloha 19 Status',
-                    ['#FFC72C', '#FF8C00',  '#10B981','#E31837'], 
+                    ['#10B981','#FFC72C', '#FF8C00',  '#E31837'], 
                     true,
                     'doughnut'
                 );
@@ -1265,11 +1267,12 @@
                 createChart(
                     document.getElementById('wiringChart').getContext('2d'), 
                     {
+                        'Finished': data.wiring.finished || 0,
                         'Pending': data.wiring.pending || 0,
-                        'Finished': data.wiring.finished || 0
+                        
                     },
                     'Wiring Status',
-                    ['#FFC72C', '#10B981'], 
+                    ['#10B981','#FFC72C'], 
                     true,
                     'doughnut'
                 );
@@ -1296,51 +1299,112 @@
             // Projects chart
             if (data.projects) {
                 const projectsData = {};
+                 if (data.projects.paid > 0) projectsData['Paid'] = data.projects.paid;
                 if (data.projects.signed > 0) projectsData['Signed'] = data.projects.signed;
                 if (data.projects.quote > 0) projectsData['Quote'] = data.projects.quote;
-                if (data.projects.pending > 0) projectsData['Pending'] = data.projects.pending;
-                if (data.projects.paid > 0) projectsData['Paid'] = data.projects.paid;
-                
+               
                 if (Object.keys(projectsData).length > 0) {
                     createChart(
                         document.getElementById('projectsChart').getContext('2d'), 
                         projectsData,
                         'Projects Status',
-                        ['#0085CA', '#FF8C00', '#FFC72C', '#10B981'],
+                        ['#10B981', '#FFC72C', '#FF8C00', ],
                         true,
                         'doughnut'
-                    );
+                    ); 
                 }
             }
+            // PAID verde, SIGNED amarillo, QUOTE naranja
             
             // Project Types chart
-            if (data.project_types) {
-                const projectTypesData = {};
-                if (currentRegion === 'florida' || currentRegion === 'global') {
-                    if (data.project_types.edmb_idmb_qb > 0) {
-                        projectTypesData['EDMB,IDMB,QB (FL)'] = data.project_types.edmb_idmb_qb;
-                    }
-                    if (data.project_types.fai_edmb_idmb_qb > 0) {
-                        projectTypesData['FAI,EDMB,IDMB,QB (FL)'] = data.project_types.fai_edmb_idmb_qb;
-                    }
-                }
-                if (currentRegion === 'texas' || currentRegion === 'global') {
-                    if (data.project_types.edmb > 0) {
-                        projectTypesData['EDMB (TX)'] = data.project_types.edmb;
-                    }
-                }
-                
-                if (Object.keys(projectTypesData).length > 0) {
-                    createChart(
-                        document.getElementById('projectTypesChart').getContext('2d'), 
-                        projectTypesData,
-                        'Project Types',
-                        ['#8B5CF6', '#0085CA', '#10B981'],
-                        true,
-                        'bar'
-                    );
-                }
+            
+               // Project Types chart
+if (data.project_types) {
+    const mainCanvas = document.getElementById('projectTypesChart');
+    const texasCanvas = document.getElementById('projectTypesChartTexas');
+    
+    // Si la región es 'global', mostrar ambos gráficos
+    if (currentRegion === 'global') {
+        // Mostrar ambos canvas
+        mainCanvas.style.display = 'block';
+        texasCanvas.style.display = 'block';
+        
+        // Datos para Florida
+        const floridaData = {};
+        if (data.project_types.fai_edmb_idmb_qb > 0) {
+            floridaData['FAI,EDMB,IDMB,QB'] = data.project_types.fai_edmb_idmb_qb;
+        }
+        if (data.project_types.edmb_idmb_qb > 0) {
+            floridaData['EDMB,IDMB,QB'] = data.project_types.edmb_idmb_qb;
+        }
+        
+        // Datos para Texas
+        const texasData = {};
+        if (data.project_types.edmb > 0) {
+            texasData['EDMB'] = data.project_types.edmb;
+        }
+        
+        // Crear gráfico de Florida
+        if (Object.keys(floridaData).length > 0) {
+            createChart(
+                mainCanvas.getContext('2d'), 
+                floridaData,
+                'Florida Projects',
+                ['#8B5CF6', '#0085CA'],
+                true,
+                'bar'
+            );
+        }
+        
+        // Crear gráfico de Texas
+        if (Object.keys(texasData).length > 0) {
+            createChart(
+                texasCanvas.getContext('2d'), 
+                texasData,
+                'Texas Projects',
+                ['#10B981'],
+                true,
+                'bar'
+            );
+        }
+    } else {
+        // En vistas específicas, ocultar el canvas de Texas y usar solo el principal
+        mainCanvas.style.display = 'block';
+        texasCanvas.style.display = 'none';
+        
+        const projectTypesData = {};
+        
+        // Agregar datos según la región actual
+        if (data.project_types.fai_edmb_idmb_qb > 0) {
+            projectTypesData['FAI,EDMB,IDMB,QB (FL)'] = data.project_types.fai_edmb_idmb_qb;
+        }
+        
+        if (currentRegion === 'florida') {
+            if (data.project_types.edmb_idmb_qb > 0) {
+                projectTypesData['EDMB,IDMB,QB (FL)'] = data.project_types.edmb_idmb_qb;
             }
+        }
+        
+        if (currentRegion === 'texas') {
+            if (data.project_types.edmb > 0) {
+                projectTypesData['EDMB (TX)'] = data.project_types.edmb;
+            }
+        }
+        
+        // Crear el gráfico único para la región específica
+        if (Object.keys(projectTypesData).length > 0) {
+            createChart(
+                mainCanvas.getContext('2d'), 
+                projectTypesData,
+                'Project Types',
+                ['#8B5CF6', '#0085CA', '#10B981'],
+                true,
+                'bar'
+            );
+        }
+    }
+}
+             
         }
         
         // Auto-refresh every 5 minutes
