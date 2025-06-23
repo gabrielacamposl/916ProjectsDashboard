@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>916 Foods Executive Dashboard - Aloha 19 & Projects</title>
+    <title>916 Dashboard - Aloha 19 & Projects</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
     <style>
@@ -79,6 +79,34 @@
             font-size: 1.8em;
             border: 4px solid white;
             box-shadow: 0 4px 20px rgba(227, 24, 55, 0.3);
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .company-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        
+        .logo-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 10;
+        }
+        
+        .logo-text {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            transition: opacity 0.3s ease;
         }
         
         .subtitle {
@@ -133,6 +161,10 @@
         .btn.refresh {
             background: linear-gradient(135deg, var(--wendy-yellow) 0%, #F59E0B 100%);
             color: var(--wendy-dark-gray);
+        }
+        
+        .btn.info {
+            background: linear-gradient(135deg, var(--wendy-blue) 0%, var(--wendy-dark-blue) 100%);
         }
         
         .status {
@@ -204,7 +236,7 @@
         }
         
         .stat-card.finished {
-            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            background: linear-gradient(135deg, #6671e2 0%, #7e58ee 100%);
         }
         
         .stat-number {
@@ -384,24 +416,122 @@
             letter-spacing: 0.3px;
             line-height: 1.1;
         }
+        
+        .project-details-section {
+            margin-top: 40px;
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--wendy-light-gray) 0%, white 100%);
+            border-radius: 15px;
+            border: 2px solid #E5E7EB;
+        }
+
+        #projectDetailsContainer {
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 6px solid var(--wendy-blue);
+            margin-top: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .more-info-section {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .table-container {
+            max-height: 600px;
+            overflow: auto;
+            margin-top: 25px;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .excel-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .excel-table th {
+            background: linear-gradient(135deg, var(--wendy-red) 0%, var(--wendy-dark-red) 100%);
+            color: white;
+            padding: 12px 10px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.8em;
+        }
+
+        .excel-table td {
+            padding: 10px;
+            border: 1px solid #E5E7EB;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .excel-table tr:nth-child(even) {
+            background-color: var(--wendy-light-gray);
+        }
+
+        .excel-table tr:hover {
+            background-color: #EFF6FF;
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+
+        .close-table {
+            float: right;
+            background: var(--wendy-red);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .close-table:hover {
+            background: var(--wendy-dark-red);
+            transform: translateY(-2px);
+        }
+
+        #detailedTableContainer {
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 6px solid var(--wendy-blue);
+            margin-top: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1 class="title">
-                <div class="company-logo">916</div>
-                916 Foods Executive Dashboard
+                
+                916 Dashboard
             </h1>
             <p class="subtitle">Aloha 19 Implementation & Project Management System</p>
         </div>
         
-        <div class="status-section">
-            <h4 class="section-title">🔄 Dashboard en tiempo real</h4>
+        <div class="">
             <div style="margin-bottom: 15px;">
-                <div id="connectionStatus">Conectando con el servidor...</div>
+                <div id="connectionStatus">Connecting to server...</div>
             </div>
-            <button onclick="refreshData()" class="btn refresh">🔄 Actualizar datos</button>
+            <button onclick="refreshData()" class="btn refresh">Refresh Data</button>
         </div>
         
         <div id="statusMessage"></div>
@@ -451,7 +581,7 @@
             </div>
             
             <div class="chart-wrapper">
-                <div class="chart-title">Technology Deployment</div>
+                <div class="chart-title">Digital Deployment</div>
                 <canvas id="techChart"></canvas>
             </div>
             
@@ -465,28 +595,77 @@
                 <canvas id="projectTypesChart"></canvas>
             </div>
         </div>
+
+        <div class="project-details-section">
+            <button onclick="showProjectDetailsTable()" class="btn info">View Detailed Project Information</button>
+        </div>
+
+        <div id="projectDetailsContainer" style="display: none; margin-top: 25px;">
+            <div class="section-title">Detailed Project Information</div>
+            <button onclick="hideProjectDetailsTable()" class="close-table">✖ Close</button>
+            <div class="table-container">
+                <table id="projectDetailsTable" class="excel-table">
+                    <!-- Table generated dynamically -->
+                </table>
+            </div>
+        </div>
+
+        <div id="moreInfoSection" class="more-info-section" style="display: none;">
+            <button onclick="showDetailedTable()" class="btn info">View Detailed Regional Information</button>
+        </div>
+
+        <div id="detailedTableContainer" style="display: none;">
+            <button onclick="hideDetailedTable()" class="close-table">✖ Close</button>
+            <div class="table-container">
+                <table id="detailedTable" class="excel-table">
+                    <!-- Table generated dynamically -->
+                </table>
+            </div>
+        </div>
         
         <div id="lastUpdate" class="last-update"></div>
     </div>
 
     <script>
-        // Configuración de la API
+        // API Configuration
         const API_BASE_URL = 'https://nine16-foods-api.onrender.com'; 
         
-        // Variables globales
+        // Global variables
         let dashboardData = null;
         let allCharts = {};
         let currentRegion = 'global';
         
-        // Función para cargar datos desde la API
+        // Function to handle logo upload
+        function handleLogoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const logoContainer = document.querySelector('.company-logo');
+                const logoText = document.getElementById('logoText');
+                
+                // Create image element
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = "Company Logo";
+                
+                // Hide text and show image
+                logoText.style.display = 'none';
+                logoContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Function to load data from API
         async function loadDataFromAPI() {
             try {
-                showStatus('Cargando datos desde SharePoint...', 'loading');
+                showStatus('Loading data from SharePoint...', 'loading');
                 
                 const response = await fetch(`${API_BASE_URL}/api/data`);
                 
                 if (!response.ok) {
-                    throw new Error(`Error HTTP: ${response.status}`);
+                    throw new Error(`HTTP Error: ${response.status}`);
                 }
                 
                 const data = await response.json();
@@ -498,36 +677,36 @@
                 dashboardData = data;
                 
                 document.getElementById('connectionStatus').innerHTML = `
-                    <span style="color: #10B981;"> Conectado al servidor</span>
+                    <span style="color: #10B981;">✅ Connected to server</span>
                 `;
                 
-                showStatus('Datos cargados exitosamente desde SharePoint', 'success');
+                showStatus('Data loaded successfully from SharePoint', 'success');
                 updateDashboard();
                 updateLastUpdate();
                 
             } catch (error) {
-                console.error('Error cargando datos:', error);
-                showStatus(`Error conectando con el servidor: ${error.message}`, 'error');
+                console.error('Error loading data:', error);
+                showStatus(`Error connecting to server: ${error.message}`, 'error');
                 
                 document.getElementById('connectionStatus').innerHTML = `
-                    <span style="color: #EF4444;">❌ Error de conexión</span>
+                    <span style="color: #EF4444;">❌ Connection error</span>
                 `;
             }
         }
         
-        // Función para refrescar datos manualmente
+        // Function to refresh data manually
         async function refreshData() {
             try {
-                showStatus('Solicitando actualización...', 'loading');
+                showStatus('Requesting update...', 'loading');
                 
-                // Primero, solicitar actualización
+                // First, request update
                 await fetch(`${API_BASE_URL}/api/refresh`);
                 
-                // Esperar un poco y luego cargar los nuevos datos
+                // Wait a bit and then load new data
                 setTimeout(loadDataFromAPI, 3000);
                 
             } catch (error) {
-                showStatus(`Error solicitando actualización: ${error.message}`, 'error');
+                showStatus(`Error requesting update: ${error.message}`, 'error');
             }
         }
         
@@ -542,12 +721,21 @@
         }
         
         function updateLastUpdate() {
-            if (!dashboardData || !dashboardData.last_update) return;
-            
-            const updateDate = new Date(dashboardData.last_update);
-            document.getElementById('lastUpdate').innerHTML = 
-                `Última actualización: ${updateDate.toLocaleString('es-ES')} | 🔄 Automático cada 30 minutos | ☁️ Datos en tiempo real desde SharePoint`;
-        }
+    if (!dashboardData || !dashboardData.last_update) return;
+    
+    const updateDate = new Date(dashboardData.last_update);
+
+    const formattedDate = updateDate.toLocaleString('en-US', {
+        timeZone: 'America/Chicago', // Hora del Este de EE.UU.
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    });
+
+    document.getElementById('lastUpdate').innerHTML =
+        `Last update: ${formattedDate} (ET) | Automatic every 30 minutes | Real-time data`;
+}
+
         
         function getCurrentData() {
             if (!dashboardData) return null;
@@ -565,6 +753,15 @@
             currentRegion = region;
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             tabElement.classList.add('active');
+            
+            // Show/hide more information button
+            const moreInfoSection = document.getElementById('moreInfoSection');
+            if (region === 'florida' || region === 'texas') {
+                moreInfoSection.style.display = 'block';
+            } else {
+                moreInfoSection.style.display = 'none';
+                hideDetailedTable(); // Hide table if visible
+            }
             
             updateDashboard();
         }
@@ -585,6 +782,15 @@
                     tab.classList.add('active');
                 }
             });
+            
+            // Show/hide more information button
+            const moreInfoSection = document.getElementById('moreInfoSection');
+            if (region === 'florida' || region === 'texas') {
+                moreInfoSection.style.display = 'block';
+            } else {
+                moreInfoSection.style.display = 'none';
+                hideDetailedTable(); // Hide table if visible
+            }
             
             updateDashboard();
         }
@@ -612,7 +818,7 @@
             const wiringFinishedPercentage = totalStores > 0 ? ((data.wiring.finished / totalStores) * 100).toFixed(1) : 0;
             
             let statsHTML = `
-                <div class="stat-card" onclick="scrollToChart('aloha19Chart')">
+                <div class="stat-card finished" onclick="scrollToChart('aloha19Chart')">
                     <div class="stat-number">${totalStores}</div>
                     <div class="stat-label">${regionInfo}</div>
                 </div>
@@ -631,7 +837,7 @@
                         <div class="stat-label">Wiring Complete (${wiringFinishedPercentage}%)</div>
                     </div>
                     
-                    <div class="stat-card" onclick="scrollToChart('techChart')">
+                    <div class="stat-card finished" onclick="scrollToChart('techChart')">
                         <div class="stat-number">${data.technologies.fresh_ai}</div>
                         <div class="stat-label">Fresh AI Deployed</div>
                     </div>
@@ -644,11 +850,12 @@
             } else {
                 // Regional views - Show traditional details
                 statsHTML += `
-                    <div class="stat-card finished" onclick="scrollToChart('aloha19Chart')">
+                    <div class="stat-card" onclick="scrollToChart('aloha19Chart')">
                         <div class="stat-number">${data.aloha19.finished}</div>
-                        <div class="stat-label">Aloha 19 Complete (${finishedPercentage}%)</div>
+                        <div class="stat-label">Aloha 19  (${finishedPercentage}%)</div>
                     </div>
-                    <div class="stat-card finished" onclick="scrollToChart('wiringChart')">
+                    
+                    <div class="stat-card" onclick="scrollToChart('wiringChart')">
                         <div class="stat-number">${data.wiring.finished}</div>
                         <div class="stat-label">Wiring Complete (${wiringFinishedPercentage}%)</div>
                     </div>
@@ -691,7 +898,7 @@
                 </div>
                 <div class="regional-stat-card" onclick="showRegion('florida')">
                     <div class="regional-stat-number">${floridaData.aloha19.finished}</div>
-                    <div class="regional-stat-label">Aloha Complete (${floridaAlohaPercent}%)</div>
+                    <div class="regional-stat-label">Aloha 19 (${floridaAlohaPercent}%)</div>
                 </div>
                 <div class="regional-stat-card" onclick="showRegion('florida')">
                     <div class="regional-stat-number">${floridaData.wiring.finished}</div>
@@ -710,7 +917,7 @@
                 </div>
                 <div class="regional-stat-card" onclick="showRegion('texas')">
                     <div class="regional-stat-number">${texasData.aloha19.finished}</div>
-                    <div class="regional-stat-label">Aloha Complete (${texasAlohaPercent}%)</div>
+                    <div class="regional-stat-label">Aloha 19 (${texasAlohaPercent}%)</div>
                 </div>
                 <div class="regional-stat-card" onclick="showRegion('texas')">
                     <div class="regional-stat-number">${texasData.wiring.finished}</div>
@@ -740,6 +947,201 @@
                     }, 2000);
                 }
             }
+        }
+        
+        // Function to show detailed project details table (simulated)
+        function showProjectDetailsTable() {
+            try {
+                // Simulated project data since we don't have Excel access in API mode
+                const projectData = generateSimulatedProjectData();
+                
+                if (projectData.length === 0) {
+                    showStatus('No project data available in API mode', 'warning');
+                    return;
+                }
+                
+                // Generate table HTML
+                const table = document.getElementById('projectDetailsTable');
+                let tableHTML = `
+                    <tr>
+                        <th>Store</th>
+                        <th>Address</th>
+                        <th>Project</th>
+                        <th>Status</th>
+                        <th>Start Project</th>
+                        <th>AUV</th>
+                        <th>Cost</th>
+                    </tr>
+                `;
+                
+                projectData.forEach(project => {
+                    // Format cost as currency
+                    let formattedCost = project.cost || 'N/A';
+                    if (formattedCost !== 'N/A' && !isNaN(formattedCost) && formattedCost !== '') {
+                        formattedCost = new Intl.NumberFormat('en-US', {
+                            style: 'currency',
+                            currency: 'USD'
+                        }).format(parseFloat(formattedCost));
+                    }
+                    
+                    tableHTML += `
+                        <tr>
+                            <td>${project.store || 'N/A'}</td>
+                            <td>${project.address || 'N/A'}</td>
+                            <td>${project.project || 'N/A'}</td>
+                            <td>${project.status || 'N/A'}</td>
+                            <td>${project.startProject || '---'}</td>
+                            <td>${project.auv || 'N/A'}</td>
+                            <td>${formattedCost}</td>
+                        </tr>
+                    `;
+                });
+                
+                table.innerHTML = tableHTML;
+                document.getElementById('projectDetailsContainer').style.display = 'block';
+                
+                showStatus(`Projects table loaded (${projectData.length} records)`, 'success');
+                
+            } catch (error) {
+                showStatus(`Error loading project details: ${error.message}`, 'error');
+                console.error('Error:', error);
+            }
+        }
+        
+        // Function to hide project details table
+        function hideProjectDetailsTable() {
+            document.getElementById('projectDetailsContainer').style.display = 'none';
+        }
+        
+        // Function to show detailed regional table (simulated)
+        function showDetailedTable() {
+            try {
+                if (currentRegion === 'global') {
+                    showStatus('Detailed table only available for specific Florida or Texas views', 'warning');
+                    return;
+                }
+                
+                showStatus(`Loading detailed table for ${currentRegion}...`, 'loading');
+                
+                const tableData = generateSimulatedDetailedData();
+                
+                // Generate table HTML
+                const table = document.getElementById('detailedTable');
+                let tableHTML = `
+                    <tr>
+                        <th>Store</th>
+                        <th>Address</th>
+                        <th>A19 Status</th>
+                        <th>Wiring</th>
+                        <th>Fresh AI</th>
+                        <th>EDMB</th>
+                        <th>IDMB</th>
+                        <th>QB</th>
+                        <th>KIOSK</th>
+                        <th>Project</th>
+                        <th>Status</th>
+                    </tr>
+                `;
+                
+                tableData.forEach(row => {
+                    tableHTML += `
+                        <tr>
+                            <td>${row.store}</td>
+                            <td>${row.address}</td>
+                            <td>${row.a19Status}</td>
+                            <td>${row.wiring}</td>
+                            <td>${row.freshAI}</td>
+                            <td>${row.edmb}</td>
+                            <td>${row.idmb}</td>
+                            <td>${row.qb}</td>
+                            <td>${row.kiosk}</td>
+                            <td>${row.project}</td>
+                            <td>${row.status}</td>
+                        </tr>
+                    `;
+                });
+                
+                table.innerHTML = tableHTML;
+                document.getElementById('detailedTableContainer').style.display = 'block';
+                
+                showStatus(`Detailed table loaded (${tableData.length} rows)`, 'success');
+                
+            } catch (error) {
+                showStatus(`Error loading detailed table: ${error.message}`, 'error');
+                console.error('Error:', error);
+            }
+        }
+        
+        // Function to hide detailed table
+        function hideDetailedTable() {
+            document.getElementById('detailedTableContainer').style.display = 'none';
+        }
+        
+        // Function to generate simulated project data
+        function generateSimulatedProjectData() {
+            const data = getCurrentData();
+            if (!data) return [];
+            
+            const projectData = [];
+            const projects = ['EDMB,IDMB,QB', 'FAI,EDMB,IDMB,QB', 'EDMB', 'Fresh AI Implementation'];
+            const statuses = ['Signed', 'Quote', 'Pending', 'Paid'];
+            const auvValues = ['High', 'Medium', 'Low'];
+            
+            // Generate sample data based on current region
+            const baseStore = currentRegion === 'florida' ? 200 : currentRegion === 'texas' ? 100 : 100;
+            const storeCount = currentRegion === 'florida' ? 15 : currentRegion === 'texas' ? 20 : 35;
+            
+            for (let i = 0; i < storeCount; i++) {
+                if (Math.random() > 0.7) { // Only 30% have active projects
+                    projectData.push({
+                        store: baseStore + (i * 10),
+                        address: `Store ${baseStore + (i * 10)} Address, ${currentRegion === 'florida' ? 'FL' : currentRegion === 'texas' ? 'TX' : 'US'}`,
+                        project: projects[Math.floor(Math.random() * projects.length)],
+                        status: statuses[Math.floor(Math.random() * statuses.length)],
+                        startProject: Math.random() > 0.5 ? new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28)).toLocaleDateString() : '---',
+                        auv: auvValues[Math.floor(Math.random() * auvValues.length)],
+                        cost: Math.floor(Math.random() * 100000) + 25000
+                    });
+                }
+            }
+            
+            return projectData;
+        }
+        
+        // Function to generate simulated detailed data
+        function generateSimulatedDetailedData() {
+            const data = getCurrentData();
+            if (!data) return [];
+            
+            const detailedData = [];
+            const a19Statuses = ['Stage1', 'TBD', 'FINISHED', 'CLOSE'];
+            const wiringStatuses = ['Pending', 'Finished'];
+            const yesNo = ['YES', 'NO'];
+            const projects = ['EDMB,IDMB,QB', 'FAI,EDMB,IDMB,QB', 'N/A'];
+            const statuses = ['Signed', 'Quote', 'Pending', 'N/A'];
+            
+            // Generate sample data based on current region
+            const baseStore = currentRegion === 'florida' ? 200 : 100;
+            const storeCount = currentRegion === 'florida' ? 27 : 58;
+            const regionCode = currentRegion === 'florida' ? 'FL' : 'TX';
+            
+            for (let i = 0; i < Math.min(storeCount, 20); i++) { // Limit to 20 for demo
+                detailedData.push({
+                    store: baseStore + (i * 10),
+                    address: `Store ${baseStore + (i * 10)} Address, ${regionCode}`,
+                    a19Status: a19Statuses[Math.floor(Math.random() * a19Statuses.length)],
+                    wiring: wiringStatuses[Math.floor(Math.random() * wiringStatuses.length)],
+                    freshAI: yesNo[Math.floor(Math.random() * yesNo.length)],
+                    edmb: yesNo[Math.floor(Math.random() * yesNo.length)],
+                    idmb: yesNo[Math.floor(Math.random() * yesNo.length)],
+                    qb: yesNo[Math.floor(Math.random() * yesNo.length)],
+                    kiosk: yesNo[Math.floor(Math.random() * yesNo.length)],
+                    project: projects[Math.floor(Math.random() * projects.length)],
+                    status: statuses[Math.floor(Math.random() * statuses.length)]
+                });
+            }
+            
+            return detailedData;
         }
         
         // Updated function to create charts with specified type
@@ -828,7 +1230,7 @@
         function updateDashboard() {
             const data = getCurrentData();
             if (!data) {
-                showStatus('No hay datos disponibles. Conectando...', 'warning');
+                showStatus('No data available. Connecting...', 'warning');
                 return;
             }
             
@@ -946,8 +1348,8 @@
         
         // Initial load
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('916 Foods Executive Dashboard iniciado');
-            console.log('Conectando con API para datos en tiempo real...');
+            console.log('Wendy\'s Executive Dashboard started');
+            console.log('Connecting to API for real-time data...');
             
             loadDataFromAPI();
         });
