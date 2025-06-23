@@ -55,7 +55,7 @@ def download_and_process_excel():
         
         # Cargar el Excel en memoria
         logger.info("📊 Cargando archivo Excel...")
-        workbook = openpyxl.load_workbook(BytesIO(response.content))  # ← Ahora se guarda en global
+        workbook = openpyxl.load_workbook(BytesIO(response.content), data_only=True)  # ← CORREGIDO: data_only=True
         
         logger.info(f"📋 Hojas encontradas en Excel: {workbook.sheetnames}")
         
@@ -469,7 +469,7 @@ def list_all_sheets():
             })
         
         # Cargar Excel
-        workbook_temp = openpyxl.load_workbook(BytesIO(response.content))
+        workbook_temp = openpyxl.load_workbook(BytesIO(response.content), data_only=True)  # ← CORREGIDO: data_only=True
         
         logger.info(f"📋 Hojas encontradas: {workbook_temp.sheetnames}")
         
@@ -505,7 +505,7 @@ def inspect_specific_cells():
         response = requests.get(url, headers=headers, timeout=30)
         response.raise_for_status()
         
-        workbook_temp = openpyxl.load_workbook(BytesIO(response.content))
+        workbook_temp = openpyxl.load_workbook(BytesIO(response.content), data_only=True)  # ← CORREGIDO: data_only=True
         
         result = {
             "status": "success",
