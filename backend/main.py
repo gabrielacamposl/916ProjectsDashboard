@@ -153,7 +153,7 @@ def read_excel_date_cell(sheet, cell):
         
         # Si es una fecha de Excel (datetime)
         if hasattr(value, 'strftime'):
-            formatted_date = value.strftime("%d/%m/%Y")
+            formatted_date = value.strftime("%m/%d/%Y")  # CAMBIADO: Formato MM/DD/YYYY
             logger.info(f"✅ Fecha {cell} = {formatted_date}")
             return formatted_date
         
@@ -162,10 +162,38 @@ def read_excel_date_cell(sheet, cell):
             value = value.strip()
             if value.upper() in ["TBD", "PENDING", "---", ""]:
                 return "TBD"
-            # Si ya está en formato DD/MM/YYYY o similar
-            if "/" in value or "-" in value:
+            
+            # Si contiene hora (formato YYYY-MM-DD HH:MM:SS), extraer solo la fecha
+            if " " in value and ":" in value:
+                try:
+                    # Separar fecha de hora
+                    date_part = value.split(" ")[0]
+                    # Intentar parsear como YYYY-MM-DD
+                    if "-" in date_part:
+                        parts = date_part.split("-")
+                        if len(parts) == 3:
+                            year, month, day = parts
+                            formatted_date = f"{month.zfill(2)}/{day.zfill(2)}/{year}"
+                            logger.info(f"✅ Fecha formateada de texto con hora {cell} = {formatted_date}")
+                            return formatted_date
+                except Exception as e:
+                    logger.warning(f"⚠️ Error parseando fecha con hora: {e}")
+            
+            # Si ya está en formato MM/DD/YYYY o similar
+            if "/" in value:
                 logger.info(f"✅ Fecha texto {cell} = {value}")
                 return value
+            # Si está en formato YYYY-MM-DD
+            elif "-" in value:
+                try:
+                    parts = value.split("-")
+                    if len(parts) == 3:
+                        year, month, day = parts
+                        formatted_date = f"{month.zfill(2)}/{day.zfill(2)}/{year}"
+                        logger.info(f"✅ Fecha convertida de YYYY-MM-DD {cell} = {formatted_date}")
+                        return formatted_date
+                except:
+                    pass
         
         # Si es un número (días desde 1900)
         if isinstance(value, (int, float)):
@@ -174,15 +202,20 @@ def read_excel_date_cell(sheet, cell):
                 excel_epoch = datetime(1900, 1, 1)
                 if value > 0:
                     date_obj = excel_epoch + timedelta(days=value - 2)  # -2 por bug histórico de Excel
-                    formatted_date = date_obj.strftime("%d/%m/%Y")
+                    formatted_date = date_obj.strftime("%m/%d/%Y")  # CAMBIADO: Formato MM/DD/YYYY
                     logger.info(f"✅ Fecha numérica {cell} = {formatted_date}")
                     return formatted_date
             except:
                 pass
         
-        # Fallback: convertir a string
-        logger.warning(f"⚠️ Formato de fecha no reconocido en {cell}: {value}")
-        return str(value) if value else "TBD"
+        # Fallback: convertir a string y limpiar
+        fallback_value = str(value) if value else "TBD"
+        # Si el fallback contiene hora, quitarla
+        if " " in fallback_value and ":" in fallback_value:
+            fallback_value = fallback_value.split(" ")[0]
+        
+        logger.warning(f"⚠️ Formato de fecha no reconocido en {cell}: {value}, usando fallback: {fallback_value}")
+        return fallback_value
         
     except Exception as e:
         logger.error(f"❌ Error leyendo fecha en celda {cell}: {str(e)}")
@@ -235,14 +268,14 @@ def get_remodel_dates():
         flo_stage2_start = read_excel_date_cell(flo_sheet, 'C4')  # Stage 2 Start
         flo_stage2_end = read_excel_date_cell(flo_sheet, 'D4')    # Stage 2 End
         
-        # Leer fechas de Texas (TEX)
+        # Leer fechas de Texas (TEX) - CORREGIDO según especificación del usuario
         tex_sheet = workbook['TEX']
         logger.info("🤠 Leyendo fechas de Texas...")
         
-        tex_stage1_start = read_excel_date_cell(tex_sheet, 'C3')  # Stage 1 Start
-        tex_stage1_end = read_excel_date_cell(tex_sheet, 'D3')    # Stage 1 End
-        tex_stage2_start = read_excel_date_cell(tex_sheet, 'C4')  # Stage 2 Start  
-        tex_stage2_end = read_excel_date_cell(tex_sheet, 'D4')    # Stage 2 End
+        tex_stage1_start = read_excel_date_cell(tex_sheet, 'C3')  # Stage 1 Start Remod
+        tex_stage1_end = read_excel_date_cell(tex_sheet, 'D3')    # Stage 1 End Remod  
+        tex_stage2_start = read_excel_date_cell(tex_sheet, 'C4')  # Stage 2 Start Remod
+        tex_stage2_end = read_excel_date_cell(tex_sheet, 'D4')    # Stage 2 End Remod
         
         # Combinar fechas (usar la primera válida encontrada o la más temprana)
         stage1_start = combine_dates(flo_stage1_start, tex_stage1_start)
@@ -547,6 +580,9 @@ def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
             'P': 'PROJECT', 'Q': 'AUV', 'R': 'COST', 'S': 'STATUS', 'T': 'INSTALLATION'
         }
         
+        # Columnas que contienen fechas (no convertir 0 a "---")
+        date_columns = ['M', 'N', 'O']
+        
         # Leer datos fila por fila (empezar desde fila 2 para evitar headers)
         for row_num in range(2, actual_max_row + 1):
             row_data = {}
@@ -556,15 +592,32 @@ def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
                 try:
                     cell_value = sheet[f"{col}{row_num}"].value
                     
-                    # Convertir valores None a "---"
-                    if cell_value is None:
-                        cell_value = "---"
-                    elif isinstance(cell_value, (int, float)) and cell_value == 0:
-                        cell_value = "---"  # Cambiar 0 por "---"
-                    else:
-                        cell_value = str(cell_value).strip()
-                        if cell_value in ["", "0", "0.0"]:
+                    # DEBUG para columna M específicamente
+                    if col == 'M':
+                        logger.info(f"🔍 DEBUG Columna M, Fila {row_num}: valor='{cell_value}', tipo={type(cell_value)}")
+                    
+                    # Manejo especial para columnas de fecha
+                    if col in date_columns:
+                        if cell_value is None:
                             cell_value = "---"
+                        else:
+                            # Para fechas, usar la función de formateo de fecha
+                            formatted_date = read_excel_date_cell(sheet, f"{col}{row_num}")
+                            cell_value = formatted_date if formatted_date != "TBD" else "---"
+                            
+                            # DEBUG para columna M
+                            if col == 'M':
+                                logger.info(f"🔍 DEBUG Columna M formateada: '{cell_value}'")
+                    else:
+                        # Para otras columnas, manejo normal
+                        if cell_value is None:
+                            cell_value = "---"
+                        elif isinstance(cell_value, (int, float)) and cell_value == 0:
+                            cell_value = "---"  # Cambiar 0 por "---" solo en columnas no-fecha
+                        else:
+                            cell_value = str(cell_value).strip()
+                            if cell_value in ["", "0", "0.0"]:
+                                cell_value = "---"
                     
                     row_data[col] = cell_value
                     row_data[f"{col}_name"] = column_names.get(col, f"Col_{col}")
@@ -574,6 +627,7 @@ def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
                         valid_row = True
                         
                 except Exception as e:
+                    logger.error(f"❌ Error leyendo celda {col}{row_num}: {str(e)}")
                     row_data[col] = "---"
                     row_data[f"{col}_name"] = column_names.get(col, f"Col_{col}")
             
@@ -582,6 +636,14 @@ def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
                 table_data.append({"row": row_num, "data": row_data})
         
         logger.info(f"✅ Tabla {sheet_name} leída: {len(table_data)} filas (rango hasta fila {actual_max_row})")
+        
+        # DEBUG adicional para columna M
+        m_values = [row["data"].get("M", "---") for row in table_data if row["data"].get("M", "---") != "---"]
+        if m_values:
+            logger.info(f"📊 Valores encontrados en columna M: {m_values[:5]} (mostrando primeros 5)")
+        else:
+            logger.warning(f"⚠️ No se encontraron valores válidos en columna M para {sheet_name}")
+        
         return {"data": table_data, "columns": columns, "column_names": column_names}
         
     except Exception as e:
@@ -696,8 +758,8 @@ def get_project_details_table():
     """Obtiene tabla de detalles de proyectos con columnas específicas y filtros"""
     try:
         # Columnas específicas requeridas según diagnóstico:
-        # A=STORE, B=ADDRESS, P=PROJECT, Q=AUV, R=COST, S=STATUS, T=INSTALLATION
-        required_columns = ['A', 'B', 'P', 'Q', 'R', 'S', 'T']
+        # A=STORE, B=ADDRESS, M=A19 UP, P=PROJECT, Q=AUV, R=COST, S=STATUS, T=INSTALLATION
+        required_columns = ['A', 'B', 'M', 'P', 'Q', 'R', 'S', 'T']
         
         # Filtros válidos para la columna PROJECT (ahora en P, no N)
         valid_projects = ['FAI,EDMB,IDMB,QB', 'EDMB,IDMB,QB', 'EDMB']
@@ -766,6 +828,7 @@ def get_project_details_table():
         column_display_names = {
             'A': 'STORE',
             'B': 'ADDRESS', 
+            'M': 'A19 UP',   # NUEVA COLUMNA M
             'P': 'PROJECT',  # CORREGIDO: P en lugar de N
             'Q': 'AUV',      # CORREGIDO: Q en lugar de O
             'R': 'COST',     # CORREGIDO: R en lugar de P
@@ -782,7 +845,7 @@ def get_project_details_table():
             "debug_info": debug_info,
             "filters_applied": {
                 "project_types": valid_projects,
-                "note": "Solo se muestran filas con PROJECT (columna P) que contenga: FAI,EDMB,IDMB,QB | EDMB,IDMB,QB | EDMB"
+                "note": "Solo se muestran filas con PROJECT (columna P) que contenga: FAI,EDMB,IDMB,QB | EDMB,IDMB,QB | EDMB y que incluye columna M (A19 UP)"
             }
         })
         
@@ -920,6 +983,7 @@ def test_project_filters():
                     # CORREGIDO: Columna P = PROJECT (no N)
                     project_cell = sheet[f"P{row_num}"].value
                     store_cell = sheet[f"A{row_num}"].value  # Para verificar que hay datos
+                    aloha_up_cell = sheet[f"M{row_num}"].value  # NUEVA: Columna M para A19 UP
                     
                     results["total_rows_found"] += 1
                     
@@ -936,7 +1000,8 @@ def test_project_filters():
                                 sheet_info["project_samples"].append({
                                     "row": row_num,
                                     "store": str(store_cell) if store_cell else "NULL",
-                                    "project": project_value
+                                    "project": project_value,
+                                    "aloha_up": str(aloha_up_cell) if aloha_up_cell else "NULL"
                                 })
                             
                             # Verificar si coincide con filtros
@@ -949,6 +1014,7 @@ def test_project_filters():
                                             "row": row_num,
                                             "store": str(store_cell) if store_cell else "NULL",
                                             "project": project_value,
+                                            "aloha_up": str(aloha_up_cell) if aloha_up_cell else "NULL",
                                             "matched_filter": valid_project
                                         })
                                     break
@@ -963,6 +1029,7 @@ def test_project_filters():
         
         results["filters_used"] = valid_projects
         results["success"] = True
+        results["note"] = "Incluye nueva columna M (A19 UP) en el análisis"
         
         return jsonify(results)
         
