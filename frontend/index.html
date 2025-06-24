@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>916 Dashboard - Aloha 19 & Projects</title>
+     <link rel="icon" href="images/logo.ico" type="image/x-icon">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
     <style>
@@ -264,11 +265,38 @@
             line-height: 1.2;
         }
         
-        .charts-container {
+        /* NUEVO: Layout específico para las 4 gráficas principales */
+        .main-charts-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
             gap: 30px;
             margin-top: 40px;
+        }
+
+        /* NUEVO: Layout para Project Status + Project Types en la misma fila */
+        .projects-row {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr; /* Project Status más grande, Project Types más chico */
+            gap: 30px;
+            grid-column: 1 / -1;
+            align-items: start; /* Alinear arriba para evitar que se estire */
+        }
+
+        /* NUEVO: Wrapper específico para Project Types integrado */
+        #projectTypesIntegratedWrapper {
+            max-height: 300px; /* Altura máxima reducida */
+            padding: 20px 15px !important; /* Padding reducido */
+        }
+
+        #projectTypesIntegratedWrapper canvas {
+            max-height: 220px !important; /* Canvas más pequeño */
+            max-width: 100% !important;
+        }
+
+        #projectTypesIntegratedTitle {
+            font-size: 1.1em !important; /* Título más pequeño */
+            margin-bottom: 15px !important;
         }
         
         .chart-wrapper {
@@ -557,58 +585,6 @@
             line-height: 1.4;
         }
 
-        /* NUEVOS ESTILOS PARA GRÁFICAS SEPARADAS */
-        .project-types-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-top: 40px;
-        }
-
-        .project-types-container.single {
-            grid-template-columns: 1fr;
-        }
-
-        .dual-chart-wrapper {
-            background: white;
-            padding: 15px; /* REDUCIDO de 20px a 15px */
-            border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            border: 1px solid #E5E7EB;
-            position: relative;
-            overflow: hidden;
-            height: 350px; /* NUEVA: Altura fija más pequeña */
-        }
-
-        .dual-chart-wrapper::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--wendy-red), var(--wendy-yellow), var(--wendy-blue));
-        }
-
-        .dual-chart-wrapper:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-        }
-
-        .dual-chart-wrapper canvas {
-            max-height: 280px !important; /* NUEVA: Limitar altura del canvas */
-        }
-
-        .dual-chart-title {
-            text-align: center;
-            margin-bottom: 15px; /* REDUCIDO de 20px a 15px */
-            color: var(--wendy-dark-gray);
-            font-size: 1.1em; /* REDUCIDO de 1.2em a 1.1em */
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-        
         /* Estilos para la tabla de fechas de remodelación */
         .remodel-schedule-table {
             margin-top: 25px;
@@ -725,13 +701,13 @@
             </div>
         </div>
         
-        <div class="charts-container">
+        <div class="main-charts-grid">
             <div class="chart-wrapper">
                 <div class="chart-title">Aloha 19 Implementation Status</div>
                 <canvas id="aloha19Chart"></canvas>
                 
-                <!-- Nueva tabla de fechas de remodelación -->
-                <div class="remodel-schedule-table">
+                <!-- Tabla de fechas de remodelación - SOLO EN VISTAS REGIONALES -->
+                <div class="remodel-schedule-table" id="remodelScheduleTable" style="display: none;">
                     <h4 style="margin: 20px 0 10px 0; font-size: 1em; color: var(--wendy-dark-gray); text-align: center; font-weight: 600;">Remodel Schedule</h4>
                     <table class="schedule-table">
                         <thead>
@@ -767,24 +743,26 @@
                 <canvas id="techChart"></canvas>
             </div>
             
-            <div class="chart-wrapper">
-                <div class="chart-title">Project Status Overview</div>
-                <canvas id="projectsChart"></canvas>
+            <!-- NUEVO: Fila combinada para Project Status + Project Types -->
+            <div class="projects-row">
+                <div class="chart-wrapper">
+                    <div class="chart-title">Project Status Overview</div>
+                    <canvas id="projectsChart"></canvas>
+                </div>
+                
+                <!-- Project Types integrado aquí -->
+                <div class="chart-wrapper" id="projectTypesIntegratedWrapper">
+                    <div class="chart-title" id="projectTypesIntegratedTitle">Project Types</div>
+                    <canvas id="projectTypesIntegratedChart"></canvas>
+                </div>
             </div>
         </div>
 
-        <!-- NUEVO: Contenedor para gráficas de Project Types separadas -->
-        <div id="projectTypesContainer" class="project-types-container">
-            <!-- Se llenará dinámicamente según la vista -->
-        </div>
-        
         <div class="project-details-section">
             <div class="buttons-container">
-                <button onclick="showProjectDetailsTable()" class="btn info">Project Details</button>
+                <button onclick="toggleProjectDetailsTable()" class="btn info" id="projectDetailsBtn">Project Details</button>
             </div>
         </div>
-
-     
 
         <div id="projectDetailsContainer" style="display: none; margin-top: 25px;">
             <div class="section-title">Detailed Project Information</div>
@@ -960,6 +938,10 @@
         
         // Function to handle tab clicks
         function handleTabClick(region, tabElement) {
+            // Cerrar tablas abiertas al cambiar de pestaña
+            hideProjectDetailsTable();
+            hideDetailedTable();
+            
             currentRegion = region;
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             tabElement.classList.add('active');
@@ -977,6 +959,10 @@
         }
         
         function showRegion(region) {
+            // Cerrar tablas abiertas al cambiar de región
+            hideProjectDetailsTable();
+            hideDetailedTable();
+            
             currentRegion = region;
             
             // Update active tab
@@ -1159,6 +1145,20 @@
             }
         }
         
+        // NUEVA FUNCIÓN: Toggle para project details table
+        function toggleProjectDetailsTable() {
+            const container = document.getElementById('projectDetailsContainer');
+            const btn = document.getElementById('projectDetailsBtn');
+            
+            if (container.style.display === 'none' || container.style.display === '') {
+                showProjectDetailsTable();
+                btn.textContent = 'Hide Project Details';
+            } else {
+                hideProjectDetailsTable();
+                btn.textContent = 'Project Details';
+            }
+        }
+        
         // NUEVA FUNCIÓN: Mostrar tabla de detalles de proyectos (datos reales del SharePoint)
         async function showProjectDetailsTable() {
             try {
@@ -1225,12 +1225,52 @@
             }
         }
         
+        // NUEVA FUNCIÓN: Formatear fechas quitando hora y cambiando formato
+        function formatDateCell(value, columnKey) {
+            // Columnas que contienen fechas
+            const dateColumns = ['M', 'N', 'O']; // M=A19 UP, N=START REMOD, O=END REMOD
+            
+            if (!dateColumns.includes(columnKey) || !value || value === '---') {
+                return value;
+            }
+            
+            try {
+                // Si contiene hora (formato YYYY-MM-DD HH:MM:SS), extraer solo la fecha
+                if (typeof value === 'string' && value.includes(' ') && value.includes(':')) {
+                    const datePart = value.split(' ')[0];
+                    
+                    // Si está en formato YYYY-MM-DD, convertir a MM/DD/YYYY
+                    if (datePart.includes('-')) {
+                        const parts = datePart.split('-');
+                        if (parts.length === 3) {
+                            const [year, month, day] = parts;
+                            return `${month.padStart(2, '0')}/${day.padStart(2, '0')}/${year}`;
+                        }
+                    }
+                    return datePart;
+                }
+                
+                // Si ya está en formato MM/DD/YYYY, mantenerlo
+                if (typeof value === 'string' && value.includes('/')) {
+                    return value;
+                }
+                
+                // Para otros casos, devolver el valor original
+                return value;
+                
+            } catch (error) {
+                console.log('Error formateando fecha:', error);
+                return value;
+            }
+        }
+        
         // Function to render the project details table with sorting
         function renderProjectDetailsTable() {
             const table = document.getElementById('projectDetailsTable');
             const columns = [
                 { key: 'A', label: 'Store', sortable: true },
                 { key: 'B', label: 'Address', sortable: true },
+                { key: 'M', label: 'Aloha UP', sortable: true }, // NUEVA COLUMNA M
                 { key: 'P', label: 'Project', sortable: true },
                 { key: 'Q', label: 'AUV', sortable: true },
                 { key: 'R', label: 'Cost', sortable: true },
@@ -1269,10 +1309,14 @@
                     }
                 }
                 
+                // Format Aloha UP date (columna M)
+                const formattedAlohaUp = formatDateCell(row.M || '---', 'M');
+                
                 tableHTML += `
                     <tr>
                         <td>${row.A || '---'}</td>
                         <td>${row.B || '---'}</td>
+                        <td>${row.M}</td>
                         <td>${row.P || '---'}</td>
                         <td>${row.Q || '---'}</td>
                         <td>${formattedCost}</td>
@@ -1301,8 +1345,8 @@
                 let aVal = a.data[columnKey] || '';
                 let bVal = b.data[columnKey] || '';
                 
-                // Handle numeric values (for Cost column R and AUV column Q)
-                if (columnKey === 'R' || columnKey === 'Q') {
+                // Handle numeric values (for Cost column R, AUV column Q, and Aloha UP column M)
+                if (columnKey === 'R' || columnKey === 'Q' || columnKey === 'M') {
                     aVal = parseFloat(aVal) || 0;
                     bVal = parseFloat(bVal) || 0;
                     
@@ -1330,6 +1374,8 @@
         // Function to hide project details table
         function hideProjectDetailsTable() {
             document.getElementById('projectDetailsContainer').style.display = 'none';
+            const btn = document.getElementById('projectDetailsBtn');
+            btn.textContent = 'Project Details';
             // Reset sorting variables
             currentTableData = [];
             currentSortColumn = null;
@@ -1408,6 +1454,7 @@
                 
                 currentDetailedColumns.forEach(col => {
                     let cellValue = row[col] || '---';
+                    
                     // Ensure 0 values become "---"
                     if (cellValue === 0 || cellValue === '0' || cellValue === '0.0') {
                         cellValue = '---';
@@ -1423,6 +1470,11 @@
                         } catch (e) {
                             // Keep original value if formatting fails
                         }
+                    }
+                    
+                    // NUEVO: Format date columns (M, N, O)
+                    if (['M', 'N', 'O'].includes(col) && cellValue !== '---') {
+                        cellValue = formatDateCell(cellValue, col);
                     }
                     
                     tableHTML += `<td>${cellValue}</td>`;
@@ -1485,11 +1537,18 @@
             currentDetailedColumns = [];
         }
         
-        
-       
-        
-                // Function to update remodel schedule table
+        // Function to update remodel schedule table
         async function updateRemodelSchedule() {
+            const scheduleTable = document.getElementById('remodelScheduleTable');
+            
+            // Solo mostrar en vistas regionales, NO en global
+            if (currentRegion === 'global') {
+                scheduleTable.style.display = 'none';
+                return;
+            }
+            
+            scheduleTable.style.display = 'block';
+            
             try {
                 // Get remodel dates from SharePoint via API
                 const response = await fetch(`${API_BASE_URL}/api/remodel-dates`);
@@ -1498,15 +1557,34 @@
                     const result = await response.json();
                     
                     if (result.status === 'success') {
-                        // Update Stage 1 dates
-                        document.getElementById('stage1StartDate').textContent = result.stage1_start || 'TBD';
-                        document.getElementById('stage1EndDate').textContent = result.stage1_end || 'TBD';
+                        // Para vistas regionales, usar datos específicos de la región si están disponibles
+                        let stage1Start, stage1End, stage2Start, stage2End;
                         
-                        // Update Stage 2 dates
-                        document.getElementById('stage2StartDate').textContent = result.stage2_start || 'TBD';
-                        document.getElementById('stage2EndDate').textContent = result.stage2_end || 'TBD';
+                        if (currentRegion === 'florida' && result.regional_details && result.regional_details.florida) {
+                            stage1Start = result.regional_details.florida.stage1_start;
+                            stage1End = result.regional_details.florida.stage1_end;
+                            stage2Start = result.regional_details.florida.stage2_start;
+                            stage2End = result.regional_details.florida.stage2_end;
+                        } else if (currentRegion === 'texas' && result.regional_details && result.regional_details.texas) {
+                            stage1Start = result.regional_details.texas.stage1_start;
+                            stage1End = result.regional_details.texas.stage1_end;
+                            stage2Start = result.regional_details.texas.stage2_start;
+                            stage2End = result.regional_details.texas.stage2_end;
+                        } else {
+                            // Usar datos combinados como fallback
+                            stage1Start = result.stage1_start;
+                            stage1End = result.stage1_end;
+                            stage2Start = result.stage2_start;
+                            stage2End = result.stage2_end;
+                        }
                         
-                        console.log('✅ Fechas de remodelación actualizadas desde SharePoint');
+                        // Update dates in table
+                        document.getElementById('stage1StartDate').textContent = stage1Start || 'TBD';
+                        document.getElementById('stage1EndDate').textContent = stage1End || 'TBD';
+                        document.getElementById('stage2StartDate').textContent = stage2Start || 'TBD';
+                        document.getElementById('stage2EndDate').textContent = stage2End || 'TBD';
+                        
+                        console.log(`✅ Fechas de remodelación actualizadas para ${currentRegion} desde SharePoint`);
                     } else {
                         throw new Error(result.source || 'Error en respuesta del servidor');
                     }
@@ -1515,13 +1593,22 @@
                 }
             } catch (error) {
                 console.log('⚠️ Error obteniendo fechas de remodelación, usando fallback:', error.message);
-                // Fallback dates based on your specification
-                document.getElementById('stage1StartDate').textContent = '20/07/2025';
-                document.getElementById('stage1EndDate').textContent = '05/08/2025';
-                document.getElementById('stage2StartDate').textContent = 'TBD';
-                document.getElementById('stage2EndDate').textContent = 'TBD';
+                // Fallback dates específicos por región
+                if (currentRegion === 'texas') {
+                    document.getElementById('stage1StartDate').textContent = 'TBD';
+                    document.getElementById('stage1EndDate').textContent = 'TBD';
+                    document.getElementById('stage2StartDate').textContent = 'TBD';
+                    document.getElementById('stage2EndDate').textContent = 'TBD';
+                } else {
+                    // Florida fallback - FORMATO CAMBIADO: MM/DD/YYYY
+                    document.getElementById('stage1StartDate').textContent = '07/20/2025';
+                    document.getElementById('stage1EndDate').textContent = '08/05/2025';
+                    document.getElementById('stage2StartDate').textContent = 'TBD';
+                    document.getElementById('stage2EndDate').textContent = 'TBD';
+                }
             }
         }
+        
         function createChart(ctx, data, title, colors = null, showValues = true, chartType = 'doughnut', dataKey = '') {
             if (allCharts[ctx.canvas.id]) {
                 allCharts[ctx.canvas.id].destroy();
@@ -1612,74 +1699,52 @@
             allCharts[ctx.canvas.id] = new Chart(ctx, config);
         }
         
-        // NUEVA FUNCIÓN: Actualizar Project Types con gráficas separadas
+        // FUNCIÓN ACTUALIZADA: Actualizar Project Types integrado
         function updateProjectTypes(data) {
-            const container = document.getElementById('projectTypesContainer');
+            const wrapper = document.getElementById('projectTypesIntegratedWrapper');
+            const title = document.getElementById('projectTypesIntegratedTitle');
+            const canvas = document.getElementById('projectTypesIntegratedChart');
             
             if (currentRegion === 'global') {
-                // Vista global: mostrar ambas gráficas separadas
-                container.className = 'project-types-container';
-                container.innerHTML = `
-                    <div class="dual-chart-wrapper">
-                        <div class="dual-chart-title">Project Types - Florida</div>
-                        <canvas id="projectTypesFloridaChart" width="350" height="250"></canvas>
-                    </div>
-                    <div class="dual-chart-wrapper">
-                        <div class="dual-chart-title">Project Types - Texas</div>
-                        <canvas id="projectTypesTexasChart" width="350" height="250"></canvas>
-                    </div>
-                `;
+                // Vista global: mostrar datos combinados de ambas regiones
+                title.textContent = 'Project Types (Combined)';
                 
-                // Datos de Florida
+                // Combinar datos de Florida y Texas
+                const combinedData = {};
+                
                 if (data.project_types_florida) {
-                    const floridaData = {};
                     if (data.project_types_florida.fai_edmb_idmb_qb > 0) {
-                        floridaData['FAI,EDMB,IDMB,QB'] = data.project_types_florida.fai_edmb_idmb_qb;
+                        combinedData['FAI,EDMB,IDMB,QB'] = (combinedData['FAI,EDMB,IDMB,QB'] || 0) + data.project_types_florida.fai_edmb_idmb_qb;
                     }
                     if (data.project_types_florida.edmb_idmb_qb > 0) {
-                        floridaData['EDMB,IDMB,QB'] = data.project_types_florida.edmb_idmb_qb;
-                    }
-                    
-                    if (Object.keys(floridaData).length > 0) {
-                        createChart(
-                            document.getElementById('projectTypesFloridaChart').getContext('2d'), 
-                            floridaData,
-                            'Project Types - Florida',
-                            ['#8B5CF6', '#0085CA'],
-                            true,
-                            'bar'
-                        );
+                        combinedData['EDMB,IDMB,QB'] = (combinedData['EDMB,IDMB,QB'] || 0) + data.project_types_florida.edmb_idmb_qb;
                     }
                 }
                 
-                // Datos de Texas
                 if (data.project_types_texas) {
-                    const texasData = {};
                     if (data.project_types_texas.edmb > 0) {
-                        texasData['EDMB'] = data.project_types_texas.edmb;
+                        combinedData['EDMB'] = (combinedData['EDMB'] || 0) + data.project_types_texas.edmb;
                     }
-                    
-                    if (Object.keys(texasData).length > 0) {
-                        createChart(
-                            document.getElementById('projectTypesTexasChart').getContext('2d'), 
-                            texasData,
-                            'Project Types - Texas',
-                            ['#10B981'],
-                            true,
-                            'bar'
-                        );
-                    }
+                }
+                
+                if (Object.keys(combinedData).length > 0) {
+                    createChart(
+                        canvas.getContext('2d'), 
+                        combinedData,
+                        'Project Types (Combined)',
+                        ['#8B5CF6', '#0085CA', '#10B981'],
+                        true,
+                        'bar'
+                    );
+                } else {
+                    // Si no hay datos, ocultar la gráfica
+                    wrapper.style.display = 'none';
                 }
                 
             } else {
-                // Vista específica de región: una sola gráfica
-                container.className = 'project-types-container single';
-                container.innerHTML = `
-                    <div class="dual-chart-wrapper">
-                        <div class="dual-chart-title">Project Types - ${currentRegion.charAt(0).toUpperCase() + currentRegion.slice(1)}</div>
-                        <canvas id="projectTypesSingleChart" width="350" height="250"></canvas>
-                    </div>
-                `;
+                // Vista específica de región
+                wrapper.style.display = 'block';
+                title.textContent = `Project Types - ${currentRegion.charAt(0).toUpperCase() + currentRegion.slice(1)}`;
                 
                 // Obtener datos según la región actual
                 const regionData = getCurrentData();
@@ -1688,10 +1753,10 @@
                     
                     if (currentRegion === 'florida') {
                         if (regionData.project_types.fai_edmb_idmb_qb > 0) {
-                            projectTypesData['FAI,EDMB,IDMB'] = regionData.project_types.fai_edmb_idmb_qb;
+                            projectTypesData['FAI,EDMB,IDMB,QB'] = regionData.project_types.fai_edmb_idmb_qb;
                         }
                         if (regionData.project_types.edmb_idmb_qb > 0) {
-                            projectTypesData['EDMB,IDMB'] = regionData.project_types.edmb_idmb_qb;
+                            projectTypesData['EDMB,IDMB,QB'] = regionData.project_types.edmb_idmb_qb;
                         }
                     } else if (currentRegion === 'texas') {
                         if (regionData.project_types.edmb > 0) {
@@ -1701,14 +1766,19 @@
                     
                     if (Object.keys(projectTypesData).length > 0) {
                         createChart(
-                            document.getElementById('projectTypesSingleChart').getContext('2d'), 
+                            canvas.getContext('2d'), 
                             projectTypesData,
                             'Project Types',
                             ['#8B5CF6', '#0085CA', '#10B981'],
                             true,
                             'bar'
                         );
+                    } else {
+                        // Si no hay datos para esta región, ocultar la gráfica
+                        wrapper.style.display = 'none';
                     }
+                } else {
+                    wrapper.style.display = 'none';
                 }
             }
         }
@@ -1723,7 +1793,7 @@
             // Update Aloha 19 statistics
             updateAlohaStats(data);
             
-            // Update remodel schedule table
+            // Update remodel schedule table (solo en vistas regionales)
             updateRemodelSchedule();
             
             // Main Aloha 19 chart
@@ -1789,18 +1859,19 @@
                 // CORREGIDO: En vista global, mostrar datos combinados. En vistas regionales, mostrar datos específicos
                 if (currentRegion === 'global') {
                     // Vista global: combinar datos de Florida y Texas
+                    if (data.projects.paid > 0) projectsData['Paid'] = data.projects.paid;
                     if (data.projects.signed > 0) projectsData['Signed'] = data.projects.signed;
                     if (data.projects.quote > 0) projectsData['Quote'] = data.projects.quote; // Combinado FL+TX
-                    if (data.projects.paid > 0) projectsData['Paid'] = data.projects.paid;
                 } else if (currentRegion === 'texas') {
                     // Vista Texas: solo Quote
+                    
                     if (data.projects.quote > 0) projectsData['Quote'] = data.projects.quote;
                   //  if (data.projects.pending > 0) projectsData['Pending'] = data.projects.pending;
                 } else if (currentRegion === 'florida') {
                     // Vista Florida: Signed, Quote, Paid
+                    if (data.projects.paid > 0) projectsData['Paid'] = data.projects.paid;
                     if (data.projects.signed > 0) projectsData['Signed'] = data.projects.signed;
                     if (data.projects.quote > 0) projectsData['Quote'] = data.projects.quote;
-                    if (data.projects.paid > 0) projectsData['Paid'] = data.projects.paid;
                 }
                
                 if (Object.keys(projectsData).length > 0) {
@@ -1811,11 +1882,20 @@
                         ['#10B981', '#FFC72C', '#FF8C00', '#8B5CF6'],
                         true,
                         'doughnut'
+                        
+                       
                     ); 
+                     
+                } else { //si es texas y es quote, cambiar el color a naranja
+                    projectsData['Quote'] = {
+                        value: projectsData['Quote'],
+                        color: '#FF8C00' // Naranja
+                    };
                 }
-            }
+                
+            }3
             
-            // NUEVO: Actualizar Project Types con gráficas separadas
+            // ACTUALIZADO: Usar la nueva función integrada de Project Types
             updateProjectTypes(data);
         }
         
