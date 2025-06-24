@@ -265,49 +265,74 @@
             line-height: 1.2;
         }
         
-        /* NUEVO: Layout específico para las 4 gráficas principales */
+        /* NUEVO: Layout responsive 3 columnas */
         .main-charts-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
-            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* 3 columnas responsive */
+            gap: 20px; /* REDUCIDO de 30px a 20px */
             margin-top: 40px;
         }
 
-        /* NUEVO: Layout para Project Status + Project Types en la misma fila */
-        .projects-row {
-            display: grid;
-            grid-template-columns: 1.2fr 0.8fr; /* Project Status más grande, Project Types más chico */
-            gap: 30px;
-            grid-column: 1 / -1;
-            align-items: start; /* Alinear arriba para evitar que se estire */
+        /* RESPONSIVE: Ajustes para diferentes tamaños de pantalla */
+        @media (min-width: 1200px) {
+            .main-charts-grid {
+                grid-template-columns: repeat(3, 1fr); /* Exactamente 3 columnas en pantallas grandes */
+            }
         }
 
-        /* NUEVO: Wrapper específico para Project Types integrado */
+        @media (max-width: 1199px) and (min-width: 768px) {
+            .main-charts-grid {
+                grid-template-columns: repeat(2, 1fr); /* 2 columnas en tablets */
+            }
+        }
+
+        @media (max-width: 767px) {
+            .main-charts-grid {
+                grid-template-columns: 1fr; /* 1 columna en móviles */
+                gap: 15px;
+            }
+            
+            .chart-wrapper {
+                padding: 15px; /* Menos padding en móviles */
+            }
+            
+            .chart-title {
+                font-size: 1.1em; /* Títulos más pequeños en móviles */
+            }
+        }
+
+        /* ELIMINADO: Layout para Project Status + Project Types en la misma fila */
+        /* Ya no necesitamos .projects-row */
+
+        /* NUEVO: Wrapper para Project Types (ahora como gráfica independiente) */
         #projectTypesIntegratedWrapper {
-            max-height: 300px; /* Altura máxima reducida */
-            padding: 20px 15px !important; /* Padding reducido */
+            /* Ya no necesita estilos especiales, usa los mismos que chart-wrapper */
         }
 
         #projectTypesIntegratedWrapper canvas {
-            max-height: 220px !important; /* Canvas más pequeño */
+            max-height: 250px !important; /* Misma altura que otras gráficas */
             max-width: 100% !important;
         }
 
         #projectTypesIntegratedTitle {
-            font-size: 1.1em !important; /* Título más pequeño */
-            margin-bottom: 15px !important;
+            /* Usa los mismos estilos que chart-title */
         }
         
         .chart-wrapper {
             background: white;
-            padding: 30px;
+            padding: 20px; /* REDUCIDO de 30px a 20px */
             border-radius: 15px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
             border: 1px solid #E5E7EB;
             position: relative;
             overflow: hidden;
+            max-height: 400px; /* NUEVO: Altura máxima */
+        }
+        
+        .chart-wrapper canvas {
+            max-height: 250px !important; /* NUEVO: Canvas más pequeño */
+            max-width: 100% !important;
         }
         
         .chart-wrapper::before {
@@ -321,17 +346,202 @@
         }
         
         .chart-wrapper:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            transform: translateY(-3px); /* REDUCIDO de -5px a -3px */
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15); /* REDUCIDO efecto */
         }
         
-        .chart-title {
+        /* NUEVO: Estilos para el botón de Schedule */
+        .schedule-button-container {
             text-align: center;
-            margin-bottom: 25px;
-            color: var(--wendy-dark-gray);
-            font-size: 1.4em;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #E5E7EB;
+        }
+
+        .btn.schedule-btn {
+            background: linear-gradient(135deg, var(--wendy-blue) 0%, var(--wendy-dark-blue) 100%);
+            color: white;
+            font-size: 0.9em;
+            padding: 10px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .btn.schedule-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 133, 202, 0.4);
+        }
+
+        /* NUEVO: Estilos para Modal */
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, white 0%, #f8fafc 100%);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow: auto;
+            animation: modalSlideIn 0.3s ease-out;
+            border: 3px solid #E5E7EB;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--wendy-red) 0%, var(--wendy-dark-red) 100%);
+            color: white;
+            padding: 20px 25px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.3em;
             font-weight: 700;
             letter-spacing: 0.5px;
+        }
+
+        .close-modal {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .close-modal:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            padding: 30px 25px;
+        }
+
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 2px solid #E5E7EB;
+            background: #F8FAFC;
+            border-radius: 0 0 20px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-footer small {
+            color: #6B7280;
+            font-style: italic;
+        }
+
+        /* NUEVO: Tabla del Modal */
+        .schedule-table-modal {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .schedule-table-modal th {
+            background: linear-gradient(135deg, var(--wendy-blue) 0%, var(--wendy-dark-blue) 100%);
+            color: white;
+            padding: 15px 12px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.9em;
+            letter-spacing: 0.5px;
+        }
+
+        .schedule-table-modal td {
+            padding: 15px 12px;
+            text-align: center;
+            border-bottom: 1px solid #E5E7EB;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .schedule-table-modal tr:last-child td {
+            border-bottom: none;
+        }
+
+        .schedule-table-modal tr:nth-child(even) {
+            background-color: #F8FAFC;
+        }
+
+        .schedule-table-modal tr:hover {
+            background-color: #EFF6FF;
+            transition: all 0.2s ease;
+        }
+
+        /* Status badges para modal */
+        .schedule-table-modal .status-badge {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            display: inline-block;
+        }
+
+        /* Responsive para modal */
+        @media (max-width: 600px) {
+            .modal-content {
+                width: 95%;
+                margin: 20px;
+            }
+            
+            .schedule-table-modal th,
+            .schedule-table-modal td {
+                padding: 10px 8px;
+                font-size: 0.8em;
+            }
+            
+            .modal-header h3 {
+                font-size: 1.1em;
+            }
         }
         
         .region-tabs {
@@ -706,30 +916,11 @@
                 <div class="chart-title">Aloha 19 Implementation Status</div>
                 <canvas id="aloha19Chart"></canvas>
                 
-                <!-- Tabla de fechas de remodelación - SOLO EN VISTAS REGIONALES -->
-                <div class="remodel-schedule-table" id="remodelScheduleTable" style="display: none;">
-                    <h4 style="margin: 20px 0 10px 0; font-size: 1em; color: var(--wendy-dark-gray); text-align: center; font-weight: 600;">Remodel Schedule</h4>
-                    <table class="schedule-table">
-                        <thead>
-                            <tr>
-                                <th>Status</th>
-                                <th>Start Remod</th>
-                                <th>End Remod</th>
-                            </tr>
-                        </thead>
-                        <tbody id="alohaScheduleBody">
-                            <tr>
-                                <td><span class="status-badge stage1">Stage 1</span></td>
-                                <td id="stage1StartDate">Loading...</td>
-                                <td id="stage1EndDate">Loading...</td>
-                            </tr>
-                            <tr>
-                                <td><span class="status-badge stage2">Stage 2</span></td>
-                                <td id="stage2StartDate">Loading...</td>
-                                <td id="stage2EndDate">Loading...</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <!-- NUEVO: Botón para abrir modal de Schedule -->
+                <div class="schedule-button-container" id="scheduleButtonContainer" style="display: none;">
+                    <button onclick="openScheduleModal()" class="btn schedule-btn">
+                        📅 View Remodel Schedule
+                    </button>
                 </div>
             </div>
             
@@ -743,17 +934,54 @@
                 <canvas id="techChart"></canvas>
             </div>
             
-            <!-- NUEVO: Fila combinada para Project Status + Project Types -->
-            <div class="projects-row">
-                <div class="chart-wrapper">
-                    <div class="chart-title">Project Status Overview</div>
-                    <canvas id="projectsChart"></canvas>
+            <div class="chart-wrapper">
+                <div class="chart-title">Project Status Overview</div>
+                <canvas id="projectsChart"></canvas>
+            </div>
+            
+            <!-- Project Types como gráfica separada -->
+            <div class="chart-wrapper" id="projectTypesIntegratedWrapper">
+                <div class="chart-title" id="projectTypesIntegratedTitle">Project Types</div>
+                <canvas id="projectTypesIntegratedChart"></canvas>
+            </div>
+        </div>
+
+        <!-- NUEVO: Modal para Remodel Schedule -->
+        <div id="scheduleModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>📅 Remodel Schedule - <span id="modalRegionTitle">Region</span></h3>
+                    <span class="close-modal" onclick="closeScheduleModal()">&times;</span>
                 </div>
-                
-                <!-- Project Types integrado aquí -->
-                <div class="chart-wrapper" id="projectTypesIntegratedWrapper">
-                    <div class="chart-title" id="projectTypesIntegratedTitle">Project Types</div>
-                    <canvas id="projectTypesIntegratedChart"></canvas>
+                <div class="modal-body">
+                    <table class="schedule-table-modal">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Stores Distribution</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="status-badge stage1">Stage 1</span></td>
+                                <td id="modalStage1Start">Loading...</td>
+                                <td id="modalStage1End">Loading...</td>
+                                <td id="modalStage1Stores">Loading...</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status-badge stage2">Stage 2</span></td>
+                                <td id="modalStage2Start">Loading...</td>
+                                <td id="modalStage2End">Loading...</td>
+                                <td id="modalStage2Stores">TBD</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button onclick="closeScheduleModal()" class="btn">Close</button>
+                    <small>Last updated: <span id="modalLastUpdate">--</span></small>
                 </div>
             </div>
         </div>
@@ -1316,7 +1544,7 @@
                     <tr>
                         <td>${row.A || '---'}</td>
                         <td>${row.B || '---'}</td>
-                        <td>${row.M}</td>
+                        <td>${formattedAlohaUp}</td>
                         <td>${row.P || '---'}</td>
                         <td>${row.Q || '---'}</td>
                         <td>${formattedCost}</td>
@@ -1537,54 +1765,87 @@
             currentDetailedColumns = [];
         }
         
-        // Function to update remodel schedule table
-        async function updateRemodelSchedule() {
-            const scheduleTable = document.getElementById('remodelScheduleTable');
+        // NUEVA FUNCIÓN: Abrir modal de Schedule
+        function openScheduleModal() {
+            const modal = document.getElementById('scheduleModal');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Prevenir scroll del fondo
             
-            // Solo mostrar en vistas regionales, NO en global
-            if (currentRegion === 'global') {
-                scheduleTable.style.display = 'none';
-                return;
-            }
+            // Actualizar título del modal
+            const regionTitle = currentRegion.charAt(0).toUpperCase() + currentRegion.slice(1);
+            document.getElementById('modalRegionTitle').textContent = regionTitle;
             
-            scheduleTable.style.display = 'block';
-            
+            // Actualizar datos del modal
+            updateModalScheduleData();
+        }
+
+        // NUEVA FUNCIÓN: Cerrar modal de Schedule
+        function closeScheduleModal() {
+            const modal = document.getElementById('scheduleModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restaurar scroll
+        }
+
+        // NUEVA FUNCIÓN: Actualizar datos del modal
+        async function updateModalScheduleData() {
             try {
-                // Get remodel dates from SharePoint via API
                 const response = await fetch(`${API_BASE_URL}/api/remodel-dates`);
                 
                 if (response.ok) {
                     const result = await response.json();
                     
                     if (result.status === 'success') {
-                        // Para vistas regionales, usar datos específicos de la región si están disponibles
                         let stage1Start, stage1End, stage2Start, stage2End;
+                        let storesBreakdown = "TBD";
                         
                         if (currentRegion === 'florida' && result.regional_details && result.regional_details.florida) {
-                            stage1Start = result.regional_details.florida.stage1_start;
-                            stage1End = result.regional_details.florida.stage1_end;
-                            stage2Start = result.regional_details.florida.stage2_start;
-                            stage2End = result.regional_details.florida.stage2_end;
+                            const floridaData = result.regional_details.florida;
+                            stage1Start = floridaData.stage1_start;
+                            stage1End = floridaData.stage1_end;
+                            stage2Start = floridaData.stage2_start;
+                            stage2End = floridaData.stage2_end;
+                            
+                            const julyStores = floridaData.july_stores || 0;
+                            const augustStores = floridaData.august_stores || 0;
+                            storesBreakdown = `<strong>July:</strong> ${julyStores} stores<br><strong>August:</strong> ${augustStores} stores`;
+                            
                         } else if (currentRegion === 'texas' && result.regional_details && result.regional_details.texas) {
-                            stage1Start = result.regional_details.texas.stage1_start;
-                            stage1End = result.regional_details.texas.stage1_end;
-                            stage2Start = result.regional_details.texas.stage2_start;
-                            stage2End = result.regional_details.texas.stage2_end;
+                            const texasData = result.regional_details.texas;
+                            stage1Start = texasData.stage1_start;
+                            stage1End = texasData.stage1_end;
+                            stage2Start = texasData.stage2_start;
+                            stage2End = texasData.stage2_end;
+                            
+                            const juneStores = texasData.june_stores || 0;
+                            const julyStores = texasData.july_stores || 0;
+                            storesBreakdown = `<strong>June:</strong> ${juneStores} stores<br><strong>July:</strong> ${julyStores} stores`;
                         } else {
-                            // Usar datos combinados como fallback
                             stage1Start = result.stage1_start;
                             stage1End = result.stage1_end;
                             stage2Start = result.stage2_start;
                             stage2End = result.stage2_end;
                         }
                         
-                        // Update dates in table
-                        document.getElementById('stage1StartDate').textContent = stage1Start || 'TBD';
-                        document.getElementById('stage1EndDate').textContent = stage1End || 'TBD';
-                        document.getElementById('stage2StartDate').textContent = stage2Start || 'TBD';
-                        document.getElementById('stage2EndDate').textContent = stage2End || 'TBD';
+                        // Update modal data
+                        document.getElementById('modalStage1Start').textContent = stage1Start || 'TBD';
+                        document.getElementById('modalStage1End').textContent = stage1End || 'TBD';
+                        document.getElementById('modalStage2Start').textContent = stage2Start || 'TBD';
+                        document.getElementById('modalStage2End').textContent = stage2End || 'TBD';
+                        document.getElementById('modalStage1Stores').innerHTML = storesBreakdown;
                         
-                        console.log(`✅ Fechas de remodelación actualizadas para ${currentRegion} desde SharePoint`);
+                        // Update last update time
+                        if (dashboardData && dashboardData.last_update) {
+                            const updateDate = new Date(dashboardData.last_update);
+                            const formattedDate = updateDate.toLocaleString('en-US', {
+                                timeZone: 'America/Chicago',
+                                month: 'short',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+                            document.getElementById('modalLastUpdate').textContent = formattedDate;
+                        }
+                        
                     } else {
                         throw new Error(result.source || 'Error en respuesta del servidor');
                     }
@@ -1592,20 +1853,48 @@
                     throw new Error(`HTTP ${response.status}`);
                 }
             } catch (error) {
-                console.log('⚠️ Error obteniendo fechas de remodelación, usando fallback:', error.message);
-                // Fallback dates específicos por región
+                console.log('⚠️ Error en modal, usando fallback:', error.message);
+                // Fallback data
                 if (currentRegion === 'texas') {
-                    document.getElementById('stage1StartDate').textContent = 'TBD';
-                    document.getElementById('stage1EndDate').textContent = 'TBD';
-                    document.getElementById('stage2StartDate').textContent = 'TBD';
-                    document.getElementById('stage2EndDate').textContent = 'TBD';
+                    document.getElementById('modalStage1Start').textContent = 'TBD';
+                    document.getElementById('modalStage1End').textContent = 'TBD';
+                    document.getElementById('modalStage2Start').textContent = 'TBD';
+                    document.getElementById('modalStage2End').textContent = 'TBD';
+                    document.getElementById('modalStage1Stores').innerHTML = '<strong>June:</strong> TBD stores<br><strong>July:</strong> TBD stores';
                 } else {
-                    // Florida fallback - FORMATO CAMBIADO: MM/DD/YYYY
-                    document.getElementById('stage1StartDate').textContent = '07/20/2025';
-                    document.getElementById('stage1EndDate').textContent = '08/05/2025';
-                    document.getElementById('stage2StartDate').textContent = 'TBD';
-                    document.getElementById('stage2EndDate').textContent = 'TBD';
+                    document.getElementById('modalStage1Start').textContent = '07/20/2025';
+                    document.getElementById('modalStage1End').textContent = '08/05/2025';
+                    document.getElementById('modalStage2Start').textContent = 'TBD';
+                    document.getElementById('modalStage2End').textContent = 'TBD';
+                    document.getElementById('modalStage1Stores').innerHTML = '<strong>July:</strong> TBD stores<br><strong>August:</strong> TBD stores';
                 }
+            }
+        }
+
+        // NUEVA FUNCIÓN: Cerrar modal con tecla ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeScheduleModal();
+            }
+        });
+
+        // NUEVA FUNCIÓN: Cerrar modal al hacer clic fuera de ella
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('scheduleModal');
+            if (event.target === modal) {
+                closeScheduleModal();
+            }
+        });
+
+        // FUNCIÓN ACTUALIZADA: Mostrar/ocultar botón de Schedule
+        function updateRemodelSchedule() {
+            const scheduleButtonContainer = document.getElementById('scheduleButtonContainer');
+            
+            // Solo mostrar botón en vistas regionales, NO en global
+            if (currentRegion === 'global') {
+                scheduleButtonContainer.style.display = 'none';
+            } else {
+                scheduleButtonContainer.style.display = 'block';
             }
         }
         
@@ -1627,20 +1916,20 @@
                     datasets: [{
                         data: Object.values(data),
                         backgroundColor: chartColors,
-                        borderWidth: 3,
+                        borderWidth: 2,
                         borderColor: '#fff'
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: isProjectTypesChart ? false : true, // Permitir cambio de tamaño en Project Types
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
                             position: chartType === 'bar' ? 'top' : 'bottom',
                             labels: {
-                                padding: isProjectTypesChart ? 10 : 15, // Menos padding para Project Types
+                                padding: isProjectTypesChart ? 8 : 15, /* AUMENTADO padding normal */
                                 font: {
-                                    size: isProjectTypesChart ? 10 : 12, // Texto más pequeño para Project Types
+                                    size: isProjectTypesChart ? 9 : 12, /* AUMENTADO tamaño de fuente normal */
                                     family: 'Montserrat',
                                     weight: '600'
                                 }
@@ -1650,7 +1939,7 @@
                             color: chartType === 'bar' ? '#374151' : 'white',
                             font: {
                                 weight: 'bold',
-                                size: isProjectTypesChart ? 12 : 14, // Texto más pequeño para Project Types
+                                size: isProjectTypesChart ? 10 : 13, /* AUMENTADO tamaño */
                                 family: 'Montserrat'
                             },
                             formatter: (value, context) => {
@@ -1666,18 +1955,18 @@
 
             // Specific configurations for bar charts
             if (chartType === 'bar') {
-                const maxValue = isProjectTypesChart ? 50 : 80; // CORREGIDO: 50 para Project Types, 80 para otros
+                const maxValue = isProjectTypesChart ? 40 : 70; /* AUMENTADO valores máximos */
                 
                 config.options.scales = {
                     y: {
                         beginAtZero: true,
-                        max: maxValue, // Usar el máximo apropiado
+                        max: maxValue,
                         ticks: {
-                            stepSize: isProjectTypesChart ? 5 : 10, // Steps más pequeños para Project Types
+                            stepSize: isProjectTypesChart ? 5 : 10, /* AUMENTADO step size normal */
                             font: {
                                 family: 'Montserrat',
                                 weight: '500',
-                                size: isProjectTypesChart ? 10 : 12 // Texto más pequeño para Project Types
+                                size: isProjectTypesChart ? 9 : 11 /* AUMENTADO tamaño */
                             }
                         }
                     },
@@ -1688,7 +1977,7 @@
                             font: {
                                 family: 'Montserrat',
                                 weight: '500',
-                                size: isProjectTypesChart ? 10 : 12 // Texto más pequeño para Project Types
+                                size: isProjectTypesChart ? 9 : 11 /* AUMENTADO tamaño */
                             }
                         }
                     }
@@ -1821,14 +2110,29 @@
             
             // Wiring chart
             if (data.wiring) {
+                const wiringData = {
+                    'Finished': data.wiring.finished || 0,
+                    'Pending': data.wiring.pending || 0,
+                };
+                
+                // AGREGAR "Close" solo para Texas (celda B14)
+                if (currentRegion === 'texas' && data.wiring.close && data.wiring.close > 0) {
+                    wiringData['Close'] = data.wiring.close;
+                    console.log(`🤠 Texas Wiring Close agregado: ${data.wiring.close}`);
+                }
+                
+                // Colores dinámicos: verde para Finished, amarillo para Pending, ROJO para Close
+                const wiringColors = (currentRegion === 'texas' && data.wiring.close && data.wiring.close > 0) 
+                    ? ['#10B981', '#FFC72C', '#E31837']  // Texas con Close (verde, amarillo, rojo)
+                    : ['#10B981', '#FFC72C'];            // Sin Close (verde, amarillo)
+                
+                console.log(`🔌 Wiring chart - Región: ${currentRegion}, Datos:`, wiringData, 'Colores:', wiringColors);
+                
                 createChart(
                     document.getElementById('wiringChart').getContext('2d'), 
-                    {
-                        'Finished': data.wiring.finished || 0,
-                        'Pending': data.wiring.pending || 0,
-                    },
+                    wiringData,
                     'Wiring Status',
-                    ['#10B981','#FFC72C'], 
+                    wiringColors,
                     true,
                     'doughnut'
                 );
@@ -1859,19 +2163,18 @@
                 // CORREGIDO: En vista global, mostrar datos combinados. En vistas regionales, mostrar datos específicos
                 if (currentRegion === 'global') {
                     // Vista global: combinar datos de Florida y Texas
-                    if (data.projects.paid > 0) projectsData['Paid'] = data.projects.paid;
                     if (data.projects.signed > 0) projectsData['Signed'] = data.projects.signed;
                     if (data.projects.quote > 0) projectsData['Quote'] = data.projects.quote; // Combinado FL+TX
+                    if (data.projects.paid > 0) projectsData['Paid'] = data.projects.paid;
                 } else if (currentRegion === 'texas') {
                     // Vista Texas: solo Quote
-                    
                     if (data.projects.quote > 0) projectsData['Quote'] = data.projects.quote;
                   //  if (data.projects.pending > 0) projectsData['Pending'] = data.projects.pending;
                 } else if (currentRegion === 'florida') {
                     // Vista Florida: Signed, Quote, Paid
-                    if (data.projects.paid > 0) projectsData['Paid'] = data.projects.paid;
                     if (data.projects.signed > 0) projectsData['Signed'] = data.projects.signed;
                     if (data.projects.quote > 0) projectsData['Quote'] = data.projects.quote;
+                    if (data.projects.paid > 0) projectsData['Paid'] = data.projects.paid;
                 }
                
                 if (Object.keys(projectsData).length > 0) {
@@ -1882,18 +2185,9 @@
                         ['#10B981', '#FFC72C', '#FF8C00', '#8B5CF6'],
                         true,
                         'doughnut'
-                        
-                       
                     ); 
-                     
-                } else { //si es texas y es quote, cambiar el color a naranja
-                    projectsData['Quote'] = {
-                        value: projectsData['Quote'],
-                        color: '#FF8C00' // Naranja
-                    };
                 }
-                
-            }3
+            }
             
             // ACTUALIZADO: Usar la nueva función integrada de Project Types
             updateProjectTypes(data);

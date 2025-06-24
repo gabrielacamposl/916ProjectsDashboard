@@ -268,6 +268,12 @@ def get_remodel_dates():
         flo_stage2_start = read_excel_date_cell(flo_sheet, 'C4')  # Stage 2 Start
         flo_stage2_end = read_excel_date_cell(flo_sheet, 'D4')    # Stage 2 End
         
+        # NUEVO: Leer cantidad de tiendas por mes en Florida
+        flo_july_stores = read_excel_cell(flo_sheet, 'E3')        # Tiendas en Julio
+        flo_august_stores = read_excel_cell(flo_sheet, 'F3')      # Tiendas en Agosto
+        
+        logger.info(f"🏖️ Florida - Julio: {flo_july_stores} tiendas, Agosto: {flo_august_stores} tiendas")
+        
         # Leer fechas de Texas (TEX) - CORREGIDO según especificación del usuario
         tex_sheet = workbook['TEX']
         logger.info("🤠 Leyendo fechas de Texas...")
@@ -276,6 +282,12 @@ def get_remodel_dates():
         tex_stage1_end = read_excel_date_cell(tex_sheet, 'D3')    # Stage 1 End Remod  
         tex_stage2_start = read_excel_date_cell(tex_sheet, 'C4')  # Stage 2 Start Remod
         tex_stage2_end = read_excel_date_cell(tex_sheet, 'D4')    # Stage 2 End Remod
+        
+        # NUEVO: Leer cantidad de tiendas por mes en Texas
+        tex_june_stores = read_excel_cell(tex_sheet, 'E3')        # Tiendas en Junio
+        tex_july_stores = read_excel_cell(tex_sheet, 'F3')       # Tiendas en Julio
+        
+        logger.info(f"🤠 Texas - Junio: {tex_june_stores} tiendas, Julio: {tex_july_stores} tiendas")
         
         # Combinar fechas (usar la primera válida encontrada o la más temprana)
         stage1_start = combine_dates(flo_stage1_start, tex_stage1_start)
@@ -294,13 +306,17 @@ def get_remodel_dates():
                     "stage1_start": flo_stage1_start,
                     "stage1_end": flo_stage1_end,
                     "stage2_start": flo_stage2_start,
-                    "stage2_end": flo_stage2_end
+                    "stage2_end": flo_stage2_end,
+                    "july_stores": flo_july_stores,      # NUEVO: Tiendas en Julio
+                    "august_stores": flo_august_stores   # NUEVO: Tiendas en Agosto
                 },
                 "texas": {
                     "stage1_start": tex_stage1_start,
                     "stage1_end": tex_stage1_end,
                     "stage2_start": tex_stage2_start,
-                    "stage2_end": tex_stage2_end
+                    "stage2_end": tex_stage2_end,
+                    "june_stores": tex_june_stores,      # NUEVO: Tiendas en Junio
+                    "july_stores": tex_july_stores       # NUEVO: Tiendas en Julio
                 }
             }
         }
@@ -308,6 +324,8 @@ def get_remodel_dates():
         logger.info(f"✅ Fechas de remodelación obtenidas:")
         logger.info(f"   📅 Stage 1: {stage1_start} → {stage1_end}")
         logger.info(f"   📅 Stage 2: {stage2_start} → {stage2_end}")
+        logger.info(f"   🏖️ Florida - Julio: {flo_july_stores}, Agosto: {flo_august_stores}")
+        logger.info(f"   🤠 Texas - Junio: {tex_june_stores}, Julio: {tex_july_stores}")
         
         return result
         
@@ -404,6 +422,15 @@ def process_sheet_data(workbook, sheet_name):
             logger.info("🔌 Leyendo datos de Wiring...")
             wiring_pending = read_excel_cell(sheet, 'B12')
             wiring_finished = read_excel_cell(sheet, 'B13')
+            wiring_close = read_excel_cell(sheet, 'B14')  # NUEVO: Wiring Close (CELDA B14)
+            
+            logger.info(f"📊 Texas Wiring - Pending: {wiring_pending}, Finished: {wiring_finished}, Close: {wiring_close}")
+            
+            # VALIDAR que Close no sea 0 para enviarlo al frontend
+            if wiring_close and wiring_close > 0:
+                logger.info(f"✅ Texas Wiring Close válido: {wiring_close}")
+            else:
+                logger.warning(f"⚠️ Texas Wiring Close es 0 o inválido: {wiring_close}")
             
             logger.info("🤖 Leyendo datos de Tecnologías (Columna B)...")
             fresh_ai = read_excel_cell(sheet, 'B18')
@@ -434,7 +461,8 @@ def process_sheet_data(workbook, sheet_name):
                 },
                 "wiring": {
                     "pending": wiring_pending,
-                    "finished": wiring_finished
+                    "finished": wiring_finished,
+                    "close": wiring_close  # NUEVO: Wiring Close
                 },
                 "technologies": {
                     "fresh_ai": fresh_ai,
@@ -458,6 +486,8 @@ def process_sheet_data(workbook, sheet_name):
         logger.info(f"   📊 Aloha19 Finished: {data['aloha19']['finished']}")
         logger.info(f"   🔌 Wiring Finished: {data['wiring']['finished']}")
         logger.info(f"   🔌 Wiring Pending: {data['wiring']['pending']}")
+        if sheet_name == 'TEX':
+            logger.info(f"   🔌 Wiring Close: {data['wiring'].get('close', 0)}")
         logger.info(f"   🤖 Fresh AI: {data['technologies']['fresh_ai']}")
         
         return data
@@ -497,9 +527,11 @@ def combine_regional_data(florida_data, texas_data):
         
         tx_quote = safe_get(texas_data, 'projects.quote')
         tx_pending = safe_get(texas_data, 'projects.pending')
+        tx_wiring_close = safe_get(texas_data, 'wiring.close')  # NUEVO: Wiring Close de Texas
         
         logger.info(f"🏖️ Florida Projects - Signed: {fl_signed}, Quote: {fl_quote}, Paid: {fl_paid}")
         logger.info(f"🤠 Texas Projects - Quote: {tx_quote}, Pending: {tx_pending}")
+        logger.info(f"🤠 Texas Wiring Close: {tx_wiring_close}")
         
         global_data = {
             "aloha19": {
@@ -511,7 +543,8 @@ def combine_regional_data(florida_data, texas_data):
             },
             "wiring": {
                 "pending": safe_get(florida_data, 'wiring.pending') + safe_get(texas_data, 'wiring.pending'),
-                "finished": safe_get(florida_data, 'wiring.finished') + safe_get(texas_data, 'wiring.finished')
+                "finished": safe_get(florida_data, 'wiring.finished') + safe_get(texas_data, 'wiring.finished'),
+                "close": safe_get(texas_data, 'wiring.close')  # NUEVO: Solo Texas tiene wiring close
             },
             "technologies": {
                 "fresh_ai": safe_get(florida_data, 'technologies.fresh_ai') + safe_get(texas_data, 'technologies.fresh_ai'),
@@ -867,7 +900,8 @@ def debug_info():
             "texas_total": dashboard_data.get("texas_data", {}).get("aloha19", {}).get("total", 0),
             "global_total": dashboard_data.get("global_data", {}).get("aloha19", {}).get("total", 0),
             "florida_wiring_pending": dashboard_data.get("florida_data", {}).get("wiring", {}).get("pending", 0),
-            "florida_wiring_finished": dashboard_data.get("florida_data", {}).get("wiring", {}).get("finished", 0)
+            "florida_wiring_finished": dashboard_data.get("florida_data", {}).get("wiring", {}).get("finished", 0),
+            "texas_wiring_close": dashboard_data.get("texas_data", {}).get("wiring", {}).get("close", 0)
         }
     })
 
