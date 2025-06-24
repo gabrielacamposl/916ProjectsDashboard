@@ -1,4 +1,4 @@
-# main.py - Backend corregido con nuevas funcionalidades
+# main.py - Backend completo con nuevas funcionalidades y fechas de remodelación
 from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 import requests
@@ -7,7 +7,7 @@ from io import BytesIO
 import schedule
 import time
 import threading
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import logging
 
@@ -24,6 +24,7 @@ dashboard_data = {
     "florida_data": {},
     "texas_data": {},
     "global_data": {},
+    "remodel_dates": {},
     "status": "waiting"
 }
 
@@ -79,17 +80,23 @@ def download_and_process_excel():
         logger.info("🌍 Combinando datos globales...")
         global_data = combine_regional_data(florida_data, texas_data)
         
+        # Obtener fechas de remodelación
+        logger.info("📅 Obteniendo fechas de remodelación...")
+        remodel_dates = get_remodel_dates()
+        
         # Actualizar datos globales
         dashboard_data = {
             "last_update": datetime.now().isoformat(),
             "florida_data": florida_data,
             "texas_data": texas_data,
             "global_data": global_data,
+            "remodel_dates": remodel_dates,
             "status": "success"
         }
         
         logger.info("✅ Datos procesados correctamente")
         logger.info(f"📊 Resumen - FL: {florida_data.get('aloha19', {}).get('total', 0)} tiendas, TX: {texas_data.get('aloha19', {}).get('total', 0)} tiendas")
+        logger.info(f"📅 Fechas de remodelación: Stage 1: {remodel_dates.get('stage1_start', 'TBD')} → {remodel_dates.get('stage1_end', 'TBD')}")
         
     except Exception as e:
         error_msg = f"Error procesando datos: {str(e)}"
@@ -131,6 +138,155 @@ def read_excel_cell(sheet, cell):
     except Exception as e:
         logger.error(f"❌ Error leyendo celda {cell}: {str(e)}")
         return 0
+
+def read_excel_date_cell(sheet, cell):
+    """Lee una celda que contiene fecha y la formatea correctamente"""
+    try:
+        cell_obj = sheet[cell]
+        value = cell_obj.value
+        
+        logger.info(f"📅 Celda {cell}: '{value}' (tipo: {type(value)})")
+        
+        if value is None:
+            logger.warning(f"⚠️ Celda de fecha {cell} está vacía")
+            return "TBD"
+        
+        # Si es una fecha de Excel (datetime)
+        if hasattr(value, 'strftime'):
+            formatted_date = value.strftime("%d/%m/%Y")
+            logger.info(f"✅ Fecha {cell} = {formatted_date}")
+            return formatted_date
+        
+        # Si es texto que parece una fecha
+        if isinstance(value, str):
+            value = value.strip()
+            if value.upper() in ["TBD", "PENDING", "---", ""]:
+                return "TBD"
+            # Si ya está en formato DD/MM/YYYY o similar
+            if "/" in value or "-" in value:
+                logger.info(f"✅ Fecha texto {cell} = {value}")
+                return value
+        
+        # Si es un número (días desde 1900)
+        if isinstance(value, (int, float)):
+            try:
+                # Excel epoch: 1 de enero de 1900 (con ajuste por bug de Excel)
+                excel_epoch = datetime(1900, 1, 1)
+                if value > 0:
+                    date_obj = excel_epoch + timedelta(days=value - 2)  # -2 por bug histórico de Excel
+                    formatted_date = date_obj.strftime("%d/%m/%Y")
+                    logger.info(f"✅ Fecha numérica {cell} = {formatted_date}")
+                    return formatted_date
+            except:
+                pass
+        
+        # Fallback: convertir a string
+        logger.warning(f"⚠️ Formato de fecha no reconocido en {cell}: {value}")
+        return str(value) if value else "TBD"
+        
+    except Exception as e:
+        logger.error(f"❌ Error leyendo fecha en celda {cell}: {str(e)}")
+        return "TBD"
+
+def combine_dates(date1, date2):
+    """Combina dos fechas, priorizando la que no sea TBD"""
+    if date1 and date1 != "TBD":
+        return date1
+    elif date2 and date2 != "TBD":
+        return date2
+    else:
+        return "TBD"
+
+def get_remodel_dates():
+    """Obtiene las fechas de remodelación desde SharePoint (celdas específicas)"""
+    try:
+        global workbook
+        if not workbook:
+            logger.warning("⚠️ No hay workbook disponible para fechas de remodelación")
+            return {
+                "stage1_start": "TBD",
+                "stage1_end": "TBD", 
+                "stage2_start": "TBD",
+                "stage2_end": "TBD",
+                "source": "fallback"
+            }
+        
+        logger.info("📅 === OBTENIENDO FECHAS DE REMODELACIÓN ===")
+        
+        # Verificar que existen las hojas necesarias
+        required_sheets = ['FLO', 'TEX']
+        for sheet_name in required_sheets:
+            if sheet_name not in workbook.sheetnames:
+                logger.warning(f"⚠️ Hoja {sheet_name} no encontrada para fechas")
+                return {
+                    "stage1_start": "TBD",
+                    "stage1_end": "TBD",
+                    "stage2_start": "TBD", 
+                    "stage2_end": "TBD",
+                    "source": "fallback - missing sheets"
+                }
+        
+        # Leer fechas de Florida (FLO)
+        flo_sheet = workbook['FLO']
+        logger.info("🏖️ Leyendo fechas de Florida...")
+        
+        flo_stage1_start = read_excel_date_cell(flo_sheet, 'C3')  # Stage 1 Start
+        flo_stage1_end = read_excel_date_cell(flo_sheet, 'D3')    # Stage 1 End  
+        flo_stage2_start = read_excel_date_cell(flo_sheet, 'C4')  # Stage 2 Start
+        flo_stage2_end = read_excel_date_cell(flo_sheet, 'D4')    # Stage 2 End
+        
+        # Leer fechas de Texas (TEX)
+        tex_sheet = workbook['TEX']
+        logger.info("🤠 Leyendo fechas de Texas...")
+        
+        tex_stage1_start = read_excel_date_cell(tex_sheet, 'C3')  # Stage 1 Start
+        tex_stage1_end = read_excel_date_cell(tex_sheet, 'D3')    # Stage 1 End
+        tex_stage2_start = read_excel_date_cell(tex_sheet, 'C4')  # Stage 2 Start  
+        tex_stage2_end = read_excel_date_cell(tex_sheet, 'D4')    # Stage 2 End
+        
+        # Combinar fechas (usar la primera válida encontrada o la más temprana)
+        stage1_start = combine_dates(flo_stage1_start, tex_stage1_start)
+        stage1_end = combine_dates(flo_stage1_end, tex_stage1_end)
+        stage2_start = combine_dates(flo_stage2_start, tex_stage2_start)
+        stage2_end = combine_dates(flo_stage2_end, tex_stage2_end)
+        
+        result = {
+            "stage1_start": stage1_start,
+            "stage1_end": stage1_end,
+            "stage2_start": stage2_start,
+            "stage2_end": stage2_end,
+            "source": "sharepoint",
+            "regional_details": {
+                "florida": {
+                    "stage1_start": flo_stage1_start,
+                    "stage1_end": flo_stage1_end,
+                    "stage2_start": flo_stage2_start,
+                    "stage2_end": flo_stage2_end
+                },
+                "texas": {
+                    "stage1_start": tex_stage1_start,
+                    "stage1_end": tex_stage1_end,
+                    "stage2_start": tex_stage2_start,
+                    "stage2_end": tex_stage2_end
+                }
+            }
+        }
+        
+        logger.info(f"✅ Fechas de remodelación obtenidas:")
+        logger.info(f"   📅 Stage 1: {stage1_start} → {stage1_end}")
+        logger.info(f"   📅 Stage 2: {stage2_start} → {stage2_end}")
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"❌ Error obteniendo fechas de remodelación: {str(e)}")
+        return {
+            "stage1_start": "TBD",
+            "stage1_end": "TBD",
+            "stage2_start": "TBD",
+            "stage2_end": "TBD",
+            "source": f"error: {str(e)}"
+        }
 
 def process_sheet_data(workbook, sheet_name):
     """Procesa los datos de una hoja específica (FLO o TEX) con DEBUG completo"""
@@ -357,7 +513,7 @@ def combine_regional_data(florida_data, texas_data):
         logger.error(f"❌ Error combinando datos: {str(e)}")
         return {}
 
-# NUEVAS FUNCIONES PARA TABLAS DETALLADAS
+# FUNCIONES PARA TABLAS DETALLADAS
 
 def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
     """Obtiene datos de una hoja para tabla con filtros opcionales"""
@@ -432,7 +588,10 @@ def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
         logger.error(f"❌ Error leyendo tabla {sheet_name}: {str(e)}")
         return {"error": str(e)}
 
-# Rutas de la API
+# ================================
+# RUTAS DE LA API
+# ================================
+
 @app.route('/')
 def home():
     return jsonify({
@@ -472,7 +631,35 @@ def manual_refresh():
     threading.Thread(target=download_and_process_excel).start()
     return jsonify({"message": "Actualización iniciada"})
 
-# NUEVOS ENDPOINTS PARA TABLAS DETALLADAS
+@app.route('/api/remodel-dates')
+def get_remodel_dates_api():
+    """Endpoint para obtener fechas de remodelación desde SharePoint"""
+    try:
+        logger.info("📡 API request - Fechas de remodelación")
+        dates = dashboard_data.get("remodel_dates", {})
+        
+        # Si no hay fechas en dashboard_data, intentar obtenerlas directamente
+        if not dates or dates.get("source") == "fallback":
+            dates = get_remodel_dates()
+        
+        return jsonify({
+            "status": "success",
+            "last_update": dashboard_data.get("last_update"),
+            **dates
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Error en endpoint fechas de remodelación: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "stage1_start": "TBD",
+            "stage1_end": "TBD", 
+            "stage2_start": "TBD",
+            "stage2_end": "TBD",
+            "source": f"error: {str(e)}"
+        })
+
+# ENDPOINTS PARA TABLAS DETALLADAS
 
 @app.route('/api/table/<region>/detailed')
 def get_detailed_regional_table(region):
@@ -603,12 +790,15 @@ def get_project_details_table():
         logger.error(f"❌ Error en tabla de proyectos: {str(e)}")
         return jsonify({"error": str(e)})
 
+# ENDPOINTS DE DEBUG Y UTILIDAD
+
 @app.route('/api/debug')
 def debug_info():
     """Endpoint para información de debug"""
     return jsonify({
         "status": dashboard_data["status"],
         "last_update": dashboard_data["last_update"],
+        "remodel_dates_status": dashboard_data.get("remodel_dates", {}).get("source", "not_loaded"),
         "data_summary": {
             "florida_total": dashboard_data.get("florida_data", {}).get("aloha19", {}).get("total", 0),
             "texas_total": dashboard_data.get("texas_data", {}).get("aloha19", {}).get("total", 0),
