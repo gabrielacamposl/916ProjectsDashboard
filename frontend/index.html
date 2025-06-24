@@ -62,7 +62,6 @@
             justify-content: center;
             gap: 20px;
             font-weight: 800;
-            text-transform: uppercase;
             letter-spacing: 1px;
         }
         
@@ -141,16 +140,15 @@
             background: linear-gradient(135deg, var(--wendy-red) 0%, var(--wendy-dark-red) 100%);
             color: white;
             border: none;
-            padding: 15px 30px;
+            padding: 12px 20px;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin: 10px 15px 10px 0;
+            margin: 5px 10px 5px 0;
             font-family: 'Montserrat', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
         
         .btn:hover {
@@ -163,8 +161,20 @@
             color: var(--wendy-dark-gray);
         }
         
+        .btn.download {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+        
         .btn.info {
             background: linear-gradient(135deg, var(--wendy-blue) 0%, var(--wendy-dark-blue) 100%);
+        }
+        
+        .buttons-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
         }
         
         .status {
@@ -250,7 +260,6 @@
             font-size: 0.75em;
             font-weight: 500;
             opacity: 0.95;
-            text-transform: uppercase;
             letter-spacing: 0.3px;
             line-height: 1.2;
         }
@@ -294,7 +303,6 @@
             color: var(--wendy-dark-gray);
             font-size: 1.4em;
             font-weight: 700;
-            text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         
@@ -319,8 +327,7 @@
             transition: all 0.3s ease;
             border-radius: 10px;
             font-family: 'Montserrat', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
         
         .tab.active {
@@ -412,7 +419,6 @@
             font-size: 0.65em;
             font-weight: 500;
             opacity: 0.95;
-            text-transform: uppercase;
             letter-spacing: 0.3px;
             line-height: 1.1;
         }
@@ -465,7 +471,6 @@
             top: 0;
             z-index: 10;
             font-weight: 700;
-            text-transform: uppercase;
             letter-spacing: 0.5px;
             font-size: 0.8em;
         }
@@ -497,8 +502,7 @@
             cursor: pointer;
             margin-bottom: 15px;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             transition: all 0.3s ease;
         }
 
@@ -588,7 +592,6 @@
             color: var(--wendy-dark-gray);
             font-size: 1.1em; /* REDUCIDO de 1.2em a 1.1em */
             font-weight: 700;
-            text-transform: uppercase;
             letter-spacing: 0.5px;
         }
     </style>
@@ -606,7 +609,11 @@
             <div style="margin-bottom: 15px;">
                 <div id="connectionStatus">Connecting to server...</div>
             </div>
-            <button onclick="refreshData()" class="btn refresh">Refresh Data</button>
+            <div class="buttons-container">
+                <button onclick="refreshData()" class="btn refresh">Refresh Data</button>
+                <button onclick="downloadExcel()" class="btn download">Download Excel</button>
+                
+            </div>
         </div>
         
         <div id="statusMessage"></div>
@@ -672,17 +679,12 @@
         </div>
         
         <div class="project-details-section">
-            <button onclick="showProjectDetailsTable()" class="btn info">View Detailed Project Information</button>
-            
-        </div>
-
-        <div id="diagnosticsContainer" style="display: none; margin-top: 25px;">
-            <div class="section-title">SharePoint Diagnostics</div>
-            <button onclick="hideDiagnostics()" class="close-table">✖ Close</button>
-            <div id="diagnosticsContent" style="background: #F3F4F6; padding: 20px; border-radius: 10px; font-family: monospace; white-space: pre-wrap; max-height: 400px; overflow-y: auto;">
-                <!-- Diagnostics content will be inserted here -->
+            <div class="buttons-container">
+                <button onclick="showProjectDetailsTable()" class="btn info">📋 Project Details</button>
             </div>
         </div>
+
+     
 
         <div id="projectDetailsContainer" style="display: none; margin-top: 25px;">
             <div class="section-title">Detailed Project Information</div>
@@ -695,7 +697,9 @@
         </div>
 
         <div id="moreInfoSection" class="more-info-section" style="display: none;">
-            <button onclick="showDetailedTable()" class="btn info">View Detailed Regional Information</button>
+            <div class="buttons-container">
+                <button onclick="showDetailedTable()" class="btn info">📊 Regional Details</button>
+            </div>
         </div>
 
         <div id="detailedTableContainer" style="display: none;">
@@ -769,6 +773,30 @@
                 
             } catch (error) {
                 showStatus(`Error requesting update: ${error.message}`, 'error');
+            }
+        }
+        
+        // Function to download Excel file
+        function downloadExcel() {
+            try {
+                showStatus('Downloading Excel file...', 'loading');
+                
+                // Create a temporary link to download the file
+                const link = document.createElement('a');
+                link.href = 'https://916foods-my.sharepoint.com/personal/it_support_916foods_com/_layouts/15/download.aspx?share=EZb5NHihKQ9Lnysp--9gH0UBOkCr7K-3Ud_mPhC2At2PPQ';
+                link.target = '_blank';
+                link.download = '916Foods_Data.xlsx'; // Optional: suggest filename
+                
+                // Trigger download
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showStatus('Excel download started', 'success');
+                
+            } catch (error) {
+                showStatus(`Error downloading Excel: ${error.message}`, 'error');
+                console.error('Download error:', error);
             }
         }
         
@@ -1033,24 +1061,15 @@
                 
                 // Mostrar información de debug si está disponible
                 if (result.debug_info) {
-                    console.log('📊 Debug Info:', result.debug_info);
-                    console.log(`📋 Sheets processed: ${result.debug_info.sheets_processed.join(', ')}`);
-                    console.log(`📊 Total rows checked: ${result.debug_info.total_rows_checked}`);
-                    console.log(`📋 Rows with project data: ${result.debug_info.rows_with_project_data}`);
-                    console.log(`✅ Rows matching filters: ${result.debug_info.rows_matching_filters}`);
+                    console.log('Debug Info:', result.debug_info);
+                    console.log(`Sheets processed: ${result.debug_info.sheets_processed.join(', ')}`);
+                    console.log(`Total rows checked: ${result.debug_info.total_rows_checked}`);
+                    console.log(`Rows with project data: ${result.debug_info.rows_with_project_data}`);
+                    console.log(`Rows matching filters: ${result.debug_info.rows_matching_filters}`);
                 }
                 
                 if (!result.data || result.data.length === 0) {
                     let debugMessage = 'No project data found in SharePoint';
-                    
-                    if (result.debug_info) {
-                        debugMessage += `\n\nDebug Info:`;
-                        debugMessage += `\n• Sheets processed: ${result.debug_info.sheets_processed.join(', ')}`;
-                        debugMessage += `\n• Total rows checked: ${result.debug_info.total_rows_checked}`;
-                        debugMessage += `\n• Rows with project data: ${result.debug_info.rows_with_project_data}`;
-                        debugMessage += `\n• Rows matching filters: ${result.debug_info.rows_matching_filters}`;
-                        debugMessage += `\n\n💡 Try clicking "🔍 Run Diagnostics" for detailed analysis`;
-                    }
                     
                     showStatus(debugMessage, 'warning');
                     return;
@@ -1109,7 +1128,7 @@
                 showStatus(`Project details loaded (${result.total_rows} records)${debugNote}. ${filterNote}`, 'success');
                 
             } catch (error) {
-                showStatus(`Error loading project details: ${error.message}\n\n💡 Try clicking "🔍 Run Diagnostics" for detailed analysis`, 'error');
+                showStatus(`Error loading project details: ${error.message}`, 'error');
                 console.error('Error:', error);
             }
         }
@@ -1209,137 +1228,8 @@
             document.getElementById('detailedTableContainer').style.display = 'none';
         }
         
-        // NUEVAS FUNCIONES DE DIAGNÓSTICO
-        async function runDiagnostics() {
-            try {
-                showStatus('Running SharePoint diagnostics...', 'loading');
-                document.getElementById('diagnosticsContainer').style.display = 'block';
-                
-                const content = document.getElementById('diagnosticsContent');
-                content.innerHTML = '🔍 Iniciando diagnósticos...\n\n';
-                
-                // 1. Verificar hojas disponibles
-                content.innerHTML += '📋 PASO 1: Verificando hojas disponibles...\n';
-                const sheetsResponse = await fetch(`${API_BASE_URL}/api/sheets-available`);
-                const sheetsData = await sheetsResponse.json();
-                
-                if (sheetsData.error) {
-                    content.innerHTML += `❌ Error: ${sheetsData.error}\n\n`;
-                    return;
-                }
-                
-                content.innerHTML += `✅ Hojas encontradas: ${sheetsData.sheets.join(', ')}\n`;
-                content.innerHTML += `📄 FLO-COM existe: ${sheetsData.com_sheets_available['FLO-COM'] ? 'SÍ' : 'NO'}\n`;
-                content.innerHTML += `📄 TEX-COM existe: ${sheetsData.com_sheets_available['TEX-COM'] ? 'SÍ' : 'NO'}\n\n`;
-                
-                if (!sheetsData.com_sheets_available['FLO-COM'] && !sheetsData.com_sheets_available['TEX-COM']) {
-                    content.innerHTML += '❌ PROBLEMA: No se encontraron las hojas FLO-COM ni TEX-COM\n';
-                    content.innerHTML += '💡 SOLUCIÓN: Verificar que el archivo Excel tenga estas hojas exactamente\n\n';
-                    showStatus('Diagnostics completed - Missing COM sheets', 'error');
-                    return;
-                }
-                
-                // 2. Previsualizar datos de hojas COM
-                for (const sheetName of ['FLO-COM', 'TEX-COM']) {
-                    if (sheetsData.com_sheets_available[sheetName]) {
-                        content.innerHTML += `\n📊 PASO 2: Previsualizando ${sheetName}...\n`;
-                        
-                        const previewResponse = await fetch(`${API_BASE_URL}/api/debug/sheet-preview/${sheetName}`);
-                        const previewData = await previewResponse.json();
-                        
-                        if (previewData.error) {
-                            content.innerHTML += `❌ Error: ${previewData.error}\n`;
-                            continue;
-                        }
-                        
-                        content.innerHTML += `📏 Dimensiones: ${previewData.max_row} filas x ${previewData.max_column} columnas\n`;
-                        
-                        // Mostrar headers (fila 1)
-                        if (previewData.data && previewData.data.length > 0) {
-                            const headers = previewData.data[0].data;
-                            content.innerHTML += `📋 Headers: `;
-                            for (let col of ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R']) {
-                                if (headers[col] && headers[col] !== 'NULL') {
-                                    content.innerHTML += `${col}:${headers[col]} `;
-                                }
-                            }
-                            content.innerHTML += '\n';
-                        }
-                        
-                        // Mostrar muestra de datos (fila 2)
-                        if (previewData.data && previewData.data.length > 1) {
-                            const sampleRow = previewData.data[1].data;
-                            content.innerHTML += `📄 Muestra fila 2: `;
-                            for (let col of ['A', 'B', 'N']) {  // Store, Address, Project
-                                content.innerHTML += `${col}:${sampleRow[col] || 'NULL'} `;
-                            }
-                            content.innerHTML += '\n';
-                        }
-                    }
-                }
-                
-                // 3. Probar filtros de proyecto
-                content.innerHTML += `\n🔍 PASO 3: Probando filtros de proyecto...\n`;
-                const filterResponse = await fetch(`${API_BASE_URL}/api/debug/project-filter-test`);
-                const filterData = await filterResponse.json();
-                
-                if (filterData.error) {
-                    content.innerHTML += `❌ Error: ${filterData.error}\n`;
-                } else {
-                    content.innerHTML += `📊 Filas totales revisadas: ${filterData.total_rows_found}\n`;
-                    content.innerHTML += `📋 Filas con datos de proyecto: ${filterData.rows_with_project_data}\n`;
-                    content.innerHTML += `✅ Filas que coinciden con filtros: ${filterData.rows_matching_filters}\n`;
-                    content.innerHTML += `🎯 Filtros usados: ${filterData.filters_used.join(', ')}\n\n`;
-                    
-                    if (filterData.sample_project_values && filterData.sample_project_values.length > 0) {
-                        content.innerHTML += `📝 MUESTRAS ENCONTRADAS:\n`;
-                        filterData.sample_project_values.forEach(sample => {
-                            content.innerHTML += `  • ${sample.sheet} fila ${sample.row}: Store=${sample.store}, Project="${sample.project}"\n`;
-                        });
-                    } else {
-                        content.innerHTML += `❌ NO SE ENCONTRARON DATOS QUE COINCIDAN CON LOS FILTROS\n`;
-                        content.innerHTML += `💡 Esto explica por qué no aparecen datos en la tabla\n\n`;
-                        
-                        // Mostrar muestras de lo que SÍ hay
-                        if (filterData.debug_info) {
-                            content.innerHTML += `🔍 DATOS ENCONTRADOS (sin filtros):\n`;
-                            filterData.debug_info.forEach(sheetInfo => {
-                                if (sheetInfo.project_samples) {
-                                    content.innerHTML += `\n📄 ${sheetInfo.sheet}:\n`;
-                                    sheetInfo.project_samples.forEach(sample => {
-                                        if (!sample.error) {
-                                            content.innerHTML += `  • Fila ${sample.row}: Store=${sample.store}, Project="${sample.project}"\n`;
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    }
-                }
-                
-                content.innerHTML += `\n🎯 DIAGNÓSTICO COMPLETADO\n`;
-                
-                if (filterData.rows_matching_filters > 0) {
-                    content.innerHTML += `✅ Se encontraron ${filterData.rows_matching_filters} registros válidos\n`;
-                    showStatus('Diagnostics completed - Data found', 'success');
-                } else {
-                    content.innerHTML += `❌ No se encontraron registros que coincidan con los filtros\n`;
-                    content.innerHTML += `💡 RECOMENDACIONES:\n`;
-                    content.innerHTML += `   • Verificar que la columna N tenga datos de PROJECT\n`;
-                    content.innerHTML += `   • Verificar que los valores contengan: FAI,EDMB,IDMB,QB o EDMB,IDMB,QB o EDMB\n`;
-                    showStatus('Diagnostics completed - No matching data', 'warning');
-                }
-                
-            } catch (error) {
-                const content = document.getElementById('diagnosticsContent');
-                content.innerHTML += `\n❌ ERROR EN DIAGNÓSTICOS: ${error.message}\n`;
-                showStatus(`Diagnostics failed: ${error.message}`, 'error');
-            }
-        }
         
-        function hideDiagnostics() {
-            document.getElementById('diagnosticsContainer').style.display = 'none';
-        }
+       
         
         // Updated function to create charts with specified type
         function createChart(ctx, data, title, colors = null, showValues = true, chartType = 'doughnut', dataKey = '') {
