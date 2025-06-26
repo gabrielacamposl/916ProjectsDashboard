@@ -601,7 +601,7 @@ def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
             return {"error": f"Hoja {sheet_name} no encontrada"}
         
         sheet = workbook[sheet_name]
-        logger.info(f"📋 Leyendo tabla de hoja: {sheet_name}")
+        logger.info(f"Leyendo tabla de hoja: {sheet_name}")
         
         # Definir rangos específicos por hoja
         if sheet_name == 'TEX-COM':
@@ -611,9 +611,9 @@ def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
         else:
             actual_max_row = sheet.max_row if max_row is None else max_row
         
-        # Si no se especifican columnas, leer de A hasta T (20)
+        # Si no se especifican columnas, leer de A hasta V (22)
         if not columns:
-            columns = [chr(65 + i) for i in range(20)]  # A-T
+            columns = [chr(65 + i) for i in range(22)]  # A-v
         
         table_data = []
         
@@ -622,11 +622,12 @@ def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
             'A': 'STORE', 'B': 'ADDRESS', 'C': 'PHONE/STORE PHONE', 'D': 'DM', 'E': 'GM',
             'F': 'A19', 'G': 'WIRING', 'H': 'FRESH AI', 'I': 'EDMB', 'J': 'IDMB',
             'K': 'QB', 'L': 'KIOSK', 'M': 'A19 UP', 'N': 'START REMOD', 'O': 'END REMOD',
-            'P': 'PROJECT', 'Q': 'AUV', 'R': 'COST', 'S': 'STATUS', 'T': 'INSTALLATION'
+            'P': 'PROJECT', 'Q': 'AUV', 'R': 'COST', 'S': 'STATUS', 'T': 'DELIVERY DATE',
+            'U': 'INSTALLATION DATE', 'V': 'INSTALL'
         }
         
         # Columnas que contienen fechas (no convertir 0 a "---")
-        date_columns = ['M', 'N', 'O']
+        date_columns = ['M', 'N', 'O', 'T', 'U']
         
         # Leer datos fila por fila (empezar desde fila 2 para evitar headers)
         for row_num in range(2, actual_max_row + 1):
@@ -636,11 +637,6 @@ def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
             for col in columns:
                 try:
                     cell_value = sheet[f"{col}{row_num}"].value
-                    
-                    # DEBUG para columna M específicamente
-                    if col == 'M':
-                        logger.info(f"🔍 DEBUG Columna M, Fila {row_num}: valor='{cell_value}', tipo={type(cell_value)}")
-                    
                     # Manejo especial para columnas de fecha
                     if col in date_columns:
                         if cell_value is None:
@@ -649,10 +645,6 @@ def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
                             # Para fechas, usar la función de formateo de fecha
                             formatted_date = read_excel_date_cell(sheet, f"{col}{row_num}")
                             cell_value = formatted_date if formatted_date != "TBD" else "---"
-                            
-                            # DEBUG para columna M
-                            if col == 'M':
-                                logger.info(f"🔍 DEBUG Columna M formateada: '{cell_value}'")
                     else:
                         # Para otras columnas, manejo normal
                         if cell_value is None:
@@ -672,7 +664,7 @@ def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
                         valid_row = True
                         
                 except Exception as e:
-                    logger.error(f"❌ Error leyendo celda {col}{row_num}: {str(e)}")
+                    logger.error(f"Error leyendo celda {col}{row_num}: {str(e)}")
                     row_data[col] = "---"
                     row_data[f"{col}_name"] = column_names.get(col, f"Col_{col}")
             
@@ -680,19 +672,12 @@ def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
             if valid_row or not filter_rows:
                 table_data.append({"row": row_num, "data": row_data})
         
-        logger.info(f"✅ Tabla {sheet_name} leída: {len(table_data)} filas (rango hasta fila {actual_max_row})")
-        
-        # DEBUG adicional para columna M
-        m_values = [row["data"].get("M", "---") for row in table_data if row["data"].get("M", "---") != "---"]
-        if m_values:
-            logger.info(f"📊 Valores encontrados en columna M: {m_values[:5]} (mostrando primeros 5)")
-        else:
-            logger.warning(f"⚠️ No se encontraron valores válidos en columna M para {sheet_name}")
+        logger.info(f"Tabla {sheet_name} leída: {len(table_data)} filas (rango hasta fila {actual_max_row})")
         
         return {"data": table_data, "columns": columns, "column_names": column_names}
         
     except Exception as e:
-        logger.error(f"❌ Error leyendo tabla {sheet_name}: {str(e)}")
+        logger.error(f"Error leyendo tabla {sheet_name}: {str(e)}")
         return {"error": str(e)}
 
 # ================================
@@ -795,7 +780,7 @@ def get_detailed_regional_table(region):
         })
         
     except Exception as e:
-        logger.error(f"❌ Error en tabla detallada {region}: {str(e)}")
+        logger.error(f"Error en tabla detallada {region}: {str(e)}")
         return jsonify({"error": str(e)})
 
 @app.route('/api/table/projects')
@@ -803,11 +788,11 @@ def get_project_details_table():
     """Obtiene tabla de detalles de proyectos con columnas específicas y filtros"""
     try:
         # Columnas específicas requeridas según diagnóstico:
-        # A=STORE, B=ADDRESS, M=A19 UP, P=PROJECT, Q=AUV, R=COST, S=STATUS, T=INSTALLATION
-        required_columns = ['A', 'B', 'M', 'P', 'Q', 'R', 'S', 'T']
+        # A=STORE, B=ADDRESS, M=A19 UP, P=PROJECT, Q=AUV, R=COST, S=STATUS, T=DELIVERY DATE, U=INSTALLATION DATE, V=INSTALL
+        required_columns = ['A', 'B', 'M', 'P', 'Q', 'R', 'S', 'T', 'U', 'V']
         
-        # Filtros válidos para la columna PROJECT (ahora en P, no N)
-        valid_projects = ['FAI,EDMB,IDMB,QB', 'EDMB,IDMB,QB', 'EDMB']
+        # Filtros válidos para la columna PROJECT 
+        valid_projects = ['FAI,EDMB,IDMB,QB', 'EDMB,IDMB,QB', 'EDMB', 'EDMB, IDMB', 'IDMB']
         
         # Intentar con ambas hojas
         project_data = []
@@ -820,7 +805,7 @@ def get_project_details_table():
         
         for sheet_name in ['FLO-COM', 'TEX-COM']:
             if sheet_name not in [s for s in (workbook.sheetnames if workbook else [])]:
-                logger.warning(f"⚠️ Hoja {sheet_name} no encontrada")
+                logger.warning(f"Hoja {sheet_name} no encontrada")
                 debug_info["sheets_processed"].append(f"{sheet_name}: NO_EXISTE")
                 continue
                 
@@ -829,12 +814,12 @@ def get_project_details_table():
             if "error" not in result:
                 debug_info["sheets_processed"].append(f"{sheet_name}: PROCESADA")
                 
-                # Filtrar filas según PROJECT (CORREGIDO: ahora en columna P)
+                # Filtrar filas según PROJECT 
                 for row_info in result["data"]:
                     row_data = row_info["data"]
                     debug_info["total_rows_checked"] += 1
                     
-                    # CORREGIDO: PROJECT está en columna P, no N
+                    # ¿ PROJECT está en columna P
                     project_value = row_data.get('P', '---').strip()
                     
                     if project_value not in ['---', '', ' ', 'NULL', '-----']:
@@ -847,7 +832,7 @@ def get_project_details_table():
                         if valid_project.upper() in project_value.upper():
                             project_matches = True
                             debug_info["rows_matching_filters"] += 1
-                            logger.info(f"✅ Coincidencia encontrada: '{project_value}' contiene '{valid_project}'")
+                            logger.info(f"Coincidencia encontrada: '{project_value}' contiene '{valid_project}'")
                             break
                     
                     # Solo incluir si tiene un proyecto válido y datos completos
@@ -861,24 +846,26 @@ def get_project_details_table():
                             row_data['_source_sheet'] = sheet_name
                             row_data['_region'] = 'Florida' if sheet_name == 'FLO-COM' else 'Texas'
                             project_data.append(row_info)
-                            logger.info(f"✅ Fila válida agregada: Store={store}, Project={project_value}")
+                            logger.info(f"Fila válida agregada: Store={store}, Project={project_value}")
             else:
                 debug_info["sheets_processed"].append(f"{sheet_name}: ERROR - {result['error']}")
-                logger.error(f"❌ Error procesando {sheet_name}: {result['error']}")
+                logger.error(f"Error procesando {sheet_name}: {result['error']}")
         
         # Log de resumen
-        logger.info(f"📊 RESUMEN: {debug_info['total_rows_checked']} filas revisadas, {debug_info['rows_with_project_data']} con datos de proyecto, {debug_info['rows_matching_filters']} coinciden con filtros")
+        logger.info(f"RESUMEN: {debug_info['total_rows_checked']} filas revisadas, {debug_info['rows_with_project_data']} con datos de proyecto, {debug_info['rows_matching_filters']} coinciden con filtros")
         
         # CORREGIDO: Mapeo de nombres de columnas según diagnóstico
         column_display_names = {
             'A': 'STORE',
             'B': 'ADDRESS', 
-            'M': 'A19 UP',   # NUEVA COLUMNA M
-            'P': 'PROJECT',  # CORREGIDO: P en lugar de N
-            'Q': 'AUV',      # CORREGIDO: Q en lugar de O
-            'R': 'COST',     # CORREGIDO: R en lugar de P
-            'S': 'STATUS',   # CORREGIDO: S en lugar de Q
-            'T': 'INSTALLATION'  # CORREGIDO: T en lugar de R
+            'M': 'A19 UP',   
+            'P': 'PROJECT',  
+            'Q': 'AUV',      
+            'R': 'COST',     
+            'S': 'STATUS',   
+            'T': 'DELIVERY DATE',
+            'U': 'INSTALLATION DATE',
+            'V': 'INSTALL'   
         }
         
         return jsonify({
@@ -890,12 +877,12 @@ def get_project_details_table():
             "debug_info": debug_info,
             "filters_applied": {
                 "project_types": valid_projects,
-                "note": "Solo se muestran filas con PROJECT (columna P) que contenga: FAI,EDMB,IDMB,QB | EDMB,IDMB,QB | EDMB y que incluye columna M (A19 UP)"
+                "note": "Solo se muestran filas con PROJECT"
             }
         })
         
     except Exception as e:
-        logger.error(f"❌ Error en tabla de proyectos: {str(e)}")
+        logger.error(f"Error en tabla de proyectos: {str(e)}")
         return jsonify({"error": str(e)})
 
 # ENDPOINTS DE DEBUG Y UTILIDAD
@@ -939,149 +926,6 @@ def list_available_sheets():
     except Exception as e:
         return jsonify({"error": str(e)})
 
-@app.route('/api/debug/sheet-preview/<sheet_name>')
-def preview_sheet_data(sheet_name):
-    """Previsualizar datos de una hoja específica"""
-    try:
-        global workbook
-        if not workbook:
-            return jsonify({"error": "No workbook loaded"})
-        
-        if sheet_name not in workbook.sheetnames:
-            return jsonify({
-                "error": f"Hoja '{sheet_name}' no encontrada",
-                "available_sheets": workbook.sheetnames
-            })
-        
-        sheet = workbook[sheet_name]
-        
-        # Leer primeras 10 filas para preview
-        preview_data = []
-        max_preview_rows = min(10, sheet.max_row)
-        
-        for row_num in range(1, max_preview_rows + 1):
-            row_data = {}
-            for col_num in range(1, min(21, sheet.max_column + 1)):  # A-T
-                col_letter = chr(64 + col_num)  # A=65, B=66, etc.
-                try:
-                    cell_value = sheet[f"{col_letter}{row_num}"].value
-                    row_data[col_letter] = str(cell_value) if cell_value is not None else "NULL"
-                except:
-                    row_data[col_letter] = "ERROR"
-            
-            preview_data.append({"row": row_num, "data": row_data})
-        
-        return jsonify({
-            "status": "success",
-            "sheet_name": sheet_name,
-            "max_row": sheet.max_row,
-            "max_column": sheet.max_column,
-            "preview_rows": max_preview_rows,
-            "data": preview_data
-        })
-        
-    except Exception as e:
-        logger.error(f"❌ Error en preview de {sheet_name}: {str(e)}")
-        return jsonify({"error": str(e)})
-
-@app.route('/api/debug/project-filter-test')
-def test_project_filters():
-    """Probar filtros de proyecto sin aplicar filtros estrictos"""
-    try:
-        global workbook
-        if not workbook:
-            return jsonify({"error": "No workbook loaded"})
-        
-        # Filtros que buscamos
-        valid_projects = ['FAI,EDMB,IDMB,QB', 'EDMB,IDMB,QB', 'EDMB']
-        
-        results = {
-            "sheets_checked": [],
-            "total_rows_found": 0,
-            "rows_with_project_data": 0,
-            "rows_matching_filters": 0,
-            "sample_project_values": [],
-            "debug_info": []
-        }
-        
-        for sheet_name in ['FLO-COM', 'TEX-COM']:
-            if sheet_name not in workbook.sheetnames:
-                results["debug_info"].append(f"❌ Hoja {sheet_name} no existe")
-                continue
-                
-            results["sheets_checked"].append(sheet_name)
-            sheet = workbook[sheet_name]
-            
-            # Determinar rango
-            max_row = 28 if sheet_name == 'FLO-COM' else 59
-            actual_max = min(max_row, sheet.max_row)
-            
-            sheet_info = {
-                "sheet": sheet_name,
-                "max_row_used": actual_max,
-                "rows_found": 0,
-                "project_samples": []
-            }
-            
-            # Revisar desde fila 2 (skip headers)
-            for row_num in range(2, actual_max + 1):
-                try:
-                    # CORREGIDO: Columna P = PROJECT (no N)
-                    project_cell = sheet[f"P{row_num}"].value
-                    store_cell = sheet[f"A{row_num}"].value  # Para verificar que hay datos
-                    aloha_up_cell = sheet[f"M{row_num}"].value  # NUEVA: Columna M para A19 UP
-                    
-                    results["total_rows_found"] += 1
-                    
-                    if project_cell is not None and str(project_cell).strip() != "":
-                        project_value = str(project_cell).strip()
-                        
-                        # Filtrar valores como "-----" que no son proyectos reales
-                        if project_value not in ["-----", "---", ""]:
-                            results["rows_with_project_data"] += 1
-                            sheet_info["rows_found"] += 1
-                            
-                            # Guardar muestra de valores de proyecto
-                            if len(sheet_info["project_samples"]) < 5:
-                                sheet_info["project_samples"].append({
-                                    "row": row_num,
-                                    "store": str(store_cell) if store_cell else "NULL",
-                                    "project": project_value,
-                                    "aloha_up": str(aloha_up_cell) if aloha_up_cell else "NULL"
-                                })
-                            
-                            # Verificar si coincide con filtros
-                            for valid_project in valid_projects:
-                                if valid_project.upper() in project_value.upper():
-                                    results["rows_matching_filters"] += 1
-                                    if len(results["sample_project_values"]) < 10:
-                                        results["sample_project_values"].append({
-                                            "sheet": sheet_name,
-                                            "row": row_num,
-                                            "store": str(store_cell) if store_cell else "NULL",
-                                            "project": project_value,
-                                            "aloha_up": str(aloha_up_cell) if aloha_up_cell else "NULL",
-                                            "matched_filter": valid_project
-                                        })
-                                    break
-                                
-                except Exception as e:
-                    sheet_info["project_samples"].append({
-                        "row": row_num,
-                        "error": str(e)
-                    })
-            
-            results["debug_info"].append(sheet_info)
-        
-        results["filters_used"] = valid_projects
-        results["success"] = True
-        results["note"] = "Incluye nueva columna M (A19 UP) en el análisis"
-        
-        return jsonify(results)
-        
-    except Exception as e:
-        logger.error(f"❌ Error en test de filtros: {str(e)}")
-        return jsonify({"error": str(e), "success": False})
 
 def run_scheduler():
     """Ejecuta el scheduler en un hilo separado"""
