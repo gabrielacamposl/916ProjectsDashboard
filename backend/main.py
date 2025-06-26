@@ -443,13 +443,14 @@ def process_sheet_data(workbook, sheet_name):
             
             logger.info("📋 Leyendo datos de Proyectos...")
             # CORREGIDO: Quote de Texas está en B27 según especificación del usuario
-            quote = read_excel_cell(sheet, 'B27')  # QUOTE = 5 en B27
-            pending = read_excel_cell(sheet, 'B28')  # Texas Pending
+            paid = read_excel_cell(sheet, 'B26')  
+            signed = read_excel_cell(sheet, 'B27') 
+            quote = read_excel_cell(sheet, 'B28')  # TEXAS Quote está en B28
             
             
-            logger.info(f"Texas Quote (B27): {quote}")
-            logger.info(f"Texas Pending (B28): {pending}")
-            
+            logger.info(f"Texas Quote: {quote}")
+            logger.info(f"Texas Signed: {signed}")
+            logger.info(f"Texas Paid: {paid}")
             logger.info("Leyendo tipos de proyectos...")
             project_edmb = read_excel_cell(sheet, 'B33')
             project_edmb_idmb = read_excel_cell(sheet, 'B34')  # TEX con EDMB y IDMB
@@ -477,9 +478,9 @@ def process_sheet_data(workbook, sheet_name):
                     "kiosk": kiosk
                 },
                 "projects": {
-                    "quote": quote,  # Texas Quote = 5 (B27)
-                    "pending": pending  # Texas Pending (B28)
-                    # NOTA: Texas NO tiene signed ni paid
+                    "paid": paid,  # Texas Quote = 5 (B27)
+                    "signed": signed,  # Texas Pending (B28)
+                    "quote": quote,  # Texas Quote
                 },
                 "project_types": {
                     "edmb": project_edmb,
@@ -533,13 +534,14 @@ def combine_regional_data(florida_data, texas_data):
         fl_quote = safe_get(florida_data, 'projects.quote')
         fl_paid = safe_get(florida_data, 'projects.paid')
         
+        tx_paid = safe_get(texas_data, 'projects.paid')
+        tx_signed = safe_get(texas_data, 'projects.signed')
         tx_quote = safe_get(texas_data, 'projects.quote')
-        tx_pending = safe_get(texas_data, 'projects.pending')
         tx_wiring_close = safe_get(texas_data, 'wiring.close')  # NUEVO: Wiring Close de Texas
         
-        logger.info(f"🏖️ Florida Projects - Signed: {fl_signed}, Quote: {fl_quote}, Paid: {fl_paid}")
-        logger.info(f"🤠 Texas Projects - Quote: {tx_quote}, Pending: {tx_pending}")
-        logger.info(f"🤠 Texas Wiring Close: {tx_wiring_close}")
+        logger.info(f"Florida Projects - Signed: {fl_signed}, Quote: {fl_quote}, Paid: {fl_paid}")
+        logger.info(f"Texas Projects - Quote: {tx_quote}, Signed: {tx_signed}, Paid: {tx_paid}")
+        logger.info(f"Texas Wiring Close: {tx_wiring_close}")
         
         global_data = {
             "aloha19": {
@@ -563,10 +565,10 @@ def combine_regional_data(florida_data, texas_data):
             },
             # CORREGIDO: Combinar proyectos globales
             "projects": {
-                "signed": fl_signed,  # Solo Florida tiene signed
+                "signed": fl_signed + tx_signed,  # Solo Florida tiene signed
                 "quote": fl_quote + tx_quote,  # Florida + Texas quotes
-                "paid": fl_paid,  # Solo Florida tiene paid
-                "pending": tx_pending  # Solo Texas tiene pending
+                "paid": fl_paid + tx_paid,  # Solo Florida tiene paid
+                
             },
             # AGREGADO: Datos separados para gráficas individuales
             "project_types_florida": {
