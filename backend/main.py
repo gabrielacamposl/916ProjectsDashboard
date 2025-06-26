@@ -447,8 +447,8 @@ def process_sheet_data(workbook, sheet_name):
             pending = read_excel_cell(sheet, 'B28')  # Texas Pending
             
             
-            logger.info(f"📊 Texas Quote (B27): {quote}")
-            logger.info(f"📊 Texas Pending (B28): {pending}")
+            logger.info(f"Texas Quote (B27): {quote}")
+            logger.info(f"Texas Pending (B28): {pending}")
             
             logger.info("Leyendo tipos de proyectos...")
             project_edmb = read_excel_cell(sheet, 'B33')
@@ -489,7 +489,7 @@ def process_sheet_data(workbook, sheet_name):
                 }
             }
         
-        logger.info(f"✅ Datos procesados para {sheet_name}:")
+        logger.info(f"Datos procesados para {sheet_name}:")
         logger.info(f"   Aloha19 Total: {data['aloha19']['total']}")
         logger.info(f"   Aloha19 Finished: {data['aloha19']['finished']}")
         logger.info(f"   Wiring Finished: {data['wiring']['finished']}")
@@ -525,8 +525,8 @@ def combine_regional_data(florida_data, texas_data):
         fl_finished = safe_get(florida_data, 'aloha19.finished')
         tx_finished = safe_get(texas_data, 'aloha19.finished')
         
-        logger.info(f"🏖️ Florida - Total: {fl_total}, Finished: {fl_finished}")
-        logger.info(f"🤠 Texas - Total: {tx_total}, Finished: {tx_finished}")
+        logger.info(f" Florida - Total: {fl_total}, Finished: {fl_finished}")
+        logger.info(f"Texas - Total: {tx_total}, Finished: {tx_finished}")
         
         # CORREGIDO: Combinar proyectos de ambas regiones
         fl_signed = safe_get(florida_data, 'projects.signed')
@@ -574,7 +574,9 @@ def combine_regional_data(florida_data, texas_data):
                 "fai_edmb_idmb_qb": safe_get(florida_data, 'project_types.fai_edmb_idmb_qb')
             },
             "project_types_texas": {
-                "edmb": safe_get(texas_data, 'project_types.edmb')
+                "edmb": safe_get(texas_data, 'project_types.edmb'),
+                "edmb_idmb": safe_get(texas_data, 'project_types.edmb_idmb'),
+                "idmb": safe_get(texas_data, 'project_types.idmb')
             }
         }
         
