@@ -446,12 +446,14 @@ def process_sheet_data(workbook, sheet_name):
             quote = read_excel_cell(sheet, 'B27')  # QUOTE = 5 en B27
             pending = read_excel_cell(sheet, 'B28')  # Texas Pending
             
+            
             logger.info(f"📊 Texas Quote (B27): {quote}")
             logger.info(f"📊 Texas Pending (B28): {pending}")
             
             logger.info("Leyendo tipos de proyectos...")
             project_edmb = read_excel_cell(sheet, 'B33')
             project_edmb_idmb = read_excel_cell(sheet, 'B34')  # TEX con EDMB y IDMB
+            project_idmb = read_excel_cell(sheet, 'B35')  # TEX con IDMB
             
             # Datos de Texas
             data = {
@@ -481,7 +483,9 @@ def process_sheet_data(workbook, sheet_name):
                 },
                 "project_types": {
                     "edmb": project_edmb,
-                    "edmb_idmb": project_edmb_idmb  # TEX con EDMB y IDMB
+                    "edmb_idmb": project_edmb_idmb,  # TEX con EDMB y IDMB
+                    "idmb": project_idmb  # TEX con IDMB
+                    
                 }
             }
         
