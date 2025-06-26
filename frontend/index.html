@@ -2013,12 +2013,12 @@
                     if (data.project_types_texas.edmb > 0) {
                         combinedData['EDMB'] = (combinedData['EDMB'] || 0) + data.project_types_texas.edmb;
                     }
-                    if (data.project_types_texas.edmb_idmb > 0) {
-                        combinedData['EDMB,IDMB'] = (combinedData['EDMB,IDMB'] || 0) + data.project_types_texas.edmb_idmb;
-                    }
                     if (data.project_types_texas.idmb > 0) {
                         combinedData['IDMB'] = (combinedData['IDMB'] || 0) + data.project_types_texas.idmb;
                     }
+                    if (data.project_types_texas.edmb_idmb > 0) {
+                        combinedData['EDMB,IDMB'] = (combinedData['EDMB,IDMB'] || 0) + data.project_types_texas.edmb_idmb;
+                    }      
                 }
                 
                 if (Object.keys(combinedData).length > 0) {
