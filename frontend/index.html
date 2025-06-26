@@ -2136,7 +2136,7 @@
                 // Colores dinámicos: verde para Finished, amarillo para Pending, ROJO para Close
                 const wiringColors = (currentRegion === 'texas' && data.wiring.close && data.wiring.close > 0) 
                     ? ['#10B981', '#FFC72C', '#E31837']  // Texas con Close (verde, amarillo, rojo)
-                    : ['#10B981', '#FFC72C'];            // Sin Close (verde, amarillo)
+                    : ['#10B981', '#FFC72C', '#E31837'];            // Sin Close (verde, amarillo)
                 
                 console.log(`🔌 Wiring chart - Región: ${currentRegion}, Datos:`, wiringData, 'Colores:', wiringColors);
                 
