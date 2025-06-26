@@ -35,18 +35,20 @@ def download_and_process_excel():
     global dashboard_data, workbook
     
     try:
-        logger.info("🔄 Iniciando descarga de SharePoint...")
+        logger.info("Iniciando descarga de SharePoint...")
         
         # URL del SharePoint
+        #SharePoint del Excel de remodelación de tiendas Graficas
         url = "https://916foods-my.sharepoint.com/personal/it_support_916foods_com/_layouts/15/download.aspx?share=EZEBqKqQF9pFitMhSuZPwj4B4xV5tW0qtHLdceNN5-I9Ug"
-        
+        # Share point del Excel de remodelación de tiendas c/ Marco
+        url_shp = "https://916foods-my.sharepoint.com/personal/it_support_916foods_com/_layouts/15/download.aspx?share=EZb5NHihKQ9Lnysp--9gH0UBOkCr7K-3Ud_mPhC2At2PPQ"
         # Headers para evitar bloqueos
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
         
         response = requests.get(url, headers=headers, timeout=30)
-        logger.info(f"📥 Respuesta SharePoint: Status {response.status_code}, Tamaño: {len(response.content)} bytes")
+        logger.info(f"Respuesta SharePoint: Status {response.status_code}, Tamaño: {len(response.content)} bytes")
         
         response.raise_for_status()
         
@@ -55,10 +57,10 @@ def download_and_process_excel():
             raise Exception(f"Archivo muy pequeño o vacío: {len(response.content)} bytes")
         
         # Cargar el Excel en memoria
-        logger.info("📊 Cargando archivo Excel...")
+        logger.info("Cargando archivo Excel...")
         workbook = openpyxl.load_workbook(BytesIO(response.content), data_only=True)
         
-        logger.info(f"📋 Hojas encontradas en Excel: {workbook.sheetnames}")
+        logger.info(f"Hojas encontradas en Excel: {workbook.sheetnames}")
         
         # Verificar que existen las hojas necesarias
         required_sheets = ['FLO', 'TEX']
@@ -66,22 +68,22 @@ def download_and_process_excel():
             if sheet_name not in workbook.sheetnames:
                 raise Exception(f"Hoja '{sheet_name}' no encontrada. Disponibles: {workbook.sheetnames}")
         
-        logger.info("✅ Archivo Excel cargado correctamente")
+        logger.info("Archivo Excel cargado correctamente")
         
         # Procesar datos de Florida
-        logger.info("🏖️ Procesando datos de Florida...")
+        logger.info("Procesando datos de Florida...")
         florida_data = process_sheet_data(workbook, 'FLO')
         
         # Procesar datos de Texas  
-        logger.info("🤠 Procesando datos de Texas...")
+        logger.info("Procesando datos de Texas...")
         texas_data = process_sheet_data(workbook, 'TEX')
         
         # Combinar datos globales
-        logger.info("🌍 Combinando datos globales...")
+        logger.info("Combinando datos globales...")
         global_data = combine_regional_data(florida_data, texas_data)
         
         # Obtener fechas de remodelación
-        logger.info("📅 Obteniendo fechas de remodelación...")
+        logger.info("Obteniendo fechas de remodelación...")
         remodel_dates = get_remodel_dates()
         
         # Actualizar datos globales
@@ -94,9 +96,9 @@ def download_and_process_excel():
             "status": "success"
         }
         
-        logger.info("✅ Datos procesados correctamente")
-        logger.info(f"📊 Resumen - FL: {florida_data.get('aloha19', {}).get('total', 0)} tiendas, TX: {texas_data.get('aloha19', {}).get('total', 0)} tiendas")
-        logger.info(f"📅 Fechas de remodelación: Stage 1: {remodel_dates.get('stage1_start', 'TBD')} → {remodel_dates.get('stage1_end', 'TBD')}")
+        logger.info("Datos procesados correctamente")
+        logger.info(f"Resumen - FL: {florida_data.get('aloha19', {}).get('total', 0)} tiendas, TX: {texas_data.get('aloha19', {}).get('total', 0)} tiendas")
+        logger.info(f"Fechas de remodelación: Stage 1: {remodel_dates.get('stage1_start', 'TBD')} → {remodel_dates.get('stage1_end', 'TBD')}")
         
     except Exception as e:
         error_msg = f"Error procesando datos: {str(e)}"
@@ -110,10 +112,10 @@ def read_excel_cell(sheet, cell):
         value = cell_obj.value
         
         # DEBUG: Mostrar valor exacto de cada celda
-        logger.info(f"🔍 Celda {cell}: '{value}' (tipo: {type(value)})")
+        logger.info(f"Celda {cell}: '{value}' (tipo: {type(value)})")
         
         if value is None:
-            logger.warning(f"⚠️ Celda {cell} está vacía")
+            logger.warning(f" Celda {cell} está vacía")
             return 0
         
         # Convertir a número
@@ -124,19 +126,19 @@ def read_excel_cell(sheet, cell):
             try:
                 num_value = float(str(value).strip())
             except:
-                logger.warning(f"⚠️ No se pudo convertir '{value}' a número en celda {cell}")
+                logger.warning(f"No se pudo convertir '{value}' a número en celda {cell}")
                 return 0
         
         # Validar que no sea negativo
         if num_value < 0:
-            logger.warning(f"⚠️ Valor negativo en celda {cell}: {num_value}")
+            logger.warning(f"Valor negativo en celda {cell}: {num_value}")
             return 0
         
-        logger.info(f"✅ Celda {cell} = {num_value}")
+        logger.info(f"Celda {cell} = {num_value}")
         return num_value
         
     except Exception as e:
-        logger.error(f"❌ Error leyendo celda {cell}: {str(e)}")
+        logger.error(f"Error leyendo celda {cell}: {str(e)}")
         return 0
 
 def read_excel_date_cell(sheet, cell):
@@ -145,16 +147,16 @@ def read_excel_date_cell(sheet, cell):
         cell_obj = sheet[cell]
         value = cell_obj.value
         
-        logger.info(f"📅 Celda {cell}: '{value}' (tipo: {type(value)})")
+        logger.info(f"Celda {cell}: '{value}' (tipo: {type(value)})")
         
         if value is None:
-            logger.warning(f"⚠️ Celda de fecha {cell} está vacía")
+            logger.warning(f"Celda de fecha {cell} está vacía")
             return "TBD"
         
         # Si es una fecha de Excel (datetime)
         if hasattr(value, 'strftime'):
             formatted_date = value.strftime("%m/%d/%Y")  # CAMBIADO: Formato MM/DD/YYYY
-            logger.info(f"✅ Fecha {cell} = {formatted_date}")
+            logger.info(f"Fecha {cell} = {formatted_date}")
             return formatted_date
         
         # Si es texto que parece una fecha
@@ -174,14 +176,14 @@ def read_excel_date_cell(sheet, cell):
                         if len(parts) == 3:
                             year, month, day = parts
                             formatted_date = f"{month.zfill(2)}/{day.zfill(2)}/{year}"
-                            logger.info(f"✅ Fecha formateada de texto con hora {cell} = {formatted_date}")
+                            logger.info(f"Fecha formateada de texto con hora {cell} = {formatted_date}")
                             return formatted_date
                 except Exception as e:
-                    logger.warning(f"⚠️ Error parseando fecha con hora: {e}")
+                    logger.warning(f"Error parseando fecha con hora: {e}")
             
             # Si ya está en formato MM/DD/YYYY o similar
             if "/" in value:
-                logger.info(f"✅ Fecha texto {cell} = {value}")
+                logger.info(f"Fecha texto {cell} = {value}")
                 return value
             # Si está en formato YYYY-MM-DD
             elif "-" in value:
@@ -203,7 +205,7 @@ def read_excel_date_cell(sheet, cell):
                 if value > 0:
                     date_obj = excel_epoch + timedelta(days=value - 2)  # -2 por bug histórico de Excel
                     formatted_date = date_obj.strftime("%m/%d/%Y")  # CAMBIADO: Formato MM/DD/YYYY
-                    logger.info(f"✅ Fecha numérica {cell} = {formatted_date}")
+                    logger.info(f"Fecha numérica {cell} = {formatted_date}")
                     return formatted_date
             except:
                 pass
@@ -214,11 +216,11 @@ def read_excel_date_cell(sheet, cell):
         if " " in fallback_value and ":" in fallback_value:
             fallback_value = fallback_value.split(" ")[0]
         
-        logger.warning(f"⚠️ Formato de fecha no reconocido en {cell}: {value}, usando fallback: {fallback_value}")
+        logger.warning(f"Formato de fecha no reconocido en {cell}: {value}, usando fallback: {fallback_value}")
         return fallback_value
         
     except Exception as e:
-        logger.error(f"❌ Error leyendo fecha en celda {cell}: {str(e)}")
+        logger.error(f"Error leyendo fecha en celda {cell}: {str(e)}")
         return "TBD"
 
 def combine_dates(date1, date2):
@@ -235,7 +237,7 @@ def get_remodel_dates():
     try:
         global workbook
         if not workbook:
-            logger.warning("⚠️ No hay workbook disponible para fechas de remodelación")
+            logger.warning("No hay workbook disponible para fechas de remodelación")
             return {
                 "stage1_start": "TBD",
                 "stage1_end": "TBD", 
@@ -244,13 +246,13 @@ def get_remodel_dates():
                 "source": "fallback"
             }
         
-        logger.info("📅 === OBTENIENDO FECHAS DE REMODELACIÓN ===")
+        logger.info("=== OBTENIENDO FECHAS DE REMODELACIÓN ===")
         
         # Verificar que existen las hojas necesarias
         required_sheets = ['FLO', 'TEX']
         for sheet_name in required_sheets:
             if sheet_name not in workbook.sheetnames:
-                logger.warning(f"⚠️ Hoja {sheet_name} no encontrada para fechas")
+                logger.warning(f"Hoja {sheet_name} no encontrada para fechas")
                 return {
                     "stage1_start": "TBD",
                     "stage1_end": "TBD",
@@ -261,7 +263,7 @@ def get_remodel_dates():
         
         # Leer fechas de Florida (FLO)
         flo_sheet = workbook['FLO']
-        logger.info("🏖️ Leyendo fechas de Florida...")
+        logger.info("Leyendo fechas de Florida...")
         
         flo_stage1_start = read_excel_date_cell(flo_sheet, 'C3')  # Stage 1 Start
         flo_stage1_end = read_excel_date_cell(flo_sheet, 'D3')    # Stage 1 End  
@@ -272,11 +274,11 @@ def get_remodel_dates():
         flo_july_stores = read_excel_cell(flo_sheet, 'E3')        # Tiendas en Julio
         flo_august_stores = read_excel_cell(flo_sheet, 'F3')      # Tiendas en Agosto
         
-        logger.info(f"🏖️ Florida - Julio: {flo_july_stores} tiendas, Agosto: {flo_august_stores} tiendas")
+        logger.info(f"Florida - Julio: {flo_july_stores} tiendas, Agosto: {flo_august_stores} tiendas")
         
         # Leer fechas de Texas (TEX) - CORREGIDO según especificación del usuario
         tex_sheet = workbook['TEX']
-        logger.info("🤠 Leyendo fechas de Texas...")
+        logger.info("Leyendo fechas de Texas...")
         
         tex_stage1_start = read_excel_date_cell(tex_sheet, 'C3')  # Stage 1 Start Remod
         tex_stage1_end = read_excel_date_cell(tex_sheet, 'D3')    # Stage 1 End Remod  
@@ -447,8 +449,9 @@ def process_sheet_data(workbook, sheet_name):
             logger.info(f"📊 Texas Quote (B27): {quote}")
             logger.info(f"📊 Texas Pending (B28): {pending}")
             
-            logger.info("🏗️ Leyendo tipos de proyectos...")
+            logger.info("Leyendo tipos de proyectos...")
             project_edmb = read_excel_cell(sheet, 'B33')
+            project_edmb_idmb = read_excel_cell(sheet, 'B34')  # TEX con EDMB y IDMB
             
             # Datos de Texas
             data = {
@@ -477,15 +480,16 @@ def process_sheet_data(workbook, sheet_name):
                     # NOTA: Texas NO tiene signed ni paid
                 },
                 "project_types": {
-                    "edmb": project_edmb
+                    "edmb": project_edmb,
+                    "edmb_idmb": project_edmb_idmb  # TEX con EDMB y IDMB
                 }
             }
         
         logger.info(f"✅ Datos procesados para {sheet_name}:")
-        logger.info(f"   📊 Aloha19 Total: {data['aloha19']['total']}")
-        logger.info(f"   📊 Aloha19 Finished: {data['aloha19']['finished']}")
-        logger.info(f"   🔌 Wiring Finished: {data['wiring']['finished']}")
-        logger.info(f"   🔌 Wiring Pending: {data['wiring']['pending']}")
+        logger.info(f"   Aloha19 Total: {data['aloha19']['total']}")
+        logger.info(f"   Aloha19 Finished: {data['aloha19']['finished']}")
+        logger.info(f"   Wiring Finished: {data['wiring']['finished']}")
+        logger.info(f"   Wiring Pending: {data['wiring']['pending']}")
         if sheet_name == 'TEX':
             logger.info(f"   🔌 Wiring Close: {data['wiring'].get('close', 0)}")
         logger.info(f"   🤖 Fresh AI: {data['technologies']['fresh_ai']}")
@@ -493,13 +497,13 @@ def process_sheet_data(workbook, sheet_name):
         return data
         
     except Exception as e:
-        logger.error(f"❌ Error procesando hoja {sheet_name}: {str(e)}")
+        logger.error(f"Error procesando hoja {sheet_name}: {str(e)}")
         return {}
 
 def combine_regional_data(florida_data, texas_data):
     """Combina los datos de Florida y Texas para vista global con DEBUG"""
     try:
-        logger.info("🌍 === COMBINANDO DATOS GLOBALES ===")
+        logger.info(" === COMBINANDO DATOS GLOBALES ===")
         
         # Helper para obtener valores seguros
         def safe_get(data, path, default=0):

@@ -2013,6 +2013,12 @@
                     if (data.project_types_texas.edmb > 0) {
                         combinedData['EDMB'] = (combinedData['EDMB'] || 0) + data.project_types_texas.edmb;
                     }
+                    if (data.project_types_texas.edmb_idmb > 0) {
+                        combinedData['EDMB,IDMB'] = (combinedData['EDMB,IDMB'] || 0) + data.project_types_texas.edmb_idmb;
+                    }
+                    if (data.project_types_texas.idmb > 0) {
+                        combinedData['IDMB'] = (combinedData['IDMB'] || 0) + data.project_types_texas.idmb;
+                    }
                 }
                 
                 if (Object.keys(combinedData).length > 0) {
@@ -2049,6 +2055,12 @@
                     } else if (currentRegion === 'texas') {
                         if (regionData.project_types.edmb > 0) {
                             projectTypesData['EDMB'] = regionData.project_types.edmb;
+                        }
+                        if (regionData.project_types.idmb > 0) {
+                            projectTypesData['IDMB'] = regionData.project_types.idmb;
+                        }
+                        if (regionData.project_types.edmb_idmb > 0) {
+                            projectTypesData['EDMB, IDMB'] = regionData.project_types.edmb_idmb;
                         }
                     }
                     
