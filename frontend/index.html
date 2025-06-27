@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>916 Dashboard - Aloha 19 & Projects</title>
-     <link rel="icon" href="images/logo.ico" type="image/x-icon">
+    <link rel="icon" href="images/logo.ico" type="image/x-icon">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
-        
+
         :root {
             --wendy-red: #E31837;
             --wendy-dark-red: #B91C3C;
@@ -20,11 +22,11 @@
             --wendy-dark-gray: #374151;
             --wendy-light-gray: #F9FAFB;
         }
-        
+
         * {
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Montserrat', sans-serif;
             margin: 0;
@@ -33,16 +35,16 @@
             min-height: 100vh;
             color: var(--wendy-dark-gray);
         }
-        
+
         .container {
             max-width: 1600px;
             margin: 0 auto;
             background: white;
             padding: 40px;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
         }
-        
+
         .header {
             text-align: center;
             margin-bottom: 40px;
@@ -53,7 +55,7 @@
             padding: 40px 40px 30px 40px;
             border-radius: 20px 20px 0 0;
         }
-        
+
         .title {
             color: var(--wendy-red);
             font-size: 2.8em;
@@ -65,7 +67,7 @@
             font-weight: 800;
             letter-spacing: 1px;
         }
-        
+
         .company-logo {
             width: 80px;
             height: 80px;
@@ -83,14 +85,14 @@
             position: relative;
             cursor: pointer;
         }
-        
+
         .company-logo img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             border-radius: 50%;
         }
-        
+
         .logo-input {
             position: absolute;
             opacity: 0;
@@ -99,7 +101,7 @@
             cursor: pointer;
             z-index: 10;
         }
-        
+
         .logo-text {
             display: flex;
             align-items: center;
@@ -108,24 +110,24 @@
             height: 100%;
             transition: opacity 0.3s ease;
         }
-        
+
         .subtitle {
             color: var(--wendy-dark-gray);
             font-size: 1.2em;
             margin-top: 10px;
             font-weight: 500;
         }
-        
+
         .status-section {
             background: linear-gradient(135deg, var(--wendy-light-gray) 0%, #E5F3FF 100%);
             padding: 30px;
             border-radius: 15px;
             margin-bottom: 30px;
             border-left: 6px solid var(--wendy-blue);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             text-align: center;
         }
-        
+
         .section-title {
             font-size: 1.3em;
             font-weight: 700;
@@ -136,7 +138,7 @@
             justify-content: center;
             gap: 10px;
         }
-        
+
         .btn {
             background: linear-gradient(135deg, var(--wendy-red) 0%, var(--wendy-dark-red) 100%);
             color: white;
@@ -151,25 +153,25 @@
             font-family: 'Montserrat', sans-serif;
             letter-spacing: 0.3px;
         }
-        
+
         .btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 25px rgba(227, 24, 55, 0.4);
         }
-        
+
         .btn.refresh {
             background: linear-gradient(135deg, var(--wendy-yellow) 0%, #F59E0B 100%);
             color: var(--wendy-dark-gray);
         }
-        
+
         .btn.download {
             background: linear-gradient(135deg, #10B981 0%, #059669 100%);
         }
-        
+
         .btn.info {
             background: linear-gradient(135deg, var(--wendy-blue) 0%, var(--wendy-dark-blue) 100%);
         }
-        
+
         .buttons-container {
             display: flex;
             flex-wrap: wrap;
@@ -177,7 +179,7 @@
             gap: 10px;
             margin-bottom: 15px;
         }
-        
+
         .status {
             padding: 20px;
             border-radius: 12px;
@@ -186,38 +188,38 @@
             font-weight: 600;
             font-size: 16px;
         }
-        
+
         .status.success {
             background: #ECFDF5;
             color: #065F46;
             border: 3px solid #10B981;
         }
-        
+
         .status.error {
             background: #FEF2F2;
             color: #991B1B;
             border: 3px solid #EF4444;
         }
-        
+
         .status.loading {
             background: #EFF6FF;
             color: #1E40AF;
             border: 3px solid var(--wendy-blue);
         }
-        
+
         .status.warning {
             background: #FFFBEB;
             color: #92400E;
             border: 3px solid var(--wendy-yellow);
         }
-        
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 15px;
             margin: 25px 0;
         }
-        
+
         .stat-card {
             background: linear-gradient(135deg, var(--wendy-red) 0%, var(--wendy-dark-red) 100%);
             color: white;
@@ -230,7 +232,7 @@
             overflow: hidden;
             cursor: pointer;
         }
-        
+
         .stat-card::before {
             content: '';
             position: absolute;
@@ -240,23 +242,23 @@
             height: 2px;
             background: linear-gradient(90deg, var(--wendy-yellow), white, var(--wendy-blue));
         }
-        
+
         .stat-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(227, 24, 55, 0.3);
         }
-        
+
         .stat-card.finished {
             background: linear-gradient(135deg, #6671e2 0%, #7e58ee 100%);
         }
-        
+
         .stat-number {
             font-size: 1.8em;
             font-weight: 700;
             margin-bottom: 4px;
             line-height: 1;
         }
-        
+
         .stat-label {
             font-size: 0.75em;
             font-weight: 500;
@@ -264,40 +266,47 @@
             letter-spacing: 0.3px;
             line-height: 1.2;
         }
-        
+
         /* NUEVO: Layout responsive 3 columnas */
         .main-charts-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* 3 columnas responsive */
-            gap: 20px; /* REDUCIDO de 30px a 20px */
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            /* 3 columnas responsive */
+            gap: 20px;
+            /* REDUCIDO de 30px a 20px */
             margin-top: 40px;
         }
 
         /* RESPONSIVE: Ajustes para diferentes tamaños de pantalla */
         @media (min-width: 1200px) {
             .main-charts-grid {
-                grid-template-columns: repeat(3, 1fr); /* Exactamente 3 columnas en pantallas grandes */
+                grid-template-columns: repeat(3, 1fr);
+                /* Exactamente 3 columnas en pantallas grandes */
             }
         }
 
         @media (max-width: 1199px) and (min-width: 768px) {
             .main-charts-grid {
-                grid-template-columns: repeat(2, 1fr); /* 2 columnas en tablets */
+                grid-template-columns: repeat(2, 1fr);
+                /* 2 columnas en tablets */
             }
         }
 
         @media (max-width: 767px) {
             .main-charts-grid {
-                grid-template-columns: 1fr; /* 1 columna en móviles */
+                grid-template-columns: 1fr;
+                /* 1 columna en móviles */
                 gap: 15px;
             }
-            
+
             .chart-wrapper {
-                padding: 15px; /* Menos padding en móviles */
+                padding: 15px;
+                /* Menos padding en móviles */
             }
-            
+
             .chart-title {
-                font-size: 1.1em; /* Títulos más pequeños en móviles */
+                font-size: 1.1em;
+                /* Títulos más pequeños en móviles */
             }
         }
 
@@ -310,31 +319,35 @@
         }
 
         #projectTypesIntegratedWrapper canvas {
-            max-height: 250px !important; /* Misma altura que otras gráficas */
+            max-height: 250px !important;
+            /* Misma altura que otras gráficas */
             max-width: 100% !important;
         }
 
         #projectTypesIntegratedTitle {
             /* Usa los mismos estilos que chart-title */
         }
-        
+
         .chart-wrapper {
             background: white;
-            padding: 20px; /* REDUCIDO de 30px a 20px */
+            padding: 20px;
+            /* REDUCIDO de 30px a 20px */
             border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
             border: 1px solid #E5E7EB;
             position: relative;
             overflow: hidden;
-            max-height: 400px; /* NUEVO: Altura máxima */
+            max-height: 400px;
+            /* NUEVO: Altura máxima */
         }
-        
+
         .chart-wrapper canvas {
-            max-height: 250px !important; /* NUEVO: Canvas más pequeño */
+            max-height: 250px !important;
+            /* NUEVO: Canvas más pequeño */
             max-width: 100% !important;
         }
-        
+
         .chart-wrapper::before {
             content: '';
             position: absolute;
@@ -344,12 +357,14 @@
             height: 4px;
             background: linear-gradient(90deg, var(--wendy-red), var(--wendy-yellow), var(--wendy-blue));
         }
-        
+
         .chart-wrapper:hover {
-            transform: translateY(-3px); /* REDUCIDO de -5px a -3px */
-            box-shadow: 0 12px 30px rgba(0,0,0,0.15); /* REDUCIDO efecto */
+            transform: translateY(-3px);
+            /* REDUCIDO de -5px a -3px */
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            /* REDUCIDO efecto */
         }
-        
+
         /* NUEVO: Estilos para el botón de Schedule */
         .schedule-button-container {
             text-align: center;
@@ -408,6 +423,7 @@
                 opacity: 0;
                 transform: translateY(-50px) scale(0.9);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0) scale(1);
@@ -531,18 +547,18 @@
                 width: 95%;
                 margin: 20px;
             }
-            
+
             .schedule-table-modal th,
             .schedule-table-modal td {
                 padding: 10px 8px;
                 font-size: 0.8em;
             }
-            
+
             .modal-header h3 {
                 font-size: 1.1em;
             }
         }
-        
+
         .region-tabs {
             display: flex;
             justify-content: center;
@@ -551,9 +567,9 @@
             border-radius: 15px;
             padding: 8px;
             border: 2px solid #E5E7EB;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
-        
+
         .tab {
             padding: 15px 30px;
             cursor: pointer;
@@ -566,19 +582,19 @@
             font-family: 'Montserrat', sans-serif;
             letter-spacing: 0.3px;
         }
-        
+
         .tab.active {
             background: linear-gradient(135deg, var(--wendy-red) 0%, var(--wendy-dark-red) 100%);
             color: white;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(227, 24, 55, 0.3);
         }
-        
+
         .tab:hover:not(.active) {
             background: #E5E7EB;
             transform: translateY(-1px);
         }
-        
+
         .last-update {
             text-align: center;
             color: var(--wendy-dark-gray);
@@ -590,7 +606,7 @@
             border-radius: 12px;
             border-left: 4px solid var(--wendy-red);
         }
-        
+
         .loading-spinner {
             display: inline-block;
             width: 24px;
@@ -600,19 +616,24 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-        
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
-        
+
         .regional-stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 20px;
             margin: 0;
         }
-        
+
         .regional-stat-card {
             background: linear-gradient(135deg, var(--wendy-red) 0%, var(--wendy-dark-red) 100%);
             color: white;
@@ -629,7 +650,7 @@
             flex-direction: column;
             justify-content: center;
         }
-        
+
         .regional-stat-card::before {
             content: '';
             position: absolute;
@@ -639,19 +660,19 @@
             height: 2px;
             background: linear-gradient(90deg, var(--wendy-yellow), white);
         }
-        
+
         .regional-stat-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(227, 24, 55, 0.3);
         }
-        
+
         .regional-stat-number {
             font-size: 1.5em;
             font-weight: 700;
             margin-bottom: 3px;
             line-height: 1;
         }
-        
+
         .regional-stat-label {
             font-size: 0.65em;
             font-weight: 500;
@@ -659,7 +680,7 @@
             letter-spacing: 0.3px;
             line-height: 1.1;
         }
-        
+
         .project-details-section {
             margin-top: 40px;
             text-align: center;
@@ -675,7 +696,7 @@
             border-radius: 15px;
             border-left: 6px solid var(--wendy-blue);
             margin-top: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .more-info-section {
@@ -689,7 +710,7 @@
             margin-top: 25px;
             border: 2px solid #E5E7EB;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .excel-table {
@@ -712,16 +733,16 @@
             font-size: 0.8em;
             transition: all 0.3s ease;
         }
-        
+
         .excel-table th[onclick] {
             position: relative;
         }
-        
+
         .excel-table th[onclick]:hover {
             background: linear-gradient(135deg, var(--wendy-dark-red) 0%, #8B1538 100%);
             transform: scale(1.02);
         }
-        
+
         .excel-table th[onclick]:active {
             transform: scale(0.98);
         }
@@ -768,7 +789,7 @@
             border-radius: 15px;
             border-left: 6px solid var(--wendy-blue);
             margin-top: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         #diagnosticsContainer {
@@ -777,7 +798,7 @@
             border-radius: 15px;
             border-left: 6px solid #F59E0B;
             margin-top: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         #diagnosticsContent {
@@ -800,7 +821,7 @@
             padding-top: 20px;
             border-top: 2px solid #E5E7EB;
         }
-        
+
         .schedule-table {
             width: 100%;
             border-collapse: collapse;
@@ -809,7 +830,7 @@
             margin: 0 auto;
             max-width: 400px;
         }
-        
+
         .schedule-table th {
             background: linear-gradient(135deg, var(--wendy-blue) 0%, var(--wendy-dark-blue) 100%);
             color: white;
@@ -819,23 +840,23 @@
             font-size: 0.8em;
             letter-spacing: 0.3px;
         }
-        
+
         .schedule-table td {
             padding: 8px;
             text-align: center;
             border: 1px solid #E5E7EB;
             font-weight: 500;
         }
-        
+
         .schedule-table tr:nth-child(even) {
             background-color: var(--wendy-light-gray);
         }
-        
+
         .schedule-table tr:hover {
             background-color: #EFF6FF;
             transition: all 0.2s ease;
         }
-        
+
         .status-badge {
             padding: 4px 8px;
             border-radius: 12px;
@@ -843,18 +864,19 @@
             font-weight: 600;
             letter-spacing: 0.3px;
         }
-        
+
         .status-badge.stage1 {
             background: linear-gradient(135deg, #FFC72C, #F59E0B);
             color: var(--wendy-dark-gray);
         }
-        
+
         .status-badge.stage2 {
             background: linear-gradient(135deg, #FF8C00, #E31837);
             color: white;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -863,7 +885,7 @@
             </h1>
             <p class="subtitle">Aloha 19 Implementation & Project Management System</p>
         </div>
-        
+
         <div class="">
             <div style="margin-bottom: 15px;">
                 <div id="connectionStatus">Connecting to server...</div>
@@ -871,50 +893,55 @@
             <div class="buttons-container">
                 <button onclick="refreshData()" class="btn refresh">Refresh Data</button>
                 <button onclick="downloadExcel()" class="btn download">Download Excel</button>
-                
+
             </div>
         </div>
-        
+
         <div id="statusMessage"></div>
-        
+
         <div class="region-tabs">
             <button class="tab active" onclick="handleTabClick('global', this)">Global View (FL + TX)</button>
             <button class="tab" onclick="handleTabClick('florida', this)">Florida Region</button>
             <button class="tab" onclick="handleTabClick('texas', this)">Texas Region</button>
         </div>
-        
+
         <div id="alohaStats" class="stats-grid">
             <!-- Statistics cards generated here -->
         </div>
-        
+
         <!-- Regional Statistics - Only visible in Global View -->
         <div id="regionalStats" style="display: none;">
-            <h3 style="text-align: center; color: var(--wendy-dark-gray); margin: 30px 0 25px 0; font-weight: 700;">Regional Performance</h3>
-            
+            <h3 style="text-align: center; color: var(--wendy-dark-gray); margin: 30px 0 25px 0; font-weight: 700;">
+                Regional Performance</h3>
+
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 50px; max-width: 900px; margin: 0 auto;">
                 <!-- Florida Section -->
                 <div>
-                    <h4 style="color: var(--wendy-red); margin-bottom: 15px; font-weight: 600; font-size: 1.1em; text-align: center;">Florida Region</h4>
+                    <h4
+                        style="color: var(--wendy-red); margin-bottom: 15px; font-weight: 600; font-size: 1.1em; text-align: center;">
+                        Florida Region</h4>
                     <div class="regional-stats-grid" id="floridaRegionalStats">
                         <!-- Florida regional cards -->
                     </div>
                 </div>
-                
+
                 <!-- Texas Section -->
                 <div>
-                    <h4 style="color: var(--wendy-red); margin-bottom: 15px; font-weight: 600; font-size: 1.1em; text-align: center;">Texas Region</h4>
+                    <h4
+                        style="color: var(--wendy-red); margin-bottom: 15px; font-weight: 600; font-size: 1.1em; text-align: center;">
+                        Texas Region</h4>
                     <div class="regional-stats-grid" id="texasRegionalStats">
                         <!-- Texas regional cards -->
                     </div>
                 </div>
             </div>
         </div>
-        
+
         <div class="main-charts-grid">
             <div class="chart-wrapper">
                 <div class="chart-title">Aloha 19 Implementation Status</div>
                 <canvas id="aloha19Chart"></canvas>
-                
+
                 <!-- NUEVO: Botón para abrir modal de Schedule -->
                 <div class="schedule-button-container" id="scheduleButtonContainer" style="display: none;">
                     <button onclick="openScheduleModal()" class="btn schedule-btn">
@@ -922,22 +949,22 @@
                     </button>
                 </div>
             </div>
-            
+
             <div class="chart-wrapper">
                 <div class="chart-title">Wiring Progress</div>
                 <canvas id="wiringChart"></canvas>
             </div>
-            
+
             <div class="chart-wrapper">
                 <div class="chart-title">Digital Deployment</div>
                 <canvas id="techChart"></canvas>
             </div>
-            
+
             <div class="chart-wrapper">
                 <div class="chart-title">Project Status Overview</div>
                 <canvas id="projectsChart"></canvas>
             </div>
-            
+
             <!-- Project Types como gráfica separada -->
             <div class="chart-wrapper" id="projectTypesIntegratedWrapper">
                 <div class="chart-title" id="projectTypesIntegratedTitle">Project Types</div>
@@ -987,13 +1014,15 @@
 
         <div class="project-details-section">
             <div class="buttons-container">
-                <button onclick="toggleProjectDetailsTable()" class="btn info" id="projectDetailsBtn">Project Details</button>
+                <button onclick="toggleProjectDetailsTable()" class="btn info" id="projectDetailsBtn">Project
+                    Details</button>
             </div>
         </div>
 
         <div id="projectDetailsContainer" style="display: none; margin-top: 25px;">
             <div class="section-title">Detailed Project Information</div>
-            <p style="text-align: center; color: var(--wendy-dark-gray); font-size: 0.9em; margin: 10px 0; font-style: italic;">
+            <p
+                style="text-align: center; color: var(--wendy-dark-gray); font-size: 0.9em; margin: 10px 0; font-style: italic;">
                 💡 Click on column headers to sort the data ⇕
             </p>
             <button onclick="hideProjectDetailsTable()" class="close-table">✖ Close</button>
@@ -1011,134 +1040,135 @@
         </div>
 
         <div id="detailedTableContainer" style="display: none;">
-            <p style="text-align: center; color: var(--wendy-dark-gray); font-size: 0.9em; margin: 10px 0; font-style: italic;">
-             Click on column headers to sort the data ⇕
+            <p
+                style="text-align: center; color: var(--wendy-dark-gray); font-size: 0.9em; margin: 10px 0; font-style: italic;">
+                Click on column headers to sort the data ⇕
             </p>
-            <div><button onclick="hideDetailedTable()" class="close-table">✖ Close</button></div> 
+            <div><button onclick="hideDetailedTable()" class="close-table">✖ Close</button></div>
             <div class="table-container">
                 <table id="detailedTable" class="excel-table">
                     <!-- Table generated dynamically -->
                 </table>
             </div>
         </div>
-        
+
         <div id="lastUpdate" class="last-update"></div>
     </div>
 
     <script>
         // API Configuration
-        const API_BASE_URL = 'https://nine16-foods-api.onrender.com'; 
-        
+        const API_BASE_URL = 'https://nine16-foods-api.onrender.com';
+
         // Global variables
         let dashboardData = null;
         let allCharts = {};
         let currentRegion = 'global';
-        
+
         // Global variable to store current table data for sorting
         let currentTableData = [];
         let currentSortColumn = null;
         let currentSortDirection = 'asc';
-        
+
         // Global variables for detailed table sorting
         let currentDetailedTableData = [];
         let currentDetailedSortColumn = null;
         let currentDetailedSortDirection = 'asc';
         let currentDetailedColumns = [];
-        
+
         // Function to load data from API
         async function loadDataFromAPI() {
             try {
                 showStatus('Loading data from SharePoint...', 'loading');
-                
+
                 const response = await fetch(`${API_BASE_URL}/api/data`);
-                
+
                 if (!response.ok) {
                     throw new Error(`HTTP Error: ${response.status}`);
                 }
-                
+
                 const data = await response.json();
-                
+
                 if (data.status.includes('error')) {
                     throw new Error(data.status);
                 }
-                
+
                 dashboardData = data;
-                
+
                 document.getElementById('connectionStatus').innerHTML = `
                     <span style="color: #10B981;">Connected to server</span>
                 `;
-                
+
                 showStatus('Data loaded successfully from SharePoint', 'success');
                 updateDashboard();
                 updateLastUpdate();
-                
+
             } catch (error) {
                 console.error('Error loading data:', error);
                 showStatus(`Error connecting to server: ${error.message}`, 'error');
-                
+
                 document.getElementById('connectionStatus').innerHTML = `
                     <span style="color: #EF4444;"> Connection error</span>
                 `;
             }
         }
-        
+
         // Function to refresh data manually
         async function refreshData() {
             try {
                 showStatus('Requesting update...', 'loading');
-                
+
                 // First, request update
                 await fetch(`${API_BASE_URL}/api/refresh`);
-                
+
                 // Wait a bit and then load new data
                 setTimeout(loadDataFromAPI, 3000);
-                
+
             } catch (error) {
                 showStatus(`Error requesting update: ${error.message}`, 'error');
             }
         }
-        
+
         // Function to download Excel file
         function downloadExcel() {
             try {
                 showStatus('Downloading Excel file...', 'loading');
-                
+
                 // Create a temporary link to download the file
                 const link = document.createElement('a');
                 link.href = 'https://916foods-my.sharepoint.com/personal/it_support_916foods_com/_layouts/15/download.aspx?share=EZb5NHihKQ9Lnysp--9gH0UBOkCr7K-3Ud_mPhC2At2PPQ';
                 link.target = '_blank';
                 link.download = '916Foods_Data.xlsx'; // Optional: suggest filename
-                
+
                 // Trigger download
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                
+
                 showStatus('Excel download started', 'success');
-                
+
             } catch (error) {
                 showStatus(`Error downloading Excel: ${error.message}`, 'error');
                 console.error('Download error:', error);
             }
         }
-        
+
         function showStatus(message, type) {
             const statusDiv = document.getElementById('statusMessage');
             const spinner = type === 'loading' ? '<span class="loading-spinner"></span> ' : '';
-            
+
             // Handle multiline messages
             const formattedMessage = message.replace(/\n/g, '<br>');
-            
+
             statusDiv.innerHTML = `<div class="status ${type}" style="text-align: left; white-space: pre-wrap;">${spinner}${formattedMessage}</div>`;
-            
+
             if (type === 'success') {
                 setTimeout(() => statusDiv.innerHTML = '', 4000);
             }
         }
-        
+
         function updateLastUpdate() {
             if (!dashboardData || !dashboardData.last_update) return;
-            
+
             const updateDate = new Date(dashboardData.last_update);
 
             const formattedDate = updateDate.toLocaleString('en-US', {
@@ -1154,25 +1184,25 @@
 
         function getCurrentData() {
             if (!dashboardData) return null;
-            
-            switch(currentRegion) {
+
+            switch (currentRegion) {
                 case 'florida': return dashboardData.florida_data;
                 case 'texas': return dashboardData.texas_data;
                 case 'global': return dashboardData.global_data;
                 default: return dashboardData.global_data;
             }
         }
-        
+
         // Function to handle tab clicks
         function handleTabClick(region, tabElement) {
             // Cerrar tablas abiertas al cambiar de pestaña
             hideProjectDetailsTable();
             hideDetailedTable();
-            
+
             currentRegion = region;
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             tabElement.classList.add('active');
-            
+
             // Show/hide more information button
             const moreInfoSection = document.getElementById('moreInfoSection');
             if (region === 'florida' || region === 'texas') {
@@ -1181,20 +1211,20 @@
                 moreInfoSection.style.display = 'none';
                 hideDetailedTable(); // Hide table if visible
             }
-            
+
             updateDashboard();
         }
-        
+
         function showRegion(region) {
             // Cerrar tablas abiertas al cambiar de región
             hideProjectDetailsTable();
             hideDetailedTable();
-            
+
             currentRegion = region;
-            
+
             // Update active tab
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            
+
             // Find and activate the corresponding tab
             const tabs = document.querySelectorAll('.tab');
             tabs.forEach(tab => {
@@ -1205,7 +1235,7 @@
                     tab.classList.add('active');
                 }
             });
-            
+
             // Show/hide more information button
             const moreInfoSection = document.getElementById('moreInfoSection');
             if (region === 'florida' || region === 'texas') {
@@ -1214,20 +1244,20 @@
                 moreInfoSection.style.display = 'none';
                 hideDetailedTable(); // Hide table if visible
             }
-            
+
             updateDashboard();
         }
-        
+
         function updateAlohaStats(data) {
             if (!data || !data.aloha19) return;
-            
+
             const statsGrid = document.getElementById('alohaStats');
             const regionalStats = document.getElementById('regionalStats');
-            
+
             // Determine total stores by region
             let totalStores = data.aloha19.total || 0;
             let regionInfo;
-            
+
             if (currentRegion === 'florida') {
                 regionInfo = 'Florida Stores';
             } else if (currentRegion === 'texas') {
@@ -1235,18 +1265,18 @@
             } else {
                 regionInfo = 'Total Stores';
             }
-            
+
             // Calculate percentages
             const finishedPercentage = totalStores > 0 ? ((data.aloha19.finished / totalStores) * 100).toFixed(1) : 0;
             const wiringFinishedPercentage = totalStores > 0 ? ((data.wiring.finished / totalStores) * 100).toFixed(1) : 0;
-            
+
             let statsHTML = `
                 <div class="stat-card finished" onclick="scrollToChart('aloha19Chart')">
                     <div class="stat-number">${totalStores}</div>
                     <div class="stat-label">${regionInfo}</div>
                 </div>
             `;
-            
+
             if (currentRegion === 'global') {
                 // Global View - Show only 4 main cards
                 statsHTML += `
@@ -1265,11 +1295,11 @@
                         <div class="stat-label">Fresh AI Deployed</div>
                     </div>
                 `;
-                
+
                 // Show regional stats
                 regionalStats.style.display = 'block';
                 updateRegionalStats();
-                
+
             } else {
                 // Regional views - Show traditional details
                 statsHTML += `
@@ -1287,33 +1317,33 @@
                         <div class="stat-label">Fresh AI Deployed</div>
                     </div>
                 `;
-                
+
                 // Hide regional stats
                 regionalStats.style.display = 'none';
             }
-            
+
             statsGrid.innerHTML = statsHTML;
         }
-        
+
         // New function to update regional statistics
         function updateRegionalStats() {
             if (!dashboardData) return;
-            
+
             // Calculate Florida stats
             const floridaData = dashboardData.florida_data;
             const floridaTotal = floridaData.aloha19?.total || 0;
             const floridaAlohaPercent = floridaTotal > 0 ? ((floridaData.aloha19.finished / floridaTotal) * 100).toFixed(1) : 0;
             const floridaWiringPercent = floridaTotal > 0 ? ((floridaData.wiring.finished / floridaTotal) * 100).toFixed(1) : 0;
-            
+
             // Calculate Texas stats
             const texasData = dashboardData.texas_data;
             const texasTotal = texasData.aloha19?.total || 0;
             const texasAlohaPercent = texasTotal > 0 ? ((texasData.aloha19.finished / texasTotal) * 100).toFixed(1) : 0;
             const texasWiringPercent = texasTotal > 0 ? ((texasData.wiring.finished / texasTotal) * 100).toFixed(1) : 0;
-            
+
             const floridaContainer = document.getElementById('floridaRegionalStats');
             const texasContainer = document.getElementById('texasRegionalStats');
-            
+
             floridaContainer.innerHTML = `
                 <div class="regional-stat-card" onclick="showRegion('florida')">
                     <div class="regional-stat-number">${floridaTotal}</div>
@@ -1332,7 +1362,7 @@
                     <div class="regional-stat-label">Fresh AI</div>
                 </div>
             `;
-            
+
             texasContainer.innerHTML = `
                 <div class="regional-stat-card" onclick="showRegion('texas')">
                     <div class="regional-stat-number">${texasTotal}</div>
@@ -1352,14 +1382,14 @@
                 </div>
             `;
         }
-        
+
         // Function to scroll to specific chart
         function scrollToChart(chartId) {
             const chartElement = document.getElementById(chartId);
             if (chartElement) {
-                chartElement.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'center' 
+                chartElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
                 });
                 // Add a subtle highlight effect
                 const wrapper = chartElement.closest('.chart-wrapper');
@@ -1371,12 +1401,12 @@
                 }
             }
         }
-        
+
         // NUEVA FUNCIÓN: Toggle para project details table
         function toggleProjectDetailsTable() {
             const container = document.getElementById('projectDetailsContainer');
             const btn = document.getElementById('projectDetailsBtn');
-            
+
             if (container.style.display === 'none' || container.style.display === '') {
                 showProjectDetailsTable();
                 btn.textContent = 'Hide Project Details';
@@ -1385,26 +1415,26 @@
                 btn.textContent = 'Project Details';
             }
         }
-        
+
         // Mostrar tabla de detalles de proyectos (datos reales del SharePoint)
         async function showProjectDetailsTable() {
             try {
                 const regionText = currentRegion === 'global' ? '' : ` for ${currentRegion.charAt(0).toUpperCase() + currentRegion.slice(1)}`;
                 showStatus(`Loading project details${regionText} from SharePoint...`, 'loading');
-                
+
                 // Usar siempre el endpoint original para obtener todos los datos
                 const response = await fetch(`${API_BASE_URL}/api/table/projects`);
-                
+
                 if (!response.ok) {
                     throw new Error(`HTTP Error: ${response.status}`);
                 }
-                
+
                 const result = await response.json();
-                
+
                 if (result.error) {
                     throw new Error(result.error);
                 }
-                
+
                 // Mostrar información de debug si está disponible
                 if (result.debug_info) {
                     console.log('Debug Info:', result.debug_info);
@@ -1413,13 +1443,13 @@
                     console.log(`Rows with project data: ${result.debug_info.rows_with_project_data}`);
                     console.log(`Rows matching filters: ${result.debug_info.rows_matching_filters}`);
                 }
-                
+
                 if (!result.data || result.data.length === 0) {
                     let debugMessage = `No project data found in SharePoint${regionText}`;
                     showStatus(debugMessage, 'warning');
                     return;
                 }
-                
+
                 // Filtrar datos según la región actual
                 let filteredData = result.data;
                 if (currentRegion !== 'global') {
@@ -1428,44 +1458,44 @@
                         return region.includes(currentRegion.toLowerCase());
                     });
                 }
-                
+
                 // Store filtered data globally for sorting
                 currentTableData = filteredData;
-                
+
                 if (currentTableData.length === 0) {
                     showStatus(`No project data found for ${currentRegion === 'global' ? 'any region' : currentRegion}`, 'warning');
                     return;
                 }
-                
+
                 // Generate table HTML with real data and sortable headers
                 renderProjectDetailsTable();
                 document.getElementById('projectDetailsContainer').style.display = 'block';
-                
+
                 const filterNote = result.filters_applied ? result.filters_applied.note : '';
                 const debugNote = result.debug_info ? ` (${result.debug_info.total_rows_checked} rows checked)` : '';
                 const regionNote = currentRegion !== 'global' ? ` - Filtered for ${currentRegion}` : '';
                 showStatus(`Project details loaded (${currentTableData.length} records)${debugNote}${regionNote}. ${filterNote}`, 'success');
-                
+
             } catch (error) {
                 showStatus(`Error loading project details: ${error.message}`, 'error');
                 console.error('Error:', error);
             }
         }
-        
+
         // NUEVA FUNCIÓN: Formatear fechas quitando hora y cambiando formato
         function formatDateCell(value, columnKey) {
             // Columnas que contienen fechas
-            const dateColumns = ['M', 'N', 'O']; // M=A19 UP, N=START REMOD, O=END REMOD
-            
+            const dateColumns = ['M', 'N', 'O', 'T', 'U']; // M=A19 UP, N=START REMOD, O=END REMOD
+
             if (!dateColumns.includes(columnKey) || !value || value === '---') {
                 return value;
             }
-            
+
             try {
                 // Si contiene hora (formato YYYY-MM-DD HH:MM:SS), extraer solo la fecha
                 if (typeof value === 'string' && value.includes(' ') && value.includes(':')) {
                     const datePart = value.split(' ')[0];
-                    
+
                     // Si está en formato YYYY-MM-DD, convertir a MM/DD/YYYY
                     if (datePart.includes('-')) {
                         const parts = datePart.split('-');
@@ -1476,41 +1506,43 @@
                     }
                     return datePart;
                 }
-                
+
                 // Si ya está en formato MM/DD/YYYY, mantenerlo
                 if (typeof value === 'string' && value.includes('/')) {
                     return value;
                 }
-                
+
                 // Para otros casos, devolver el valor original
                 return value;
-                
+
             } catch (error) {
                 console.log('Error formateando fecha:', error);
                 return value;
             }
         }
-        
+
         // Function to render the project details table with sorting
         function renderProjectDetailsTable() {
             const table = document.getElementById('projectDetailsTable');
             const columns = [
+                { key: '_region', label: 'Region', sortable: true },
                 { key: 'A', label: 'Store', sortable: true },
                 { key: 'B', label: 'Address', sortable: true },
-                { key: 'M', label: 'Aloha UP', sortable: true }, // NUEVA COLUMNA M
+                { key: 'M', label: 'Aloha UP', sortable: true },
                 { key: 'P', label: 'Project', sortable: true },
                 { key: 'Q', label: 'AUV', sortable: true },
                 { key: 'R', label: 'Cost', sortable: true },
                 { key: 'S', label: 'Status', sortable: true },
-                { key: 'T', label: 'Installation', sortable: true },
-                { key: '_region', label: 'Region', sortable: true }
+                { key: 'T', label: 'Delivery Date', sortable: true },
+                { key: 'U', label: 'Installation Date', sortable: true },
+                { key: 'V', label: 'Install', sortable: true },
             ];
-            
+
             // Create header row with sortable columns
             let tableHTML = '<tr>';
             columns.forEach(col => {
                 if (col.sortable) {
-                    const sortIcon = currentSortColumn === col.key ? 
+                    const sortIcon = currentSortColumn === col.key ?
                         (currentSortDirection === 'asc' ? ' ▲' : ' ▼') : ' ⇕';
                     tableHTML += `<th onclick="sortTable('${col.key}')" style="cursor: pointer; user-select: none;">${col.label}${sortIcon}</th>`;
                 } else {
@@ -1518,11 +1550,11 @@
                 }
             });
             tableHTML += '</tr>';
-            
+
             // Add data rows
             currentTableData.forEach(rowInfo => {
                 const row = rowInfo.data;
-                
+
                 // Format cost as currency
                 let formattedCost = row.R || '---';
                 if (formattedCost !== '---' && !isNaN(formattedCost) && formattedCost !== '' && formattedCost !== '0') {
@@ -1535,12 +1567,15 @@
                         // Keep original value if formatting fails
                     }
                 }
-                
+
                 // Format Aloha UP date (columna M)
                 const formattedAlohaUp = formatDateCell(row.M || '---', 'M');
-                
+                const formattedDeliveryDate = formatDateCell(row.T || '---', 'T');
+                const formattedInstallationDate = formatDateCell(row.U || '---', 'U');
+
                 tableHTML += `
                     <tr>
+                        <td>${row._region || 'N/A'}</td>
                         <td>${row.A || '---'}</td>
                         <td>${row.B || '---'}</td>
                         <td>${formattedAlohaUp}</td>
@@ -1548,15 +1583,16 @@
                         <td>${row.Q || '---'}</td>
                         <td>${formattedCost}</td>
                         <td>${row.S || '---'}</td>
-                        <td>${row.T || '---'}</td>
-                        <td>${row._region || 'N/A'}</td>
+                        <td>${formattedDeliveryDate}</td>
+                        <td>${formattedInstallationDate}</td>
+                        <td>${row.V || '---'}</td>
                     </tr>
                 `;
             });
-            
+
             table.innerHTML = tableHTML;
         }
-        
+
         // Function to sort table by column
         function sortTable(columnKey) {
             if (currentSortColumn === columnKey) {
@@ -1567,37 +1603,37 @@
                 currentSortColumn = columnKey;
                 currentSortDirection = 'asc';
             }
-            
+
             currentTableData.sort((a, b) => {
                 let aVal = a.data[columnKey] || '';
                 let bVal = b.data[columnKey] || '';
-                
+
                 // Handle numeric values (for Cost column R, AUV column Q, and Aloha UP column M)
-                if (columnKey === 'R' || columnKey === 'Q' || columnKey === 'M') {
+                if (columnKey === 'R' || columnKey === 'Q') {
                     aVal = parseFloat(aVal) || 0;
                     bVal = parseFloat(bVal) || 0;
-                    
+
                     if (currentSortDirection === 'asc') {
                         return aVal - bVal;
                     } else {
                         return bVal - aVal;
                     }
                 }
-                
+
                 // Handle text values
                 aVal = aVal.toString().toLowerCase();
                 bVal = bVal.toString().toLowerCase();
-                
+
                 if (currentSortDirection === 'asc') {
                     return aVal.localeCompare(bVal);
                 } else {
                     return bVal.localeCompare(aVal);
                 }
             });
-            
+
             renderProjectDetailsTable();
         }
-        
+
         // Function to hide project details table
         function hideProjectDetailsTable() {
             document.getElementById('projectDetailsContainer').style.display = 'none';
@@ -1608,7 +1644,7 @@
             currentSortColumn = null;
             currentSortDirection = 'asc';
         }
-        
+
         // NUEVA FUNCIÓN: Mostrar tabla detallada regional (datos reales del SharePoint)
         async function showDetailedTable() {
             try {
@@ -1616,46 +1652,46 @@
                     showStatus('Detailed table only available for specific Florida or Texas views', 'warning');
                     return;
                 }
-                
+
                 showStatus(`Loading detailed table for ${currentRegion} from SharePoint...`, 'loading');
-                
+
                 const response = await fetch(`${API_BASE_URL}/api/table/${currentRegion}/detailed`);
-                
+
                 if (!response.ok) {
                     throw new Error(`HTTP Error: ${response.status}`);
                 }
-                
+
                 const result = await response.json();
-                
+
                 if (result.error) {
                     throw new Error(result.error);
                 }
-                
+
                 if (!result.data || result.data.length === 0) {
                     showStatus(`No detailed data found for ${currentRegion}`, 'warning');
                     return;
                 }
-                
+
                 // Store data globally for sorting
                 currentDetailedTableData = result.data;
                 currentDetailedColumns = result.columns;
-                
+
                 // Generate table HTML with real SharePoint data and sortable headers
                 renderDetailedTable();
                 document.getElementById('detailedTableContainer').style.display = 'block';
-                
+
                 showStatus(`Detailed ${currentRegion} table loaded (${result.total_rows} rows from ${result.sheet})`, 'success');
-                
+
             } catch (error) {
                 showStatus(`Error loading detailed table: ${error.message}`, 'error');
                 console.error('Error:', error);
             }
         }
-        
+
         // Function to render the detailed table with sorting
         function renderDetailedTable() {
             const table = document.getElementById('detailedTable');
-            
+
             // Column names mapping
             const columnNames = {
                 'A': 'STORE', 'B': 'ADDRESS', 'C': 'PHONE/STORE PHONE', 'D': 'DM', 'E': 'GM',
@@ -1663,30 +1699,30 @@
                 'K': 'QB', 'L': 'KIOSK', 'M': 'A19 UP', 'N': 'START REMOD', 'O': 'END REMOD',
                 'P': 'PROJECT', 'Q': 'AUV', 'R': 'COST', 'S': 'STATUS', 'T': 'INSTALLATION'
             };
-            
+
             // Create header row with sortable columns
             let tableHTML = '<tr>';
             currentDetailedColumns.forEach(col => {
                 const displayName = columnNames[col] || `Column ${col}`;
-                const sortIcon = currentDetailedSortColumn === col ? 
+                const sortIcon = currentDetailedSortColumn === col ?
                     (currentDetailedSortDirection === 'asc' ? ' ▲' : ' ▼') : ' ⇕';
                 tableHTML += `<th onclick="sortDetailedTable('${col}')" style="cursor: pointer; user-select: none;">${displayName}${sortIcon}</th>`;
             });
             tableHTML += '</tr>';
-            
+
             // Add data rows
             currentDetailedTableData.forEach(rowInfo => {
                 const row = rowInfo.data;
                 tableHTML += '<tr>';
-                
+
                 currentDetailedColumns.forEach(col => {
                     let cellValue = row[col] || '---';
-                    
+
                     // Ensure 0 values become "---"
                     if (cellValue === 0 || cellValue === '0' || cellValue === '0.0') {
                         cellValue = '---';
                     }
-                    
+
                     // Format cost column if it's column R
                     if (col === 'R' && cellValue !== '---' && !isNaN(cellValue) && cellValue !== '' && cellValue !== '0') {
                         try {
@@ -1698,21 +1734,21 @@
                             // Keep original value if formatting fails
                         }
                     }
-                    
+
                     // NUEVO: Format date columns (M, N, O)
                     if (['M', 'N', 'O'].includes(col) && cellValue !== '---') {
                         cellValue = formatDateCell(cellValue, col);
                     }
-                    
+
                     tableHTML += `<td>${cellValue}</td>`;
                 });
-                
+
                 tableHTML += '</tr>';
             });
-            
+
             table.innerHTML = tableHTML;
         }
-        
+
         // Function to sort detailed table by column
         function sortDetailedTable(columnKey) {
             if (currentDetailedSortColumn === columnKey) {
@@ -1723,37 +1759,37 @@
                 currentDetailedSortColumn = columnKey;
                 currentDetailedSortDirection = 'asc';
             }
-            
+
             currentDetailedTableData.sort((a, b) => {
                 let aVal = a.data[columnKey] || '';
                 let bVal = b.data[columnKey] || '';
-                
+
                 // Handle numeric values (for columns like Cost R, AUV Q, etc.)
                 if (['R', 'Q'].includes(columnKey)) {
                     aVal = parseFloat(aVal) || 0;
                     bVal = parseFloat(bVal) || 0;
-                    
+
                     if (currentDetailedSortDirection === 'asc') {
                         return aVal - bVal;
                     } else {
                         return bVal - aVal;
                     }
                 }
-                
+
                 // Handle text values
                 aVal = aVal.toString().toLowerCase();
                 bVal = bVal.toString().toLowerCase();
-                
+
                 if (currentDetailedSortDirection === 'asc') {
                     return aVal.localeCompare(bVal);
                 } else {
                     return bVal.localeCompare(aVal);
                 }
             });
-            
+
             renderDetailedTable();
         }
-        
+
         // Function to hide detailed table
         function hideDetailedTable() {
             document.getElementById('detailedTableContainer').style.display = 'none';
@@ -1763,17 +1799,17 @@
             currentDetailedSortDirection = 'asc';
             currentDetailedColumns = [];
         }
-        
+
         // NUEVA FUNCIÓN: Abrir modal de Schedule
         function openScheduleModal() {
             const modal = document.getElementById('scheduleModal');
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden'; // Prevenir scroll del fondo
-            
+
             // Actualizar título del modal
             const regionTitle = currentRegion.charAt(0).toUpperCase() + currentRegion.slice(1);
             document.getElementById('modalRegionTitle').textContent = regionTitle;
-            
+
             // Actualizar datos del modal
             updateModalScheduleData();
         }
@@ -1789,32 +1825,32 @@
         async function updateModalScheduleData() {
             try {
                 const response = await fetch(`${API_BASE_URL}/api/remodel-dates`);
-                
+
                 if (response.ok) {
                     const result = await response.json();
-                    
+
                     if (result.status === 'success') {
                         let stage1Start, stage1End, stage2Start, stage2End;
                         let storesBreakdown = "TBD";
-                        
+
                         if (currentRegion === 'florida' && result.regional_details && result.regional_details.florida) {
                             const floridaData = result.regional_details.florida;
                             stage1Start = floridaData.stage1_start;
                             stage1End = floridaData.stage1_end;
                             stage2Start = floridaData.stage2_start;
                             stage2End = floridaData.stage2_end;
-                            
+
                             const julyStores = floridaData.july_stores || 0;
                             const augustStores = floridaData.august_stores || 0;
                             storesBreakdown = `<strong>July:</strong> ${julyStores} stores<br><strong>August:</strong> ${augustStores} stores`;
-                            
+
                         } else if (currentRegion === 'texas' && result.regional_details && result.regional_details.texas) {
                             const texasData = result.regional_details.texas;
                             stage1Start = texasData.stage1_start;
                             stage1End = texasData.stage1_end;
                             stage2Start = texasData.stage2_start;
                             stage2End = texasData.stage2_end;
-                            
+
                             const juneStores = texasData.june_stores || 0;
                             const julyStores = texasData.july_stores || 0;
                             storesBreakdown = `<strong>June:</strong> ${juneStores} stores<br><strong>July:</strong> ${julyStores} stores`;
@@ -1824,14 +1860,14 @@
                             stage2Start = result.stage2_start;
                             stage2End = result.stage2_end;
                         }
-                        
+
                         // Update modal data
                         document.getElementById('modalStage1Start').textContent = stage1Start || 'TBD';
                         document.getElementById('modalStage1End').textContent = stage1End || 'TBD';
                         document.getElementById('modalStage2Start').textContent = stage2Start || 'TBD';
                         document.getElementById('modalStage2End').textContent = stage2End || 'TBD';
                         document.getElementById('modalStage1Stores').innerHTML = storesBreakdown;
-                        
+
                         // Update last update time
                         if (dashboardData && dashboardData.last_update) {
                             const updateDate = new Date(dashboardData.last_update);
@@ -1844,7 +1880,7 @@
                             });
                             document.getElementById('modalLastUpdate').textContent = formattedDate;
                         }
-                        
+
                     } else {
                         throw new Error(result.source || 'Error en respuesta del servidor');
                     }
@@ -1871,14 +1907,14 @@
         }
 
         // NUEVA FUNCIÓN: Cerrar modal con tecla ESC
-        document.addEventListener('keydown', function(event) {
+        document.addEventListener('keydown', function (event) {
             if (event.key === 'Escape') {
                 closeScheduleModal();
             }
         });
 
         // NUEVA FUNCIÓN: Cerrar modal al hacer clic fuera de ella
-        document.addEventListener('click', function(event) {
+        document.addEventListener('click', function (event) {
             const modal = document.getElementById('scheduleModal');
             if (event.target === modal) {
                 closeScheduleModal();
@@ -1888,7 +1924,7 @@
         // FUNCIÓN ACTUALIZADA: Mostrar/ocultar botón de Schedule
         function updateRemodelSchedule() {
             const scheduleButtonContainer = document.getElementById('scheduleButtonContainer');
-            
+
             // Solo mostrar botón en vistas regionales, NO en global
             if (currentRegion === 'global') {
                 scheduleButtonContainer.style.display = 'none';
@@ -1896,18 +1932,18 @@
                 scheduleButtonContainer.style.display = 'block';
             }
         }
-        
+
         function createChart(ctx, data, title, colors = null, showValues = true, chartType = 'doughnut', dataKey = '') {
             if (allCharts[ctx.canvas.id]) {
                 allCharts[ctx.canvas.id].destroy();
             }
-            
+
             const defaultColors = ['#E31837', '#FFC72C', '#8B5CF6', '#10B981', '#0085CA', '#6B7280'];
             const chartColors = colors || defaultColors;
-            
+
             // Determinar si es una gráfica de Project Types para ajustar tamaño
             const isProjectTypesChart = ctx.canvas.id.includes('projectTypes') || title.includes('Project Types');
-            
+
             const config = {
                 type: chartType,
                 data: {
@@ -1955,7 +1991,7 @@
             // Specific configurations for bar charts
             if (chartType === 'bar') {
                 const maxValue = isProjectTypesChart ? 40 : 70; /* AUMENTADO valores máximos */
-                
+
                 config.options.scales = {
                     y: {
                         beginAtZero: true,
@@ -1983,23 +2019,23 @@
                 };
                 config.options.plugins.legend.display = false;
             }
-            
+
             allCharts[ctx.canvas.id] = new Chart(ctx, config);
         }
-        
+
         // FUNCIÓN ACTUALIZADA: Actualizar Project Types integrado
         function updateProjectTypes(data) {
             const wrapper = document.getElementById('projectTypesIntegratedWrapper');
             const title = document.getElementById('projectTypesIntegratedTitle');
             const canvas = document.getElementById('projectTypesIntegratedChart');
-            
+
             if (currentRegion === 'global') {
                 // Vista global: mostrar datos combinados de ambas regiones
                 title.textContent = 'Project Types (Combined)';
-                
+
                 // Combinar datos de Florida y Texas
                 const combinedData = {};
-                
+
                 if (data.project_types_florida) {
                     if (data.project_types_florida.fai_edmb_idmb_qb > 0) {
                         combinedData['FAI,EDMB,IDMB,QB'] = (combinedData['FAI,EDMB,IDMB,QB'] || 0) + data.project_types_florida.fai_edmb_idmb_qb;
@@ -2008,7 +2044,7 @@
                         combinedData['EDMB,IDMB,QB'] = (combinedData['EDMB,IDMB,QB'] || 0) + data.project_types_florida.edmb_idmb_qb;
                     }
                 }
-                
+
                 if (data.project_types_texas) {
                     if (data.project_types_texas.edmb > 0) {
                         combinedData['EDMB'] = (combinedData['EDMB'] || 0) + data.project_types_texas.edmb;
@@ -2018,15 +2054,15 @@
                     }
                     if (data.project_types_texas.edmb_idmb > 0) {
                         combinedData['EDMB,IDMB'] = (combinedData['EDMB,IDMB'] || 0) + data.project_types_texas.edmb_idmb;
-                    }      
+                    }
                 }
-                
+
                 if (Object.keys(combinedData).length > 0) {
                     createChart(
-                        canvas.getContext('2d'), 
+                        canvas.getContext('2d'),
                         combinedData,
                         'Project Types (Combined)',
-                       ['#8B5CF6', '#0085CA', '#10B981', '#F472B6', '#F3C200', '#3B82F6'],
+                        ['#8B5CF6', '#0085CA', '#10B981', '#F472B6', '#F3C200', '#3B82F6'],
                         true,
                         'bar'
                     );
@@ -2034,17 +2070,17 @@
                     // Si no hay datos, ocultar la gráfica
                     wrapper.style.display = 'none';
                 }
-                
+
             } else {
                 // Vista específica de región
                 wrapper.style.display = 'block';
                 title.textContent = `Project Types - ${currentRegion.charAt(0).toUpperCase() + currentRegion.slice(1)}`;
-                
+
                 // Obtener datos según la región actual
                 const regionData = getCurrentData();
                 if (regionData && regionData.project_types) {
                     const projectTypesData = {};
-                    
+
                     if (currentRegion === 'florida') {
                         if (regionData.project_types.fai_edmb_idmb_qb > 0) {
                             projectTypesData['FAI,EDMB,IDMB,QB'] = regionData.project_types.fai_edmb_idmb_qb;
@@ -2063,10 +2099,10 @@
                             projectTypesData['EDMB, IDMB'] = regionData.project_types.edmb_idmb;
                         }
                     }
-                    
+
                     if (Object.keys(projectTypesData).length > 0) {
                         createChart(
-                            canvas.getContext('2d'), 
+                            canvas.getContext('2d'),
                             projectTypesData,
                             'Project Types',
                             ['#8B5CF6', '#0085CA', '#10B981'],
@@ -2082,20 +2118,20 @@
                 }
             }
         }
-        
+
         function updateDashboard() {
             const data = getCurrentData();
             if (!data) {
                 showStatus('No data available. Connecting...', 'warning');
                 return;
             }
-            
+
             // Update Aloha 19 statistics
             updateAlohaStats(data);
-            
+
             // Update remodel schedule table (solo en vistas regionales)
             updateRemodelSchedule();
-            
+
             // Main Aloha 19 chart
             if (data.aloha19) {
                 const alohaChartData = {
@@ -2103,22 +2139,22 @@
                     'Stage 1': data.aloha19.stage1 || 0,
                     'Stage 2': data.aloha19.stage2 || 0,
                 };
-                
+
                 // Add Close for Texas
                 if (data.aloha19.close && data.aloha19.close > 0) {
                     alohaChartData['Close'] = data.aloha19.close;
                 }
-                
+
                 createChart(
-                    document.getElementById('aloha19Chart').getContext('2d'), 
+                    document.getElementById('aloha19Chart').getContext('2d'),
                     alohaChartData,
                     'Aloha 19 Status',
-                    ['#10B981','#FFC72C', '#FF8C00',  '#E31837'], 
+                    ['#10B981', '#FFC72C', '#FF8C00', '#E31837'],
                     true,
                     'doughnut'
                 );
             }
-            
+
             // Wiring chart
             if (data.wiring) {
                 const wiringData = {
@@ -2126,22 +2162,22 @@
                     'Pending': data.wiring.pending || 0,
                     'Close': data.wiring.close || 0
                 };
-                
+
                 // AGREGAR "Close" solo para Texas (celda B14)
                 if (currentRegion === 'texas' && data.wiring.close && data.wiring.close > 0) {
                     wiringData['Close'] = data.wiring.close;
                     console.log(`🤠 Texas Wiring Close agregado: ${data.wiring.close}`);
                 }
-                
+
                 // Colores dinámicos: verde para Finished, amarillo para Pending, ROJO para Close
-                const wiringColors = (currentRegion === 'texas' && data.wiring.close && data.wiring.close > 0) 
+                const wiringColors = (currentRegion === 'texas' && data.wiring.close && data.wiring.close > 0)
                     ? ['#10B981', '#FFC72C', '#E31837']  // Texas con Close (verde, amarillo, rojo)
                     : ['#10B981', '#FFC72C', '#E31837'];            // Sin Close (verde, amarillo)
-                
+
                 console.log(`🔌 Wiring chart - Región: ${currentRegion}, Datos:`, wiringData, 'Colores:', wiringColors);
-                
+
                 createChart(
-                    document.getElementById('wiringChart').getContext('2d'), 
+                    document.getElementById('wiringChart').getContext('2d'),
                     wiringData,
                     'Wiring Status',
                     wiringColors,
@@ -2149,11 +2185,11 @@
                     'doughnut'
                 );
             }
-            
+
             // Technologies chart
             if (data.technologies) {
                 createChart(
-                    document.getElementById('techChart').getContext('2d'), 
+                    document.getElementById('techChart').getContext('2d'),
                     {
                         'Fresh AI': data.technologies.fresh_ai || 0,
                         'EDMB': data.technologies.edmb || 0,
@@ -2167,18 +2203,18 @@
                     'bar'
                 );
             }
-            
+
             // Projects chart
             if (data.projects) {
                 const projectsData = {};
-                
+
                 // CORREGIDO: En vista global, mostrar datos combinados. En vistas regionales, mostrar datos específicos
                 if (currentRegion === 'global') {
                     // Vista global: combinar datos de Florida y Texas
                     if (data.projects.paid > 0) projectsData['Paid'] = data.projects.paid;
                     if (data.projects.signed > 0) projectsData['Signed'] = data.projects.signed;
                     if (data.projects.quote > 0) projectsData['Quote'] = data.projects.quote; // Combinado FL+TX
-                    
+
                 } else if (currentRegion === 'texas') {
                     // Vista Texas: solo Quote
                     if (data.projects.paid > 0) projectsData['Paid'] = data.projects.paid;
@@ -2189,35 +2225,36 @@
                     // Vista Florida: Signed, Quote, Paid
                     if (data.projects.paid > 0) projectsData['Paid'] = data.projects.paid;
                     if (data.projects.signed > 0) projectsData['Signed'] = data.projects.signed;
-                    if (data.projects.quote > 0) projectsData['Quote'] = data.projects.quote;  
+                    if (data.projects.quote > 0) projectsData['Quote'] = data.projects.quote;
                 }
-               
+
                 if (Object.keys(projectsData).length > 0) {
                     createChart(
-                        document.getElementById('projectsChart').getContext('2d'), 
+                        document.getElementById('projectsChart').getContext('2d'),
                         projectsData,
                         'Projects Status',
                         ['#10B981', '#FFC72C', '#FF8C00', '#8B5CF6'],
                         true,
                         'doughnut'
-                    ); 
+                    );
                 }
             }
-            
+
             // ACTUALIZADO: Usar la nueva función integrada de Project Types
             updateProjectTypes(data);
         }
-        
+
         // Auto-refresh every 5 minutes
         setInterval(loadDataFromAPI, 5 * 60 * 1000);
-        
+
         // Initial load
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             console.log('916 Foods Executive Dashboard started');
             console.log('Connecting to API for real-time data...');
-            
+
             loadDataFromAPI();
         });
     </script>
 </body>
+
 </html>

@@ -102,7 +102,7 @@ def download_and_process_excel():
         
     except Exception as e:
         error_msg = f"Error procesando datos: {str(e)}"
-        logger.error(f"❌ {error_msg}")
+        logger.error(f"{error_msg}")
         dashboard_data["status"] = f"error: {str(e)}"
 
 def read_excel_cell(sheet, cell):
@@ -192,7 +192,7 @@ def read_excel_date_cell(sheet, cell):
                     if len(parts) == 3:
                         year, month, day = parts
                         formatted_date = f"{month.zfill(2)}/{day.zfill(2)}/{year}"
-                        logger.info(f"✅ Fecha convertida de YYYY-MM-DD {cell} = {formatted_date}")
+                        logger.info(f"Fecha convertida de YYYY-MM-DD {cell} = {formatted_date}")
                         return formatted_date
                 except:
                     pass
@@ -289,7 +289,7 @@ def get_remodel_dates():
         tex_june_stores = read_excel_cell(tex_sheet, 'E3')        # Tiendas en Junio
         tex_july_stores = read_excel_cell(tex_sheet, 'F3')       # Tiendas en Julio
         
-        logger.info(f"🤠 Texas - Junio: {tex_june_stores} tiendas, Julio: {tex_july_stores} tiendas")
+        logger.info(f"Texas - Junio: {tex_june_stores} tiendas, Julio: {tex_july_stores} tiendas")
         
         # Combinar fechas (usar la primera válida encontrada o la más temprana)
         stage1_start = combine_dates(flo_stage1_start, tex_stage1_start)
@@ -309,25 +309,19 @@ def get_remodel_dates():
                     "stage1_end": flo_stage1_end,
                     "stage2_start": flo_stage2_start,
                     "stage2_end": flo_stage2_end,
-                    "july_stores": flo_july_stores,      # NUEVO: Tiendas en Julio
-                    "august_stores": flo_august_stores   # NUEVO: Tiendas en Agosto
+                    "july_stores": flo_july_stores,      
+                    "august_stores": flo_august_stores   
                 },
                 "texas": {
                     "stage1_start": tex_stage1_start,
                     "stage1_end": tex_stage1_end,
                     "stage2_start": tex_stage2_start,
                     "stage2_end": tex_stage2_end,
-                    "june_stores": tex_june_stores,      # NUEVO: Tiendas en Junio
-                    "july_stores": tex_july_stores       # NUEVO: Tiendas en Julio
+                    "june_stores": tex_june_stores,     
+                    "july_stores": tex_july_stores       
                 }
             }
         }
-        
-        logger.info(f"✅ Fechas de remodelación obtenidas:")
-        logger.info(f"   📅 Stage 1: {stage1_start} → {stage1_end}")
-        logger.info(f"   📅 Stage 2: {stage2_start} → {stage2_end}")
-        logger.info(f"   🏖️ Florida - Julio: {flo_july_stores}, Agosto: {flo_august_stores}")
-        logger.info(f"   🤠 Texas - Junio: {tex_june_stores}, Julio: {tex_july_stores}")
         
         return result
         
@@ -345,39 +339,38 @@ def process_sheet_data(workbook, sheet_name):
     """Procesa los datos de una hoja específica (FLO o TEX) con DEBUG completo"""
     try:
         sheet = workbook[sheet_name]
-        logger.info(f"📋 Procesando hoja: {sheet_name}")
+        logger.info(f"Procesando hoja: {sheet_name}")
         
         # DEBUG: Mostrar información básica de la hoja
-        logger.info(f"📏 Dimensiones de la hoja: {sheet.max_row} filas x {sheet.max_column} columnas")
+        logger.info(f"Dimensiones de la hoja: {sheet.max_row} filas x {sheet.max_column} columnas")
         
         if sheet_name == 'FLO':
-            logger.info("🏖️ === PROCESANDO FLORIDA (FLO) ===")
+            logger.info(" === PROCESANDO FLORIDA (FLO) ===")
             
             # DEBUG: Leer y mostrar cada celda individual
-            logger.info("📊 Leyendo datos de Aloha 19...")
+            logger.info("Leyendo datos de Aloha 19...")
             stage1 = read_excel_cell(sheet, 'B3')
             stage2 = read_excel_cell(sheet, 'B4')
             finished = read_excel_cell(sheet, 'B5')
             total = read_excel_cell(sheet, 'B6')
             
-            logger.info("🔌 Leyendo datos de Wiring... (CORREGIDO)")
             # CORREGIDO: Florida wiring debe ser B11 (finished) y B12 (pending)
             wiring_finished = read_excel_cell(sheet, 'B11')  # Cambiado de B10 a B11
             wiring_pending = read_excel_cell(sheet, 'B12')   # Cambiado de B11 a B12
             
-            logger.info("🤖 Leyendo datos de Tecnologías (Columna C - YES)...")
+            logger.info("Leyendo datos de Tecnologías (Columna C - YES)...")
             fresh_ai = read_excel_cell(sheet, 'C15')
             edmb = read_excel_cell(sheet, 'C16')
             idmb = read_excel_cell(sheet, 'C17')
             qb = read_excel_cell(sheet, 'C18')
             kiosk = read_excel_cell(sheet, 'C19')
             
-            logger.info("📋 Leyendo datos de Proyectos...")
+            logger.info("Leyendo datos de Proyectos...")
             signed = read_excel_cell(sheet, 'B24')
             quote = read_excel_cell(sheet, 'B25')
             paid = read_excel_cell(sheet, 'B26')
             
-            logger.info("🏗️ Leyendo tipos de proyectos...")
+            logger.info("Leyendo tipos de proyectos...")
             project_edmb_idmb_qb = read_excel_cell(sheet, 'B30')
             project_fai_edmb_idmb_qb = read_excel_cell(sheet, 'B31')
             
@@ -412,9 +405,9 @@ def process_sheet_data(workbook, sheet_name):
             }
             
         else:  # TEX
-            logger.info("🤠 === PROCESANDO TEXAS (TEX) ===")
+            logger.info("=== PROCESANDO TEXAS (TEX) ===")
             
-            logger.info("📊 Leyendo datos de Aloha 19...")
+            logger.info("Leyendo datos de Aloha 19...")
             stage1 = read_excel_cell(sheet, 'B3')
             stage2 = read_excel_cell(sheet, 'B4')
             close = read_excel_cell(sheet, 'B5')
@@ -426,22 +419,22 @@ def process_sheet_data(workbook, sheet_name):
             wiring_finished = read_excel_cell(sheet, 'B13')
             wiring_close = read_excel_cell(sheet, 'B14')  # NUEVO: Wiring Close (CELDA B14)
             
-            logger.info(f"📊 Texas Wiring - Pending: {wiring_pending}, Finished: {wiring_finished}, Close: {wiring_close}")
+            logger.info(f"Texas Wiring - Pending: {wiring_pending}, Finished: {wiring_finished}, Close: {wiring_close}")
             
             # VALIDAR que Close no sea 0 para enviarlo al frontend
             if wiring_close and wiring_close > 0:
-                logger.info(f"✅ Texas Wiring Close válido: {wiring_close}")
+                logger.info(f"Texas Wiring Close válido: {wiring_close}")
             else:
-                logger.warning(f"⚠️ Texas Wiring Close es 0 o inválido: {wiring_close}")
+                logger.warning(f"Texas Wiring Close es 0 o inválido: {wiring_close}")
             
-            logger.info("🤖 Leyendo datos de Tecnologías (Columna B)...")
+            logger.info("Leyendo datos de Tecnologías (Columna B)...")
             fresh_ai = read_excel_cell(sheet, 'B18')
             edmb = read_excel_cell(sheet, 'B19')
             idmb = read_excel_cell(sheet, 'B20')
             qb = read_excel_cell(sheet, 'B21')
             kiosk = read_excel_cell(sheet, 'B22')
             
-            logger.info("📋 Leyendo datos de Proyectos...")
+            logger.info("Leyendo datos de Proyectos...")
             # CORREGIDO: Quote de Texas está en B27 según especificación del usuario
             paid = read_excel_cell(sheet, 'B26')  
             signed = read_excel_cell(sheet, 'B27') 
@@ -468,7 +461,7 @@ def process_sheet_data(workbook, sheet_name):
                 "wiring": {
                     "pending": wiring_pending,
                     "finished": wiring_finished,
-                    "close": wiring_close  # NUEVO: Wiring Close
+                    "close": wiring_close 
                 },
                 "technologies": {
                     "fresh_ai": fresh_ai,
@@ -496,8 +489,8 @@ def process_sheet_data(workbook, sheet_name):
         logger.info(f"   Wiring Finished: {data['wiring']['finished']}")
         logger.info(f"   Wiring Pending: {data['wiring']['pending']}")
         if sheet_name == 'TEX':
-            logger.info(f"   🔌 Wiring Close: {data['wiring'].get('close', 0)}")
-        logger.info(f"   🤖 Fresh AI: {data['technologies']['fresh_ai']}")
+            logger.info(f"Wiring Close: {data['wiring'].get('close', 0)}")
+        logger.info(f"Fresh AI: {data['technologies']['fresh_ai']}")
         
         return data
         
@@ -582,8 +575,8 @@ def combine_regional_data(florida_data, texas_data):
             }
         }
         
-        logger.info(f"🌍 Global combinado - Total: {global_data['aloha19']['total']}, Finished: {global_data['aloha19']['finished']}")
-        logger.info(f"🌍 Global Fresh AI: {global_data['technologies']['fresh_ai']}")
+        logger.info(f"Global combinado - Total: {global_data['aloha19']['total']}, Finished: {global_data['aloha19']['finished']}")
+        logger.info(f"Global Fresh AI: {global_data['technologies']['fresh_ai']}")
         
         return global_data
         
@@ -719,7 +712,7 @@ def get_texas_data():
 @app.route('/api/refresh')
 def manual_refresh():
     """Endpoint para forzar actualización manual"""
-    logger.info("🔄 Refresh manual solicitado")
+    logger.info("Refresh manual solicitado")
     threading.Thread(target=download_and_process_excel).start()
     return jsonify({"message": "Actualización iniciada"})
 
@@ -752,7 +745,6 @@ def get_remodel_dates_api():
         })
 
 # ENDPOINTS PARA TABLAS DETALLADAS
-
 @app.route('/api/table/<region>/detailed')
 def get_detailed_regional_table(region):
     """Obtiene tabla detallada regional de hojas FLO-COM o TEX-COM"""
@@ -824,7 +816,7 @@ def get_project_details_table():
                     
                     if project_value not in ['---', '', ' ', 'NULL', '-----']:
                         debug_info["rows_with_project_data"] += 1
-                        logger.info(f"🔍 Proyecto encontrado en {sheet_name} fila {row_info['row']}: '{project_value}'")
+                        logger.info(f"Proyecto encontrado en {sheet_name} fila {row_info['row']}: '{project_value}'")
                     
                     # Verificar si el proyecto coincide con alguno de los filtros válidos
                     project_matches = False
@@ -934,13 +926,13 @@ def run_scheduler():
         time.sleep(60)
 
 if __name__ == '__main__':
-    logger.info("🚀 Iniciando 916 Foods Dashboard API...")
+    logger.info("Iniciando 916 Foods Dashboard API...")
     
     # Configurar actualizaciones automáticas cada 30 minutos
     schedule.every(30).minutes.do(download_and_process_excel)
     
     # Ejecutar una vez al inicio
-    logger.info("🔄 Ejecutando carga inicial de datos...")
+    logger.info("Carga inicial de datos...")
     download_and_process_excel()
     
     # Iniciar scheduler en hilo separado
@@ -950,5 +942,5 @@ if __name__ == '__main__':
     
     # Iniciar servidor Flask
     port = int(os.environ.get('PORT', 5000))
-    logger.info(f"🌐 Servidor iniciando en puerto {port}")
+    logger.info(f"Servidor iniciando en puerto {port}")
     app.run(host='0.0.0.0', port=port, debug=False)
