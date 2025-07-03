@@ -447,8 +447,8 @@ def process_sheet_data(workbook, sheet_name):
             quote = read_excel_cell(sheet, 'B28')  # TEXAS Quote está en B28
         
             project_edmb = read_excel_cell(sheet, 'B33')
-            project_edmb_idmb_qb = read_excel_cell(sheet, 'B34')  # TEX con EDMB y IDMB
-            project_idmb_qb = read_excel_cell(sheet, 'B35')  # TEX con IDMB
+            project_edmb_idmb_qb = read_excel_cell(sheet, 'B34')  # TEX con EDMB-IDMB-QB
+            project_idmb_qb = read_excel_cell(sheet, 'B35')  # TEX con IDMB y QB
             
             # Datos de Texas
             data = {
