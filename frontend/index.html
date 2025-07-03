@@ -1598,9 +1598,10 @@
                         <td>${row.R || '---'}</td>
                         <td>${formattedCost}</td>
                         <td>${row.T || '---'}</td>
-                        <td>${formattedDeliveryDate}</td>
-                        <td>${formattedInstallationDate}</td>
+                        <td>${row.U}</td>
+                        <td>${row.V}</td>
                         <td>${row.W || '---'}</td>
+                        <td>${row.X || '---'}</td>
                     </tr>
                 `;
             });
@@ -1709,11 +1710,11 @@
 
             // Column names mapping
             const columnNames = {
-            'A': 'STORE', 'B': 'ADDRESS', 'C': 'PHONE/STORE PHONE', 'D': 'DM', 'E': 'GM',
+             'A': 'STORE', 'B': 'ADDRESS', 'C': 'PHONE/STORE PHONE', 'D': 'DM', 'E': 'GM',
             'F': 'A19', 'G': 'WIRING', 'H': 'FRESH AI', 'I': 'EDMB', 'J': 'IDMB',
             'K': 'QB', 'L': 'KIOSK', 'M': 'A19 UP', 'N':'NETXEO PRO', 'O': 'START REMOD', 'P': 'END REMOD',
-            'Q': 'PROJECT', 'R': 'AUV', 'S': 'COST', 'T': 'STATUS', 'U': 'DELIVERY DATE',
-            'V': 'INSTALLATION DATE', 'W': 'INSTALL'
+            'Q': 'PROJECT', 'R': 'AUV', 'S': 'COST', 'T': 'STATUS', 'U': 'CABLE INSTALL',
+            'V': 'DELIVERY DATE', 'W': 'INSTALLATION DATE', 'X': 'INSTALL'
             };
 
             // Create header row with sortable columns
@@ -1752,7 +1753,7 @@
                     }
 
                     // NUEVO: Format date columns (M, N, O)
-                    if (['M', 'O', 'P'].includes(col) && cellValue !== '---') {
+                    if (['M', 'O', 'P', "U"].includes(col) && cellValue !== '---') {
                         cellValue = formatDateCell(cellValue, col);
                     }
 

@@ -621,12 +621,12 @@ def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
             'A': 'STORE', 'B': 'ADDRESS', 'C': 'PHONE/STORE PHONE', 'D': 'DM', 'E': 'GM',
             'F': 'A19', 'G': 'WIRING', 'H': 'FRESH AI', 'I': 'EDMB', 'J': 'IDMB',
             'K': 'QB', 'L': 'KIOSK', 'M': 'A19 UP', 'N':'NETXEO PRO', 'O': 'START REMOD', 'P': 'END REMOD',
-            'Q': 'PROJECT', 'R': 'AUV', 'S': 'COST', 'T': 'STATUS', 'U': 'DELIVERY DATE',
-            'V': 'INSTALLATION DATE', 'W': 'INSTALL'
+            'Q': 'PROJECT', 'R': 'AUV', 'S': 'COST', 'T': 'STATUS', 'U': 'CABLE INSTALL',
+            'V': 'DELIVERY DATE', 'W': 'INSTALLATION DATE', 'X': 'INSTALL'
         }
         
         # Columnas que contienen fechas (no convertir 0 a "---")
-        date_columns = ['M', 'N', 'O', 'P', 'U', 'V']
+        date_columns = ['M', 'N', 'O', 'P', 'U', 'V', 'W']
         
         # Leer datos fila por fila (empezar desde fila 2 para evitar headers)
         for row_num in range(2, actual_max_row + 1):
@@ -782,10 +782,10 @@ def get_project_details_table():
     """Obtiene tabla de detalles de proyectos con columnas específicas y filtros"""
     try:
         # Columnas específicas requeridas según diagnóstico:
-        # A=STORE, B=ADDRESS, M=A19 UP, P=PROJECT, Q=AUV, R=COST, S=STATUS, T=DELIVERY DATE, U=INSTALLATION DATE, V=INSTALL
+        # A=STORE, B=ADDRESS, M=A19 UP, 
         required_columns = ['A', 'B', 'M', 'N', 'Q', 'R', 'S', 'T', 'U', 'V', 'W']
         
-        # Filtros válidos para la columna PROJECT 
+        # Filtros válidos para la columna PROJECT   
         valid_projects = ['FAI,EDMB,IDMB,QUE', 'EDMB-IDMB-QB', 'EDMB', 'EDMB-IDMB-QB', 'IDMB-QB']
         
         # Intentar con ambas hojas
@@ -857,10 +857,11 @@ def get_project_details_table():
             'Q': 'PROJECT',  
             'R': 'AUV',      
             'S': 'COST',     
-            'T': 'STATUS',   
-            'U': 'DELIVERY DATE',
-            'V': 'INSTALLATION DATE',
-            'W': 'INSTALL'   
+            'T': 'STATUS',
+            'U': 'CABLE INSTALL',   
+            'V': 'DELIVERY DATE',
+            'W': 'INSTALLATION DATE',
+            'X': 'INSTALL'   
         }
         
         return jsonify({
