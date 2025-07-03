@@ -786,7 +786,7 @@ def get_project_details_table():
         required_columns = ['A', 'B', 'M', 'N', 'Q', 'R', 'S', 'T', 'U', 'V', 'W']
         
         # Filtros válidos para la columna PROJECT 
-        valid_projects = ['FAI,EDMB,IDMB,QUE', 'EDMB-IDMB-QB', 'EDMB', 'EDMB-IDMB', 'IDMB-QB', 'IDMB']
+        valid_projects = ['FAI,EDMB,IDMB,QUE', 'EDMB-IDMB-QB', 'EDMB', 'EDMB-IDMB-QB', 'IDMB-QB', 'IDMB']
         
         # Intentar con ambas hojas
         project_data = []
