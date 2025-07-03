@@ -326,7 +326,7 @@ def get_remodel_dates():
         return result
         
     except Exception as e:
-        logger.error(f"❌ Error obteniendo fechas de remodelación: {str(e)}")
+        logger.error(f"Error obteniendo fechas de remodelación: {str(e)}")
         return {
             "stage1_start": "TBD",
             "stage1_end": "TBD",
@@ -349,7 +349,11 @@ def process_sheet_data(workbook, sheet_name):
             
             # DEBUG: Leer y mostrar cada celda individual
             logger.info("Leyendo datos de Aloha 19...")
-            stage1 = read_excel_cell(sheet, 'B3')
+            # stage1 = read_excel_cell(sheet, 'B3')
+            # Tiendas que se van a remodelar en Florida por meses
+            # Julio y Agosto
+            june = read_excel_cell(sheet, 'E3')  # Total de tiendas en junio
+            august = read_excel_cell(sheet, 'F3')  # Total de tiendas en agosto
             stage2 = read_excel_cell(sheet, 'B4')
             finished = read_excel_cell(sheet, 'B5')
             total = read_excel_cell(sheet, 'B6')
@@ -377,14 +381,16 @@ def process_sheet_data(workbook, sheet_name):
             # Datos de Florida
             data = {
                 "aloha19": {
-                    "stage1": stage1,
+                    #"stage1": stage1,
+                    "june": june,  # Total de tiendas en junio
+                    "august": august,  # Total de tiendas en agosto
                     "stage2": stage2, 
                     "finished": finished,
                     "total": total
                 },
                 "wiring": {
-                    "pending": wiring_pending,    # CORREGIDO: B12
-                    "finished": wiring_finished  # CORREGIDO: B11
+                    "pending": wiring_pending,   
+                    "finished": wiring_finished  
                 },
                 "technologies": {
                     "fresh_ai": fresh_ai,
@@ -408,7 +414,10 @@ def process_sheet_data(workbook, sheet_name):
             logger.info("=== PROCESANDO TEXAS (TEX) ===")
             
             logger.info("Leyendo datos de Aloha 19...")
-            stage1 = read_excel_cell(sheet, 'B3')
+           # stage1 = read_excel_cell(sheet, 'B3')
+            # Tiendas que se van a remodelar en Texas por meses
+            june = read_excel_cell(sheet, 'E3')  # Total de tiendas en junio
+            july = read_excel_cell(sheet, 'F3')  # Total de tiendas en julio
             stage2 = read_excel_cell(sheet, 'B4')
             close = read_excel_cell(sheet, 'B5')
             finished = read_excel_cell(sheet, 'B6')
@@ -427,32 +436,26 @@ def process_sheet_data(workbook, sheet_name):
             else:
                 logger.warning(f"Texas Wiring Close es 0 o inválido: {wiring_close}")
             
-            logger.info("Leyendo datos de Tecnologías (Columna B)...")
             fresh_ai = read_excel_cell(sheet, 'B18')
             edmb = read_excel_cell(sheet, 'B19')
             idmb = read_excel_cell(sheet, 'B20')
             qb = read_excel_cell(sheet, 'B21')
             kiosk = read_excel_cell(sheet, 'B22')
-            
-            logger.info("Leyendo datos de Proyectos...")
-            # CORREGIDO: Quote de Texas está en B27 según especificación del usuario
+
             paid = read_excel_cell(sheet, 'B26')  
             signed = read_excel_cell(sheet, 'B27') 
             quote = read_excel_cell(sheet, 'B28')  # TEXAS Quote está en B28
-            
-            
-            logger.info(f"Texas Quote: {quote}")
-            logger.info(f"Texas Signed: {signed}")
-            logger.info(f"Texas Paid: {paid}")
-            logger.info("Leyendo tipos de proyectos...")
+        
             project_edmb = read_excel_cell(sheet, 'B33')
-            project_edmb_idmb = read_excel_cell(sheet, 'B34')  # TEX con EDMB y IDMB
-            project_idmb = read_excel_cell(sheet, 'B35')  # TEX con IDMB
+            project_edmb_idmb_qb = read_excel_cell(sheet, 'B34')  # TEX con EDMB y IDMB
+            project_idmb_qb = read_excel_cell(sheet, 'B35')  # TEX con IDMB
             
             # Datos de Texas
             data = {
                 "aloha19": {
-                    "stage1": stage1,
+                    #"stage1": stage1,
+                    "june": june,  # Total de tiendas en junio
+                    "july": july,  # Total de tiendas en julio
                     "stage2": stage2,
                     "close": close,
                     "finished": finished,
@@ -477,8 +480,8 @@ def process_sheet_data(workbook, sheet_name):
                 },
                 "project_types": {
                     "edmb": project_edmb,
-                    "edmb_idmb": project_edmb_idmb,  # TEX con EDMB y IDMB
-                    "idmb": project_idmb  # TEX con IDMB
+                    "edmb_idmb_qb": project_edmb_idmb_qb,  # TEX con EDMB-IDMB-QB 
+                    "idmb_qb": project_idmb_qb  # TEX con IDMB y QB
                     
                 }
             }
@@ -538,7 +541,10 @@ def combine_regional_data(florida_data, texas_data):
         
         global_data = {
             "aloha19": {
-                "stage1": safe_get(florida_data, 'aloha19.stage1') + safe_get(texas_data, 'aloha19.stage1'),
+               # "stage1": safe_get(florida_data, 'aloha19.july') + safe_get(texas_data, 'aloha19.stage1'),
+                "june":  safe_get(texas_data, 'aloha19.june') ,  # Solo Texas tiene junio
+                "july": safe_get(florida_data, 'aloha19.august') + safe_get(texas_data, 'aloha19.july'),
+                "august": safe_get(florida_data, 'aloha19.august'),  # Solo Florida tiene agosto
                 "stage2": safe_get(florida_data, 'aloha19.stage2') + safe_get(texas_data, 'aloha19.stage2'),
                 "close": safe_get(texas_data, 'aloha19.close'),  # Solo Texas tiene "close"
                 "finished": fl_finished + tx_finished,
@@ -581,7 +587,7 @@ def combine_regional_data(florida_data, texas_data):
         return global_data
         
     except Exception as e:
-        logger.error(f"❌ Error combinando datos: {str(e)}")
+        logger.error(f"Error combinando datos: {str(e)}")
         return {}
 
 # FUNCIONES PARA TABLAS DETALLADAS
@@ -604,9 +610,9 @@ def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
         else:
             actual_max_row = sheet.max_row if max_row is None else max_row
         
-        # Si no se especifican columnas, leer de A hasta V (22)
+        # Si no se especifican columnas, leer de A hasta W (23)
         if not columns:
-            columns = [chr(65 + i) for i in range(22)]  # A-v
+            columns = [chr(65 + i) for i in range(23)]  # A-W
         
         table_data = []
         
@@ -614,13 +620,13 @@ def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
         column_names = {
             'A': 'STORE', 'B': 'ADDRESS', 'C': 'PHONE/STORE PHONE', 'D': 'DM', 'E': 'GM',
             'F': 'A19', 'G': 'WIRING', 'H': 'FRESH AI', 'I': 'EDMB', 'J': 'IDMB',
-            'K': 'QB', 'L': 'KIOSK', 'M': 'A19 UP', 'N': 'START REMOD', 'O': 'END REMOD',
-            'P': 'PROJECT', 'Q': 'AUV', 'R': 'COST', 'S': 'STATUS', 'T': 'DELIVERY DATE',
-            'U': 'INSTALLATION DATE', 'V': 'INSTALL'
+            'K': 'QB', 'L': 'KIOSK', 'M': 'A19 UP', 'N':'NETXEO PRO', 'O': 'START REMOD', 'P': 'END REMOD',
+            'Q': 'PROJECT', 'R': 'AUV', 'S': 'COST', 'T': 'STATUS', 'U': 'DELIVERY DATE',
+            'V': 'INSTALLATION DATE', 'W': 'INSTALL'
         }
         
         # Columnas que contienen fechas (no convertir 0 a "---")
-        date_columns = ['M', 'N', 'O', 'T', 'U']
+        date_columns = ['M', 'N', 'O', 'P', 'U', 'V']
         
         # Leer datos fila por fila (empezar desde fila 2 para evitar headers)
         for row_num in range(2, actual_max_row + 1):
@@ -673,10 +679,6 @@ def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
         logger.error(f"Error leyendo tabla {sheet_name}: {str(e)}")
         return {"error": str(e)}
 
-# ================================
-# RUTAS DE LA API
-# ================================
-
 @app.route('/')
 def home():
     return jsonify({
@@ -688,7 +690,7 @@ def home():
 @app.route('/api/data')
 def get_dashboard_data():
     """Endpoint principal que devuelve todos los datos"""
-    logger.info(f"📡 API request - Status: {dashboard_data['status']}")
+    logger.info(f"API request - Status: {dashboard_data['status']}")
     return jsonify(dashboard_data)
 
 @app.route('/api/florida')
@@ -720,7 +722,7 @@ def manual_refresh():
 def get_remodel_dates_api():
     """Endpoint para obtener fechas de remodelación desde SharePoint"""
     try:
-        logger.info("📡 API request - Fechas de remodelación")
+        logger.info("API request - Fechas de remodelación")
         dates = dashboard_data.get("remodel_dates", {})
         
         # Si no hay fechas en dashboard_data, intentar obtenerlas directamente
@@ -734,7 +736,7 @@ def get_remodel_dates_api():
         })
         
     except Exception as e:
-        logger.error(f"❌ Error en endpoint fechas de remodelación: {str(e)}")
+        logger.error(f"Error en endpoint fechas de remodelación: {str(e)}")
         return jsonify({
             "status": "error",
             "stage1_start": "TBD",
@@ -781,10 +783,10 @@ def get_project_details_table():
     try:
         # Columnas específicas requeridas según diagnóstico:
         # A=STORE, B=ADDRESS, M=A19 UP, P=PROJECT, Q=AUV, R=COST, S=STATUS, T=DELIVERY DATE, U=INSTALLATION DATE, V=INSTALL
-        required_columns = ['A', 'B', 'M', 'P', 'Q', 'R', 'S', 'T', 'U', 'V']
+        required_columns = ['A', 'B', 'M', 'N', 'Q', 'R', 'S', 'T', 'U', 'V', 'W']
         
         # Filtros válidos para la columna PROJECT 
-        valid_projects = ['FAI,EDMB,IDMB,QB', 'EDMB,IDMB,QB', 'EDMB', 'EDMB, IDMB', 'IDMB']
+        valid_projects = ['FAI,EDMB,IDMB,QUE', 'EDMB-IDMB-QB', 'EDMB', 'EDMB-IDMB', 'IDMB-QB', 'IDMB']
         
         # Intentar con ambas hojas
         project_data = []
@@ -851,13 +853,14 @@ def get_project_details_table():
             'A': 'STORE',
             'B': 'ADDRESS', 
             'M': 'A19 UP',   
-            'P': 'PROJECT',  
-            'Q': 'AUV',      
-            'R': 'COST',     
-            'S': 'STATUS',   
-            'T': 'DELIVERY DATE',
-            'U': 'INSTALLATION DATE',
-            'V': 'INSTALL'   
+            'N': 'NETXEO PRO',
+            'Q': 'PROJECT',  
+            'R': 'AUV',      
+            'S': 'COST',     
+            'T': 'STATUS',   
+            'U': 'DELIVERY DATE',
+            'V': 'INSTALLATION DATE',
+            'W': 'INSTALL'   
         }
         
         return jsonify({

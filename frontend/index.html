@@ -870,6 +870,20 @@
             color: var(--wendy-dark-gray);
         }
 
+        .status-badge.june {
+            background: linear-gradient(135deg, #eece2d, #d1b217);
+            color: white;
+        }
+
+        .status-badge.july {
+            background: linear-gradient(135deg, #efaa3a, #fba721);
+            color: white;
+        }
+        .stage-badge.august {
+            background: linear-gradient(135deg, #f6785c, #fd6341);
+            color: white;
+        }
+
         .status-badge.stage2 {
             background: linear-gradient(135deg, #FF8C00, #E31837);
             color: white;
@@ -1529,13 +1543,14 @@
                 { key: 'A', label: 'Store', sortable: true },
                 { key: 'B', label: 'Address', sortable: true },
                 { key: 'M', label: 'Aloha UP', sortable: true },
-                { key: 'P', label: 'Project', sortable: true },
-                { key: 'Q', label: 'AUV', sortable: true },
-                { key: 'R', label: 'Cost', sortable: true },
-                { key: 'S', label: 'Status', sortable: true },
-                { key: 'T', label: 'Delivery Date', sortable: true },
-                { key: 'U', label: 'Installation Date', sortable: true },
-                { key: 'V', label: 'Install', sortable: true },
+                { key: 'N', label: 'Nexteo Pro', sortable: true },
+                { key: 'Q', label: 'Project', sortable: true },
+                { key: 'R', label: 'AUV', sortable: true },
+                { key: 'S', label: 'Cost', sortable: true },
+                { key: 'T', label: 'Status', sortable: true },
+                { key: 'U', label: 'Delivery Date', sortable: true },
+                { key: 'V', label: 'Installation Date', sortable: true },
+                { key: 'W', label: 'Install', sortable: true },
             ];
 
             // Create header row with sortable columns
@@ -1579,13 +1594,14 @@
                         <td>${row.A || '---'}</td>
                         <td>${row.B || '---'}</td>
                         <td>${formattedAlohaUp}</td>
-                        <td>${row.P || '---'}</td>
+                        <td>${row.N || '---'}</td>
                         <td>${row.Q || '---'}</td>
+                        <td>${row.R || '---'}</td>
                         <td>${formattedCost}</td>
-                        <td>${row.S || '---'}</td>
+                        <td>${row.T || '---'}</td>
                         <td>${formattedDeliveryDate}</td>
                         <td>${formattedInstallationDate}</td>
-                        <td>${row.V || '---'}</td>
+                        <td>${row.W || '---'}</td>
                     </tr>
                 `;
             });
@@ -1609,7 +1625,7 @@
                 let bVal = b.data[columnKey] || '';
 
                 // Handle numeric values (for Cost column R, AUV column Q, and Aloha UP column M)
-                if (columnKey === 'R' || columnKey === 'Q') {
+                if (columnKey === 'S' || columnKey === 'R') {
                     aVal = parseFloat(aVal) || 0;
                     bVal = parseFloat(bVal) || 0;
 
@@ -1694,10 +1710,11 @@
 
             // Column names mapping
             const columnNames = {
-                'A': 'STORE', 'B': 'ADDRESS', 'C': 'PHONE/STORE PHONE', 'D': 'DM', 'E': 'GM',
-                'F': 'A19', 'G': 'WIRING', 'H': 'FRESH AI', 'I': 'EDMB', 'J': 'IDMB',
-                'K': 'QB', 'L': 'KIOSK', 'M': 'A19 UP', 'N': 'START REMOD', 'O': 'END REMOD',
-                'P': 'PROJECT', 'Q': 'AUV', 'R': 'COST', 'S': 'STATUS', 'T': 'INSTALLATION'
+            'A': 'STORE', 'B': 'ADDRESS', 'C': 'PHONE/STORE PHONE', 'D': 'DM', 'E': 'GM',
+            'F': 'A19', 'G': 'WIRING', 'H': 'FRESH AI', 'I': 'EDMB', 'J': 'IDMB',
+            'K': 'QB', 'L': 'KIOSK', 'M': 'A19 UP', 'N':'NETXEO PRO', 'O': 'START REMOD', 'P': 'END REMOD',
+            'Q': 'PROJECT', 'R': 'AUV', 'S': 'COST', 'T': 'STATUS', 'U': 'DELIVERY DATE',
+            'V': 'INSTALLATION DATE', 'W': 'INSTALL'
             };
 
             // Create header row with sortable columns
@@ -1736,7 +1753,7 @@
                     }
 
                     // NUEVO: Format date columns (M, N, O)
-                    if (['M', 'N', 'O'].includes(col) && cellValue !== '---') {
+                    if (['M', 'O', 'P'].includes(col) && cellValue !== '---') {
                         cellValue = formatDateCell(cellValue, col);
                     }
 
@@ -1765,7 +1782,7 @@
                 let bVal = b.data[columnKey] || '';
 
                 // Handle numeric values (for columns like Cost R, AUV Q, etc.)
-                if (['R', 'Q'].includes(columnKey)) {
+                if (['S', 'R'].includes(columnKey)) {
                     aVal = parseFloat(aVal) || 0;
                     bVal = parseFloat(bVal) || 0;
 
@@ -1888,7 +1905,7 @@
                     throw new Error(`HTTP ${response.status}`);
                 }
             } catch (error) {
-                console.log('⚠️ Error en modal, usando fallback:', error.message);
+                console.log('Error en modal, usando fallback:', error.message);
                 // Fallback data
                 if (currentRegion === 'texas') {
                     document.getElementById('modalStage1Start').textContent = 'TBD';
@@ -1912,8 +1929,6 @@
                 closeScheduleModal();
             }
         });
-
-        // NUEVA FUNCIÓN: Cerrar modal al hacer clic fuera de ella
         document.addEventListener('click', function (event) {
             const modal = document.getElementById('scheduleModal');
             if (event.target === modal) {
@@ -1921,7 +1936,6 @@
             }
         });
 
-        // FUNCIÓN ACTUALIZADA: Mostrar/ocultar botón de Schedule
         function updateRemodelSchedule() {
             const scheduleButtonContainer = document.getElementById('scheduleButtonContainer');
 
@@ -1990,18 +2004,17 @@
 
             // Specific configurations for bar charts
             if (chartType === 'bar') {
-                const maxValue = isProjectTypesChart ? 40 : 70; /* AUMENTADO valores máximos */
-
+                const maxValue = isProjectTypesChart ? 40 : 70; 
                 config.options.scales = {
                     y: {
                         beginAtZero: true,
                         max: maxValue,
                         ticks: {
-                            stepSize: isProjectTypesChart ? 5 : 10, /* AUMENTADO step size normal */
+                            stepSize: isProjectTypesChart ? 5 : 10, 
                             font: {
                                 family: 'Montserrat',
                                 weight: '500',
-                                size: isProjectTypesChart ? 9 : 11 /* AUMENTADO tamaño */
+                                size: isProjectTypesChart ? 9 : 11 
                             }
                         }
                     },
@@ -2049,11 +2062,11 @@
                     if (data.project_types_texas.edmb > 0) {
                         combinedData['EDMB'] = (combinedData['EDMB'] || 0) + data.project_types_texas.edmb;
                     }
-                    if (data.project_types_texas.idmb > 0) {
-                        combinedData['IDMB'] = (combinedData['IDMB'] || 0) + data.project_types_texas.idmb;
+                    if (data.project_types_texas.edmb_idmb_qb > 0) {
+                        combinedData['EDMB,IDMB,QB'] = (combinedData['EMDB,IDMB,QB'] || 0) + data.project_types_texas.idmb;
                     }
-                    if (data.project_types_texas.edmb_idmb > 0) {
-                        combinedData['EDMB,IDMB'] = (combinedData['EDMB,IDMB'] || 0) + data.project_types_texas.edmb_idmb;
+                    if (data.project_types_texas.idmb_qb > 0) {
+                        combinedData['IDMB,QB'] = (combinedData['IDMB,QB'] || 0) + data.project_types_texas.edmb_idmb;
                     }
                 }
 
@@ -2092,11 +2105,11 @@
                         if (regionData.project_types.edmb > 0) {
                             projectTypesData['EDMB'] = regionData.project_types.edmb;
                         }
-                        if (regionData.project_types.idmb > 0) {
-                            projectTypesData['IDMB'] = regionData.project_types.idmb;
+                        if (regionData.project_types.edmb_idmb_qb > 0) {
+                            projectTypesData['EDMB-IDMB-QB'] = regionData.project_types.idmb;
                         }
-                        if (regionData.project_types.edmb_idmb > 0) {
-                            projectTypesData['EDMB, IDMB'] = regionData.project_types.edmb_idmb;
+                        if (regionData.project_types.idmb_qb > 0) {
+                            projectTypesData['IDMB-QB'] = regionData.project_types.edmb_idmb;
                         }
                     }
 
@@ -2136,7 +2149,10 @@
             if (data.aloha19) {
                 const alohaChartData = {
                     'Finished': data.aloha19.finished || 0,
-                    'Stage 1': data.aloha19.stage1 || 0,
+                   // 'Stage 1': data.aloha19.stage1 || 0,
+                    'June' : data.aloha19.june || 0,
+                    'July': data.aloha19.july || 0,
+                    'August': data.aloha19.august || 0,
                     'Stage 2': data.aloha19.stage2 || 0,
                 };
 
@@ -2149,7 +2165,7 @@
                     document.getElementById('aloha19Chart').getContext('2d'),
                     alohaChartData,
                     'Aloha 19 Status',
-                    ['#10B981', '#FFC72C', '#FF8C00', '#E31837'],
+                    ['#ffdf2c', '#ffbc2c', 'ff792c', '#FFC72C', '#FF8C00', '#E31837'],
                     true,
                     'doughnut'
                 );
@@ -2166,7 +2182,6 @@
                 // AGREGAR "Close" solo para Texas (celda B14)
                 if (currentRegion === 'texas' && data.wiring.close && data.wiring.close > 0) {
                     wiringData['Close'] = data.wiring.close;
-                    console.log(`🤠 Texas Wiring Close agregado: ${data.wiring.close}`);
                 }
 
                 // Colores dinámicos: verde para Finished, amarillo para Pending, ROJO para Close
