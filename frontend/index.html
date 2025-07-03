@@ -2069,6 +2069,12 @@
                     }
                 }
 
+                console.log('Combined Project Types Data:', combinedData);
+                console.log('Florida Data:', data.project_types_florida);
+                console.log('Texas Data:', data.project_types_texas);
+                console.log('Projects en Florida:', data.project_types_florida ? Object.keys(data.project_types_florida).length : 0);
+                console.log('Projects en Texas:', data.project_types_texas ? Object.keys(data.project_types_texas).length : 0);
+
                 if (Object.keys(combinedData).length > 0) {
                     createChart(
                         canvas.getContext('2d'),
