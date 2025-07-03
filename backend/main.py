@@ -814,7 +814,7 @@ def get_project_details_table():
                     debug_info["total_rows_checked"] += 1
                     
                     # ¿ PROJECT está en columna P
-                    project_value = row_data.get('O', '---').strip()
+                    project_value = row_data.get('Q', '---').strip()
                     
                     if project_value not in ['---', '', ' ', 'NULL', '-----']:
                         debug_info["rows_with_project_data"] += 1
