@@ -879,6 +879,7 @@
             background: linear-gradient(135deg, #efaa3a, #fba721);
             color: white;
         }
+
         .stage-badge.august {
             background: linear-gradient(135deg, #f6785c, #fd6341);
             color: white;
@@ -1599,7 +1600,7 @@
                         <td>${row.R || '---'}</td>
                         <td>${formattedCost}</td>
                         <td>${row.T || '---'}</td>
-                        <td>${row.U || '---' }</td>
+                        <td>${row.U || '---'}</td>
                         <td>${row.V || '---'}</td>
                         <td>${row.W || '---'}</td>
                         <td>${row.X || '---'}</td>
@@ -1711,11 +1712,11 @@
 
             // Column names mapping
             const columnNames = {
-             'A': 'STORE', 'B': 'ADDRESS', 'C': 'PHONE/STORE PHONE', 'D': 'DM', 'E': 'GM',
-            'F': 'A19', 'G': 'WIRING', 'H': 'FRESH AI', 'I': 'EDMB', 'J': 'IDMB',
-            'K': 'QB', 'L': 'KIOSK', 'M': 'A19 UP', 'N':'NETXEO PRO', 'O': 'START REMOD', 'P': 'END REMOD',
-            'Q': 'PROJECT', 'R': 'AUV', 'S': 'COST', 'T': 'STATUS', 'U': 'CABLE INSTALL',
-            'V': 'DELIVERY DATE', 'W': 'INSTALLATION DATE', 'X': 'INSTALL'
+                'A': 'STORE', 'B': 'ADDRESS', 'C': 'PHONE/STORE PHONE', 'D': 'DM', 'E': 'GM',
+                'F': 'A19', 'G': 'WIRING', 'H': 'FRESH AI', 'I': 'EDMB', 'J': 'IDMB',
+                'K': 'QB', 'L': 'KIOSK', 'M': 'A19 UP', 'N': 'NETXEO PRO', 'O': 'START REMOD', 'P': 'END REMOD',
+                'Q': 'PROJECT', 'R': 'AUV', 'S': 'COST', 'T': 'STATUS', 'U': 'CABLE INSTALL',
+                'V': 'DELIVERY DATE', 'W': 'INSTALLATION DATE', 'X': 'INSTALL'
             };
 
             // Create header row with sortable columns
@@ -2005,17 +2006,17 @@
 
             // Specific configurations for bar charts
             if (chartType === 'bar') {
-                const maxValue = isProjectTypesChart ? 40 : 70; 
+                const maxValue = isProjectTypesChart ? 40 : 70;
                 config.options.scales = {
                     y: {
                         beginAtZero: true,
                         max: maxValue,
                         ticks: {
-                            stepSize: isProjectTypesChart ? 5 : 10, 
+                            stepSize: isProjectTypesChart ? 5 : 10,
                             font: {
                                 family: 'Montserrat',
                                 weight: '500',
-                                size: isProjectTypesChart ? 9 : 11 
+                                size: isProjectTypesChart ? 9 : 11
                             }
                         }
                     },
@@ -2064,7 +2065,7 @@
                         combinedData['EDMB'] = (combinedData['EDMB'] || 0) + data.project_types_texas.edmb;
                     }
                     if (data.project_types_texas.edmb_idmb_qb > 0) {
-                        combinedData['EDMB-IDMB-QB'] = (combinedData['EMDB-IDMB-QB'] || 0) + data.project_types_texas.edmb_idmb_qb;
+                        combinedData['EDMB-IDMB-QB'] = (combinedData['EDMB-IDMB-QB'] || 0) + data.project_types_texas.edmb_idmb_qb;
                     }
                     if (data.project_types_texas.idmb_qb > 0) {
                         combinedData['IDMB-QB'] = (combinedData['IDMB-QB'] || 0) + data.project_types_texas.idmb_qb;
@@ -2156,8 +2157,8 @@
             if (data.aloha19) {
                 const alohaChartData = {
                     'Finished': data.aloha19.finished || 0,
-                   // 'Stage 1': data.aloha19.stage1 || 0,
-                    'June' : data.aloha19.june || 0,
+                    // 'Stage 1': data.aloha19.stage1 || 0,
+                    'June': data.aloha19.june || 0,
                     'July': data.aloha19.july || 0,
                     'August': data.aloha19.august || 0,
                     'Stage 2': data.aloha19.stage2 || 0,
@@ -2171,7 +2172,7 @@
                     document.getElementById('aloha19Chart').getContext('2d'),
                     alohaChartData,
                     'Aloha 19 Status',
-                    ['#10B981', '#FFC72C', '#FF9C2C','#FF692C','#FF8C00', '#E31837'],
+                    ['#10B981', '#FFC72C', '#FF9C2C', '#FF692C', '#FF8C00', '#E31837'],
                     true,
                     'doughnut'
                 );
