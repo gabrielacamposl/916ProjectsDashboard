@@ -612,7 +612,7 @@ def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
         
         # Si no se especifican columnas, leer de A hasta W (23)
         if not columns:
-            columns = [chr(65 + i) for i in range(23)]  # A-W
+            columns = [chr(65 + i) for i in range(24)]  # A-x
         
         table_data = []
         
