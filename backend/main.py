@@ -786,7 +786,7 @@ def get_project_details_table():
         required_columns = ['A', 'B', 'M', 'N', 'Q', 'R', 'S', 'T', 'U', 'V', 'W']
         
         # Filtros válidos para la columna PROJECT 
-        valid_projects = ['FAI,EDMB,IDMB,QUE', 'EDMB-IDMB-QB', 'EDMB', 'EDMB-IDMB-QB', 'IDMB-QB', 'IDMB']
+        valid_projects = ['FAI,EDMB,IDMB,QUE', 'EDMB-IDMB-QB', 'EDMB', 'EDMB-IDMB-QB', 'IDMB-QB']
         
         # Intentar con ambas hojas
         project_data = []
@@ -814,7 +814,7 @@ def get_project_details_table():
                     debug_info["total_rows_checked"] += 1
                     
                     # ¿ PROJECT está en columna P
-                    project_value = row_data.get('P', '---').strip()
+                    project_value = row_data.get('O', '---').strip()
                     
                     if project_value not in ['---', '', ' ', 'NULL', '-----']:
                         debug_info["rows_with_project_data"] += 1
@@ -848,7 +848,7 @@ def get_project_details_table():
         # Log de resumen
         logger.info(f"RESUMEN: {debug_info['total_rows_checked']} filas revisadas, {debug_info['rows_with_project_data']} con datos de proyecto, {debug_info['rows_matching_filters']} coinciden con filtros")
         
-        # CORREGIDO: Mapeo de nombres de columnas según diagnóstico
+        # Mapeo de nombres de columnas según diagnóstico
         column_display_names = {
             'A': 'STORE',
             'B': 'ADDRESS', 

@@ -1496,10 +1496,9 @@
             }
         }
 
-        // NUEVA FUNCIÓN: Formatear fechas quitando hora y cambiando formato
         function formatDateCell(value, columnKey) {
             // Columnas que contienen fechas
-            const dateColumns = ['M', 'N', 'O', 'T', 'U']; // M=A19 UP, N=START REMOD, O=END REMOD
+            const dateColumns = ['M', 'O', 'P', 'U', 'V'];
 
             if (!dateColumns.includes(columnKey) || !value || value === '---') {
                 return value;
@@ -1585,8 +1584,8 @@
 
                 // Format Aloha UP date (columna M)
                 const formattedAlohaUp = formatDateCell(row.M || '---', 'M');
-                const formattedDeliveryDate = formatDateCell(row.T || '---', 'T');
-                const formattedInstallationDate = formatDateCell(row.U || '---', 'U');
+                const formattedDeliveryDate = formatDateCell(row.T || '---', 'U');
+                const formattedInstallationDate = formatDateCell(row.U || '---', 'V');
 
                 tableHTML += `
                     <tr>
@@ -2051,7 +2050,7 @@
 
                 if (data.project_types_florida) {
                     if (data.project_types_florida.fai_edmb_idmb_qb > 0) {
-                        combinedData['FAI,EDMB,IDMB,QB'] = (combinedData['FAI,EDMB,IDMB,QB'] || 0) + data.project_types_florida.fai_edmb_idmb_qb;
+                        combinedData['FAI,EDMB,IDMB,QUE'] = (combinedData['FAI,EDMB,IDMB,QUE'] || 0) + data.project_types_florida.fai_edmb_idmb_qb;
                     }
                     if (data.project_types_florida.edmb_idmb_qb > 0) {
                         combinedData['EDMB,IDMB,QB'] = (combinedData['EDMB,IDMB,QB'] || 0) + data.project_types_florida.edmb_idmb_qb;
