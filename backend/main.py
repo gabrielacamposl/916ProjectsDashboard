@@ -576,8 +576,8 @@ def combine_regional_data(florida_data, texas_data):
             },
             "project_types_texas": {
                 "edmb": safe_get(texas_data, 'project_types.edmb'),
-                "edmb_idmb": safe_get(texas_data, 'project_types.edmb_idmb'),
-                "idmb": safe_get(texas_data, 'project_types.idmb')
+                "edmb_idmb_qb": safe_get(texas_data, 'project_types.edmb_idmb_qb'),
+                "idmb_qb": safe_get(texas_data, 'project_types.idmb_qb')
             }
         }
         
@@ -612,7 +612,7 @@ def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
         
         # Si no se especifican columnas, leer de A hasta W (23)
         if not columns:
-            columns = [chr(65 + i) for i in range(24)]  # A-x
+            columns = [chr(65 + i) for i in range(24)]  # A-X
         
         table_data = []
         
