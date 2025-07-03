@@ -352,7 +352,7 @@ def process_sheet_data(workbook, sheet_name):
             # stage1 = read_excel_cell(sheet, 'B3')
             # Tiendas que se van a remodelar en Florida por meses
             # Julio y Agosto
-            june = read_excel_cell(sheet, 'E3')  # Total de tiendas en junio
+            july = read_excel_cell(sheet, 'E3')  # Total de tiendas en junio
             august = read_excel_cell(sheet, 'F3')  # Total de tiendas en agosto
             stage2 = read_excel_cell(sheet, 'B4')
             finished = read_excel_cell(sheet, 'B5')
@@ -382,7 +382,7 @@ def process_sheet_data(workbook, sheet_name):
             data = {
                 "aloha19": {
                     #"stage1": stage1,
-                    "june": june,  # Total de tiendas en junio
+                    "july": july,  # Total de tiendas en junio
                     "august": august,  # Total de tiendas en agosto
                     "stage2": stage2, 
                     "finished": finished,

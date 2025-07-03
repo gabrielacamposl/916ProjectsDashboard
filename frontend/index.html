@@ -2155,7 +2155,6 @@
                     'August': data.aloha19.august || 0,
                     'Stage 2': data.aloha19.stage2 || 0,
                 };
-
                 // Add Close for Texas
                 if (data.aloha19.close && data.aloha19.close > 0) {
                     alohaChartData['Close'] = data.aloha19.close;
@@ -2165,7 +2164,7 @@
                     document.getElementById('aloha19Chart').getContext('2d'),
                     alohaChartData,
                     'Aloha 19 Status',
-                    ['#ffdf2c', '#ffbc2c', 'ff792c', '#FFC72C', '#FF8C00', '#E31837'],
+                    ['#10B981', '#FFC72C', '#FF9C2C','#FF692C','#FF8C00', '#E31837'],
                     true,
                     'doughnut'
                 );
