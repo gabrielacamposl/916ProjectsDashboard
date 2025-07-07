@@ -1405,8 +1405,10 @@
 
         // Global variables
         let dashboardData = null;
+        let calendarData = null;
         let allCharts = {};
         let currentRegion = 'global';
+
 
         // Global variable to store current table data for sorting
         let currentTableData = [];
@@ -1439,20 +1441,23 @@
                 dashboardData = data;
 
                 document.getElementById('connectionStatus').innerHTML = `
-                    <span style="color: #10B981;">Connected to server</span>
-                `;
+            <span style="color: #10B981;">Connected to server</span>
+        `;
 
                 showStatus('Data loaded successfully from SharePoint', 'success');
                 updateDashboard();
                 updateLastUpdate();
+
+                // Cargar datos del calendario también
+                loadCalendarData(); // ← AGREGAR ESTA LÍNEA
 
             } catch (error) {
                 console.error('Error loading data:', error);
                 showStatus(`Error connecting to server: ${error.message}`, 'error');
 
                 document.getElementById('connectionStatus').innerHTML = `
-                    <span style="color: #EF4444;"> Connection error</span>
-                `;
+            <span style="color: #EF4444;"> Connection error</span>
+        `;
             }
         }
 
@@ -2357,6 +2362,7 @@
             document.body.style.overflow = 'auto'; // Restaurar scroll
         }
 
+
         async function loadCalendarData() {
             try {
                 showStatus('Loading calendar data...', 'loading');
@@ -2372,14 +2378,27 @@
                 }
 
                 calendarData = data;
-                renderCalendar('Full');
-                renderCalendar(''); // Para el calendario en dashboard
-                renderCalendarMini(); // ← ESTA ES LA LÍNEA QUE AGREGAS
-                updateCalendarLastUpdate();
+                renderCalendarMini();
                 showStatus('Calendar loaded successfully', 'success');
 
             } catch (error) {
-                // ... resto del código de error
+                console.error('Error loading calendar:', error);
+                showStatus(`Error loading calendar: ${error.message}`, 'error');
+
+                // Hide loading and show error en la versión mini
+                const loadingElement = document.getElementById('calendarLoadingMini');
+                const weeksElement = document.getElementById('calendarWeeksMini');
+
+                if (loadingElement) loadingElement.style.display = 'none';
+                if (weeksElement) {
+                    weeksElement.style.display = 'block';
+                    weeksElement.innerHTML = `
+                <div style="text-align: center; padding: 50px; color: #EF4444;">
+                    <p>Error loading calendar data</p>
+                    <button onclick="loadCalendarData()" class="btn">Retry</button>
+                </div>
+            `;
+                }
             }
         }
 
