@@ -23,6 +23,7 @@
             --wendy-light-gray: #F9FAFB;
         }
 
+        /* Tus estilos CSS existentes van aquí - mantengo solo los esenciales para el ejemplo */
         * {
             box-sizing: border-box;
         }
@@ -45,6 +46,333 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
         }
 
+        /* NUEVO: Estilos para el calendario */
+        .calendar-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+            overflow: hidden;
+            border: 1px solid #E5E7EB;
+        }
+
+        .calendar-header {
+            background: linear-gradient(135deg, var(--wendy-blue) 0%, var(--wendy-dark-blue) 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .calendar-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3em;
+            font-weight: 700;
+        }
+
+        .calendar-content {
+            display: flex;
+            min-height: 500px;
+        }
+
+        .calendar-weeks {
+            flex: 2;
+            padding: 30px;
+            background: white;
+        }
+
+        .calendar-details {
+            flex: 1;
+            background: #F8FAFC;
+            padding: 30px;
+            border-left: 1px solid #E5E7EB;
+        }
+
+        .week-item {
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .week-item:hover {
+            border-color: var(--wendy-blue);
+            box-shadow: 0 4px 15px rgba(0, 133, 202, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .week-item.selected {
+            border-color: var(--wendy-blue);
+            background: #EFF6FF;
+            box-shadow: 0 4px 15px rgba(0, 133, 202, 0.2);
+        }
+
+        .week-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .week-title {
+            font-weight: 700;
+            color: var(--wendy-dark-gray);
+            font-size: 1.1em;
+        }
+
+        .week-date-range {
+            color: #6B7280;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .week-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .week-stat {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            background: #F8FAFC;
+        }
+
+        .week-stat-number {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .week-stat-label {
+            font-size: 0.7em;
+            color: #6B7280;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .week-stat.total .week-stat-number { color: var(--wendy-dark-gray); }
+        .week-stat.completed .week-stat-number { color: #10B981; }
+        .week-stat.rescheduled .week-stat-number { color: #F59E0B; }
+        .week-stat.pending .week-stat-number { color: var(--wendy-blue); }
+
+        .week-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.8em;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: #E5E7EB;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10B981 0%, #059669 100%);
+            transition: width 0.3s ease;
+        }
+
+        .region-indicators {
+            display: flex;
+            gap: 15px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .region-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .region-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .region-dot.florida { background: #10B981; }
+        .region-dot.texas { background: #EF4444; }
+
+        .details-panel {
+            text-align: center;
+        }
+
+        .details-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: #6B7280;
+        }
+
+        .details-content h3 {
+            color: var(--wendy-dark-gray);
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .status-summary {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #E5E7EB;
+        }
+
+        .status-item.completed { border-left-color: #10B981; }
+        .status-item.rescheduled { border-left-color: #F59E0B; }
+        .status-item.pending { border-left-color: var(--wendy-blue); }
+
+        .status-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .status-count {
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        .stores-section {
+            margin-top: 20px;
+        }
+
+        .stores-section h4 {
+            color: var(--wendy-dark-gray);
+            margin-bottom: 10px;
+            font-size: 1em;
+            font-weight: 600;
+        }
+
+        .store-list {
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .store-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #F3F4F6;
+            font-size: 0.9em;
+        }
+
+        .store-name {
+            font-weight: 500;
+            color: var(--wendy-dark-gray);
+        }
+
+        .store-status {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.7em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .store-status.completed {
+            background: #DCFCE7;
+            color: #166534;
+        }
+
+        .store-status.rescheduled {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .store-status.pending {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .loading-calendar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: #6B7280;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #F3F4F6;
+            border-top: 3px solid var(--wendy-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modificar tabs existentes para incluir calendario */
+        .region-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            background: var(--wendy-gray);
+            border-radius: 15px;
+            padding: 8px;
+            border: 2px solid #E5E7EB;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 0.3px;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, var(--wendy-red) 0%, var(--wendy-dark-red) 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(227, 24, 55, 0.3);
+        }
+
+        .tab:hover:not(.active) {
+            background: #E5E7EB;
+            transform: translateY(-1px);
+        }
+
+        /* Tus estilos existentes continúan aquí... */
         .header {
             text-align: center;
             margin-bottom: 40px;
@@ -68,75 +396,11 @@
             letter-spacing: 1px;
         }
 
-        .company-logo {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--wendy-red), var(--wendy-dark-red));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 800;
-            font-size: 1.8em;
-            border: 4px solid white;
-            box-shadow: 0 4px 20px rgba(227, 24, 55, 0.3);
-            overflow: hidden;
-            position: relative;
-            cursor: pointer;
-        }
-
-        .company-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-        }
-
-        .logo-input {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-            z-index: 10;
-        }
-
-        .logo-text {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-            transition: opacity 0.3s ease;
-        }
-
         .subtitle {
             color: var(--wendy-dark-gray);
             font-size: 1.2em;
             margin-top: 10px;
             font-weight: 500;
-        }
-
-        .status-section {
-            background: linear-gradient(135deg, var(--wendy-light-gray) 0%, #E5F3FF 100%);
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            border-left: 6px solid var(--wendy-blue);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            text-align: center;
-        }
-
-        .section-title {
-            font-size: 1.3em;
-            font-weight: 700;
-            color: var(--wendy-dark-gray);
-            margin: 0 0 20px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
         }
 
         .btn {
@@ -162,22 +426,6 @@
         .btn.refresh {
             background: linear-gradient(135deg, var(--wendy-yellow) 0%, #F59E0B 100%);
             color: var(--wendy-dark-gray);
-        }
-
-        .btn.download {
-            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-        }
-
-        .btn.info {
-            background: linear-gradient(135deg, var(--wendy-blue) 0%, var(--wendy-dark-blue) 100%);
-        }
-
-        .buttons-container {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
         }
 
         .status {
@@ -213,681 +461,21 @@
             border: 3px solid var(--wendy-yellow);
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px;
-            margin: 25px 0;
+        /* Ocultar contenido por defecto */
+        .dashboard-content {
+            display: none;
         }
 
-        .stat-card {
-            background: linear-gradient(135deg, var(--wendy-red) 0%, var(--wendy-dark-red) 100%);
-            color: white;
-            padding: 15px 12px;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(227, 24, 55, 0.2);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
+        .dashboard-content.active {
+            display: block;
         }
 
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--wendy-yellow), white, var(--wendy-blue));
+        .calendar-content-section {
+            display: none;
         }
 
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(227, 24, 55, 0.3);
-        }
-
-        .stat-card.finished {
-            background: linear-gradient(135deg, #6671e2 0%, #7e58ee 100%);
-        }
-
-        .stat-number {
-            font-size: 1.8em;
-            font-weight: 700;
-            margin-bottom: 4px;
-            line-height: 1;
-        }
-
-        .stat-label {
-            font-size: 0.75em;
-            font-weight: 500;
-            opacity: 0.95;
-            letter-spacing: 0.3px;
-            line-height: 1.2;
-        }
-
-        /* NUEVO: Layout responsive 3 columnas */
-        .main-charts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            /* 3 columnas responsive */
-            gap: 20px;
-            /* REDUCIDO de 30px a 20px */
-            margin-top: 40px;
-        }
-
-        /* RESPONSIVE: Ajustes para diferentes tamaños de pantalla */
-        @media (min-width: 1200px) {
-            .main-charts-grid {
-                grid-template-columns: repeat(3, 1fr);
-                /* Exactamente 3 columnas en pantallas grandes */
-            }
-        }
-
-        @media (max-width: 1199px) and (min-width: 768px) {
-            .main-charts-grid {
-                grid-template-columns: repeat(2, 1fr);
-                /* 2 columnas en tablets */
-            }
-        }
-
-        @media (max-width: 767px) {
-            .main-charts-grid {
-                grid-template-columns: 1fr;
-                /* 1 columna en móviles */
-                gap: 15px;
-            }
-
-            .chart-wrapper {
-                padding: 15px;
-                /* Menos padding en móviles */
-            }
-
-            .chart-title {
-                font-size: 1.1em;
-                /* Títulos más pequeños en móviles */
-            }
-        }
-
-        /* ELIMINADO: Layout para Project Status + Project Types en la misma fila */
-        /* Ya no necesitamos .projects-row */
-
-        /* NUEVO: Wrapper para Project Types (ahora como gráfica independiente) */
-        #projectTypesIntegratedWrapper {
-            /* Ya no necesita estilos especiales, usa los mismos que chart-wrapper */
-        }
-
-        #projectTypesIntegratedWrapper canvas {
-            max-height: 250px !important;
-            /* Misma altura que otras gráficas */
-            max-width: 100% !important;
-        }
-
-        #projectTypesIntegratedTitle {
-            /* Usa los mismos estilos que chart-title */
-        }
-
-        .chart-wrapper {
-            background: white;
-            padding: 20px;
-            /* REDUCIDO de 30px a 20px */
-            border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            border: 1px solid #E5E7EB;
-            position: relative;
-            overflow: hidden;
-            max-height: 400px;
-            /* NUEVO: Altura máxima */
-        }
-
-        .chart-wrapper canvas {
-            max-height: 250px !important;
-            /* NUEVO: Canvas más pequeño */
-            max-width: 100% !important;
-        }
-
-        .chart-wrapper::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--wendy-red), var(--wendy-yellow), var(--wendy-blue));
-        }
-
-        .chart-wrapper:hover {
-            transform: translateY(-3px);
-            /* REDUCIDO de -5px a -3px */
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-            /* REDUCIDO efecto */
-        }
-
-        /* NUEVO: Estilos para el botón de Schedule */
-        .schedule-button-container {
-            text-align: center;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #E5E7EB;
-        }
-
-        .btn.schedule-btn {
-            background: linear-gradient(135deg, var(--wendy-blue) 0%, var(--wendy-dark-blue) 100%);
-            color: white;
-            font-size: 0.9em;
-            padding: 10px 16px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-        }
-
-        .btn.schedule-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 133, 202, 0.4);
-        }
-
-        /* NUEVO: Estilos para Modal */
-        .modal {
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: linear-gradient(135deg, white 0%, #f8fafc 100%);
-            border-radius: 20px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-            max-width: 600px;
-            width: 90%;
-            max-height: 80vh;
-            overflow: auto;
-            animation: modalSlideIn 0.3s ease-out;
-            border: 3px solid #E5E7EB;
-        }
-
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-50px) scale(0.9);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .modal-header {
-            background: linear-gradient(135deg, var(--wendy-red) 0%, var(--wendy-dark-red) 100%);
-            color: white;
-            padding: 20px 25px;
-            border-radius: 20px 20px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h3 {
-            margin: 0;
-            font-size: 1.3em;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        .close-modal {
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            color: white;
-            opacity: 0.8;
-            transition: all 0.3s ease;
-            width: 35px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .close-modal:hover {
-            opacity: 1;
-            background: rgba(255, 255, 255, 0.2);
-            transform: scale(1.1);
-        }
-
-        .modal-body {
-            padding: 30px 25px;
-        }
-
-        .modal-footer {
-            padding: 20px 25px;
-            border-top: 2px solid #E5E7EB;
-            background: #F8FAFC;
-            border-radius: 0 0 20px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-footer small {
-            color: #6B7280;
-            font-style: italic;
-        }
-
-        /* NUEVO: Tabla del Modal */
-        .schedule-table-modal {
-            width: 100%;
-            border-collapse: collapse;
-            font-family: 'Montserrat', sans-serif;
-            margin: 0;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .schedule-table-modal th {
-            background: linear-gradient(135deg, var(--wendy-blue) 0%, var(--wendy-dark-blue) 100%);
-            color: white;
-            padding: 15px 12px;
-            text-align: center;
-            font-weight: 700;
-            font-size: 0.9em;
-            letter-spacing: 0.5px;
-        }
-
-        .schedule-table-modal td {
-            padding: 15px 12px;
-            text-align: center;
-            border-bottom: 1px solid #E5E7EB;
-            font-weight: 500;
-            font-size: 0.95em;
-        }
-
-        .schedule-table-modal tr:last-child td {
-            border-bottom: none;
-        }
-
-        .schedule-table-modal tr:nth-child(even) {
-            background-color: #F8FAFC;
-        }
-
-        .schedule-table-modal tr:hover {
-            background-color: #EFF6FF;
-            transition: all 0.2s ease;
-        }
-
-        /* Status badges para modal */
-        .schedule-table-modal .status-badge {
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-size: 0.8em;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-            display: inline-block;
-        }
-
-        /* Responsive para modal */
-        @media (max-width: 600px) {
-            .modal-content {
-                width: 95%;
-                margin: 20px;
-            }
-
-            .schedule-table-modal th,
-            .schedule-table-modal td {
-                padding: 10px 8px;
-                font-size: 0.8em;
-            }
-
-            .modal-header h3 {
-                font-size: 1.1em;
-            }
-        }
-
-        .region-tabs {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 40px;
-            background: var(--wendy-gray);
-            border-radius: 15px;
-            padding: 8px;
-            border: 2px solid #E5E7EB;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        .tab {
-            padding: 15px 30px;
-            cursor: pointer;
-            border: none;
-            background: none;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border-radius: 10px;
-            font-family: 'Montserrat', sans-serif;
-            letter-spacing: 0.3px;
-        }
-
-        .tab.active {
-            background: linear-gradient(135deg, var(--wendy-red) 0%, var(--wendy-dark-red) 100%);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(227, 24, 55, 0.3);
-        }
-
-        .tab:hover:not(.active) {
-            background: #E5E7EB;
-            transform: translateY(-1px);
-        }
-
-        .last-update {
-            text-align: center;
-            color: var(--wendy-dark-gray);
-            font-style: italic;
-            font-weight: 500;
-            margin-top: 30px;
-            padding: 20px;
-            background: var(--wendy-light-gray);
-            border-radius: 12px;
-            border-left: 4px solid var(--wendy-red);
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            border: 3px solid #F3F4F6;
-            border-top: 3px solid var(--wendy-red);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .regional-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin: 0;
-        }
-
-        .regional-stat-card {
-            background: linear-gradient(135deg, var(--wendy-red) 0%, var(--wendy-dark-red) 100%);
-            color: white;
-            padding: 12px 8px;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(227, 24, 55, 0.2);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            min-height: 70px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .regional-stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--wendy-yellow), white);
-        }
-
-        .regional-stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(227, 24, 55, 0.3);
-        }
-
-        .regional-stat-number {
-            font-size: 1.5em;
-            font-weight: 700;
-            margin-bottom: 3px;
-            line-height: 1;
-        }
-
-        .regional-stat-label {
-            font-size: 0.65em;
-            font-weight: 500;
-            opacity: 0.95;
-            letter-spacing: 0.3px;
-            line-height: 1.1;
-        }
-
-        .project-details-section {
-            margin-top: 40px;
-            text-align: center;
-            padding: 30px;
-            background: linear-gradient(135deg, var(--wendy-light-gray) 0%, white 100%);
-            border-radius: 15px;
-            border: 2px solid #E5E7EB;
-        }
-
-        #projectDetailsContainer {
-            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
-            padding: 30px;
-            border-radius: 15px;
-            border-left: 6px solid var(--wendy-blue);
-            margin-top: 25px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        .more-info-section {
-            margin-top: 40px;
-            text-align: center;
-        }
-
-        .table-container {
-            max-height: 600px;
-            overflow: auto;
-            margin-top: 25px;
-            border: 2px solid #E5E7EB;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        .excel-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9em;
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        .excel-table th {
-            background: linear-gradient(135deg, var(--wendy-red) 0%, var(--wendy-dark-red) 100%);
-            color: white;
-            padding: 12px 10px;
-            text-align: center;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            font-size: 0.8em;
-            transition: all 0.3s ease;
-        }
-
-        .excel-table th[onclick] {
-            position: relative;
-        }
-
-        .excel-table th[onclick]:hover {
-            background: linear-gradient(135deg, var(--wendy-dark-red) 0%, #8B1538 100%);
-            transform: scale(1.02);
-        }
-
-        .excel-table th[onclick]:active {
-            transform: scale(0.98);
-        }
-
-        .excel-table td {
-            padding: 10px;
-            border: 1px solid #E5E7EB;
-            text-align: center;
-            font-weight: 500;
-        }
-
-        .excel-table tr:nth-child(even) {
-            background-color: var(--wendy-light-gray);
-        }
-
-        .excel-table tr:hover {
-            background-color: #EFF6FF;
-            transform: scale(1.01);
-            transition: all 0.2s ease;
-        }
-
-        .close-table {
-            float: right;
-            background: var(--wendy-red);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-bottom: 15px;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-            transition: all 0.3s ease;
-        }
-
-        .close-table:hover {
-            background: var(--wendy-dark-red);
-            transform: translateY(-2px);
-        }
-
-        #detailedTableContainer {
-            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
-            padding: 30px;
-            border-radius: 15px;
-            border-left: 6px solid var(--wendy-blue);
-            margin-top: 25px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        #diagnosticsContainer {
-            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-            padding: 30px;
-            border-radius: 15px;
-            border-left: 6px solid #F59E0B;
-            margin-top: 25px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        #diagnosticsContent {
-            background: #F3F4F6;
-            padding: 20px;
-            border-radius: 10px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-            white-space: pre-wrap;
-            max-height: 500px;
-            overflow-y: auto;
-            border: 2px solid #E5E7EB;
-            color: #374151;
-            line-height: 1.4;
-        }
-
-        /* Estilos para la tabla de fechas de remodelación */
-        .remodel-schedule-table {
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 2px solid #E5E7EB;
-        }
-
-        .schedule-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85em;
-            font-family: 'Montserrat', sans-serif;
-            margin: 0 auto;
-            max-width: 400px;
-        }
-
-        .schedule-table th {
-            background: linear-gradient(135deg, var(--wendy-blue) 0%, var(--wendy-dark-blue) 100%);
-            color: white;
-            padding: 10px 8px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 0.8em;
-            letter-spacing: 0.3px;
-        }
-
-        .schedule-table td {
-            padding: 8px;
-            text-align: center;
-            border: 1px solid #E5E7EB;
-            font-weight: 500;
-        }
-
-        .schedule-table tr:nth-child(even) {
-            background-color: var(--wendy-light-gray);
-        }
-
-        .schedule-table tr:hover {
-            background-color: #EFF6FF;
-            transition: all 0.2s ease;
-        }
-
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.75em;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-        }
-
-        .status-badge.stage1 {
-            background: linear-gradient(135deg, #FFC72C, #F59E0B);
-            color: var(--wendy-dark-gray);
-        }
-
-        .status-badge.june {
-            background: linear-gradient(135deg, #eece2d, #d1b217);
-            color: white;
-        }
-
-        .status-badge.july {
-            background: linear-gradient(135deg, #efaa3a, #fba721);
-            color: white;
-        }
-
-        .stage-badge.august {
-            background: linear-gradient(135deg, #f6785c, #fd6341);
-            color: white;
-        }
-
-        .status-badge.stage2 {
-            background: linear-gradient(135deg, #FF8C00, #E31837);
-            color: white;
+        .calendar-content-section.active {
+            display: block;
         }
     </style>
 </head>
@@ -895,179 +483,113 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1 class="title">
-                916 Dashboard
-            </h1>
+            <h1 class="title">916 Dashboard</h1>
             <p class="subtitle">Aloha 19 Implementation & Project Management System</p>
         </div>
 
-        <div class="">
-            <div style="margin-bottom: 15px;">
-                <div id="connectionStatus">Connecting to server...</div>
-            </div>
-            <div class="buttons-container">
-                <button onclick="refreshData()" class="btn refresh">Refresh Data</button>
-                <button onclick="downloadExcel()" class="btn download">Download Excel</button>
-
-            </div>
+        <div id="connectionStatus" style="margin-bottom: 15px;">Connecting to server...</div>
+        <div style="margin-bottom: 15px;">
+            <button onclick="refreshData()" class="btn refresh">Refresh Data</button>
+            <button onclick="downloadExcel()" class="btn download">Download Excel</button>
         </div>
 
         <div id="statusMessage"></div>
 
+        <!-- Tabs actualizados para incluir calendario -->
         <div class="region-tabs">
-            <button class="tab active" onclick="handleTabClick('global', this)">Global View (FL + TX)</button>
-            <button class="tab" onclick="handleTabClick('florida', this)">Florida Region</button>
-            <button class="tab" onclick="handleTabClick('texas', this)">Texas Region</button>
+            <button class="tab active" onclick="handleTabClick('dashboard', 'global', this)">Dashboard</button>
+            <button class="tab" onclick="handleTabClick('calendar', 'global', this)">Calendar</button>
         </div>
 
-        <div id="alohaStats" class="stats-grid">
-            <!-- Statistics cards generated here -->
+        <!-- Contenido del Dashboard (tu contenido existente) -->
+        <div id="dashboardContent" class="dashboard-content active">
+            <!-- Tabs de región dentro del dashboard -->
+            <div class="region-tabs" style="margin-top: 20px;">
+                <button class="tab active" onclick="handleRegionClick('global', this)">Global View (FL + TX)</button>
+                <button class="tab" onclick="handleRegionClick('florida', this)">Florida Region</button>
+                <button class="tab" onclick="handleRegionClick('texas', this)">Texas Region</button>
+            </div>
+
+            <!-- Tu contenido de dashboard existente va aquí -->
+            <div id="alohaStats" class="stats-grid">
+                <!-- Tu código existente del dashboard -->
+            </div>
+
+            <!-- Placeholder para tu contenido existente -->
+            <div style="text-align: center; padding: 50px; color: #6B7280;">
+                <p>Aquí va todo tu contenido existente del dashboard</p>
+                <p>(gráficas, estadísticas, tablas, etc.)</p>
+            </div>
         </div>
 
-        <!-- Regional Statistics - Only visible in Global View -->
-        <div id="regionalStats" style="display: none;">
-            <h3 style="text-align: center; color: var(--wendy-dark-gray); margin: 30px 0 25px 0; font-weight: 700;">
-                Regional Performance</h3>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 50px; max-width: 900px; margin: 0 auto;">
-                <!-- Florida Section -->
-                <div>
-                    <h4
-                        style="color: var(--wendy-red); margin-bottom: 15px; font-weight: 600; font-size: 1.1em; text-align: center;">
-                        Florida Region</h4>
-                    <div class="regional-stats-grid" id="floridaRegionalStats">
-                        <!-- Florida regional cards -->
+        <!-- Nuevo contenido del Calendario -->
+        <div id="calendarContent" class="calendar-content-section">
+            <div class="calendar-section">
+                <div class="calendar-header">
+                    <div class="calendar-title">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                        <span>Calendario de Remodelación</span>
+                    </div>
+                    <div style="font-size: 0.9em; opacity: 0.9;">
+                        Actualizado: <span id="calendarLastUpdate">--</span>
                     </div>
                 </div>
 
-                <!-- Texas Section -->
-                <div>
-                    <h4
-                        style="color: var(--wendy-red); margin-bottom: 15px; font-weight: 600; font-size: 1.1em; text-align: center;">
-                        Texas Region</h4>
-                    <div class="regional-stats-grid" id="texasRegionalStats">
-                        <!-- Texas regional cards -->
+                <div class="calendar-content">
+                    <div class="calendar-weeks">
+                        <div id="calendarLoading" class="loading-calendar">
+                            <div class="loading-spinner"></div>
+                            <span style="margin-left: 10px;">Cargando calendario...</span>
+                        </div>
+                        <div id="calendarWeeks" style="display: none;">
+                            <!-- Las semanas se generarán dinámicamente aquí -->
+                        </div>
+                    </div>
+
+                    <div class="calendar-details">
+                        <div id="calendarDetailsEmpty" class="details-empty">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity: 0.5;">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                            <p style="margin-top: 15px;">Selecciona una semana para ver los detalles</p>
+                        </div>
+
+                        <div id="calendarDetails" style="display: none;">
+                            <!-- Los detalles se generarán dinámicamente aquí -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leyenda del calendario -->
+            <div style="margin-top: 20px; padding: 20px; background: #F8FAFC; border-radius: 12px; border: 1px solid #E5E7EB;">
+                <h4 style="margin: 0 0 15px 0; color: var(--wendy-dark-gray); font-size: 1em;">Leyenda:</h4>
+                <div style="display: flex; gap: 30px; flex-wrap: wrap; font-size: 0.9em;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 12px; height: 12px; background: #10B981; border-radius: 50%;"></div>
+                        <span>Completadas: Fecha pasada + A19 = "SI"</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 12px; height: 12px; background: #F59E0B; border-radius: 50%;"></div>
+                        <span>Reprogramadas: Fecha pasada + A19 = "REPR"</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 12px; height: 12px; background: var(--wendy-blue); border-radius: 50%;"></div>
+                        <span>Pendientes: Fecha futura o sin estado definido</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="main-charts-grid">
-            <div class="chart-wrapper">
-                <div class="chart-title">Aloha 19 Implementation Status</div>
-                <canvas id="aloha19Chart"></canvas>
-
-                <!-- NUEVO: Botón para abrir modal de Schedule -->
-                <div class="schedule-button-container" id="scheduleButtonContainer" style="display: none;">
-                    <button onclick="openScheduleModal()" class="btn schedule-btn">
-                        View A19 Upgrade Schedule
-                    </button>
-                </div>
-            </div>
-
-            <div class="chart-wrapper">
-                <div class="chart-title">Wiring Progress</div>
-                <canvas id="wiringChart"></canvas>
-            </div>
-
-            <div class="chart-wrapper">
-                <div class="chart-title">Digital Deployment</div>
-                <canvas id="techChart"></canvas>
-            </div>
-
-            <div class="chart-wrapper">
-                <div class="chart-title">Project Status Overview</div>
-                <canvas id="projectsChart"></canvas>
-            </div>
-
-            <!-- Project Types como gráfica separada -->
-            <div class="chart-wrapper" id="projectTypesIntegratedWrapper">
-                <div class="chart-title" id="projectTypesIntegratedTitle">Project Types</div>
-                <canvas id="projectTypesIntegratedChart"></canvas>
-            </div>
-        </div>
-
-        <!-- NUEVO: Modal para Remodel Schedule -->
-        <div id="scheduleModal" class="modal" style="display: none;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3> A19 Upgrade Schedule - <span id="modalRegionTitle">Region</span></h3>
-                    <span class="close-modal" onclick="closeScheduleModal()">&times;</span>
-                </div>
-                <div class="modal-body">
-                    <table class="schedule-table-modal">
-                        <thead>
-                            <tr>
-                                <th>Status</th>
-                                <th>Start Date</th>
-                                <th>End Date</th>
-                                <th>Stores Distribution</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><span class="status-badge stage1">Stage 1</span></td>
-                                <td id="modalStage1Start">Loading...</td>
-                                <td id="modalStage1End">Loading...</td>
-                                <td id="modalStage1Stores">Loading...</td>
-                            </tr>
-                            <tr>
-                                <td><span class="status-badge stage2">Stage 2</span></td>
-                                <td id="modalStage2Start">Loading...</td>
-                                <td id="modalStage2End">Loading...</td>
-                                <td id="modalStage2Stores">TBD</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button onclick="closeScheduleModal()" class="btn">Close</button>
-                    <small>Last updated: <span id="modalLastUpdate">--</span></small>
-                </div>
-            </div>
-        </div>
-
-        <div class="project-details-section">
-            <div class="buttons-container">
-                <button onclick="toggleProjectDetailsTable()" class="btn info" id="projectDetailsBtn">Project
-                    Details</button>
-            </div>
-        </div>
-
-        <div id="projectDetailsContainer" style="display: none; margin-top: 25px;">
-            <div class="section-title">Detailed Project Information</div>
-            <p
-                style="text-align: center; color: var(--wendy-dark-gray); font-size: 0.9em; margin: 10px 0; font-style: italic;">
-                💡 Click on column headers to sort the data ⇕
-            </p>
-            <button onclick="hideProjectDetailsTable()" class="close-table">✖ Close</button>
-            <div class="table-container">
-                <table id="projectDetailsTable" class="excel-table">
-                    <!-- Table generated dynamically -->
-                </table>
-            </div>
-        </div>
-
-        <div id="moreInfoSection" class="more-info-section" style="display: none;">
-            <div class="buttons-container">
-                <!-- <button onclick="showDetailedTable()" class="btn info">Regional Details</button> -->
-            </div>
-        </div>
-
-        <div id="detailedTableContainer" style="display: none;">
-            <p
-                style="text-align: center; color: var(--wendy-dark-gray); font-size: 0.9em; margin: 10px 0; font-style: italic;">
-                Click on column headers to sort the data ⇕
-            </p>
-            <div><button onclick="hideDetailedTable()" class="close-table">✖ Close</button></div>
-            <div class="table-container">
-                <table id="detailedTable" class="excel-table">
-                    <!-- Table generated dynamically -->
-                </table>
-            </div>
-        </div>
-
-        <div id="lastUpdate" class="last-update"></div>
+        <div id="lastUpdate" style="text-align: center; color: var(--wendy-dark-gray); font-style: italic; font-weight: 500; margin-top: 30px; padding: 20px; background: var(--wendy-light-gray); border-radius: 12px; border-left: 4px solid var(--wendy-red);"></div>
     </div>
 
     <script>
@@ -1076,21 +598,281 @@
 
         // Global variables
         let dashboardData = null;
-        let allCharts = {};
+        let calendarData = null;
+        let currentView = 'dashboard'; // 'dashboard' o 'calendar'
         let currentRegion = 'global';
+        let selectedWeek = null;
 
-        // Global variable to store current table data for sorting
-        let currentTableData = [];
-        let currentSortColumn = null;
-        let currentSortDirection = 'asc';
+        // Function to handle main tab clicks (Dashboard/Calendar)
+        function handleTabClick(view, region, tabElement) {
+            currentView = view;
+            currentRegion = region;
+            
+            // Update active tab
+            document.querySelectorAll('.region-tabs .tab').forEach(tab => tab.classList.remove('active'));
+            tabElement.classList.add('active');
 
-        // Global variables for detailed table sorting
-        let currentDetailedTableData = [];
-        let currentDetailedSortColumn = null;
-        let currentDetailedSortDirection = 'asc';
-        let currentDetailedColumns = [];
+            // Show/hide content
+            document.querySelectorAll('.dashboard-content, .calendar-content-section').forEach(content => {
+                content.classList.remove('active');
+            });
 
-        // Function to load data from API
+            if (view === 'dashboard') {
+                document.getElementById('dashboardContent').classList.add('active');
+                updateDashboard();
+            } else if (view === 'calendar') {
+                document.getElementById('calendarContent').classList.add('active');
+                loadCalendarData();
+            }
+        }
+
+        // Function to handle region clicks within dashboard
+        function handleRegionClick(region, tabElement) {
+            currentRegion = region;
+            
+            // Update active tab only within region tabs
+            tabElement.parentElement.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            tabElement.classList.add('active');
+
+            if (currentView === 'dashboard') {
+                updateDashboard();
+            }
+        }
+
+        // Load calendar data from API
+        async function loadCalendarData() {
+            try {
+                showStatus('Cargando datos del calendario...', 'loading');
+                
+                const response = await fetch(`${API_BASE_URL}/api/calendar`);
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (data.status !== 'success') {
+                    throw new Error(data.message || 'Error en respuesta del servidor');
+                }
+
+                calendarData = data;
+                renderCalendar();
+                updateCalendarLastUpdate();
+                showStatus('Calendario cargado exitosamente', 'success');
+
+            } catch (error) {
+                console.error('Error loading calendar:', error);
+                showStatus(`Error cargando calendario: ${error.message}`, 'error');
+                
+                // Hide loading and show error
+                document.getElementById('calendarLoading').style.display = 'none';
+                document.getElementById('calendarWeeks').style.display = 'block';
+                document.getElementById('calendarWeeks').innerHTML = `
+                    <div style="text-align: center; padding: 50px; color: #EF4444;">
+                        <p>Error cargando datos del calendario</p>
+                        <button onclick="loadCalendarData()" class="btn">Reintentar</button>
+                    </div>
+                `;
+            }
+        }
+
+        // Render calendar weeks
+        function renderCalendar() {
+            const loadingElement = document.getElementById('calendarLoading');
+            const weeksElement = document.getElementById('calendarWeeks');
+
+            loadingElement.style.display = 'none';
+            weeksElement.style.display = 'block';
+
+            if (!calendarData || !calendarData.weekly_schedule || calendarData.weekly_schedule.length === 0) {
+                weeksElement.innerHTML = `
+                    <div style="text-align: center; padding: 50px; color: #6B7280;">
+                        <p>No hay datos de calendario disponibles</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            calendarData.weekly_schedule.forEach((week, index) => {
+                const completedPercentage = week.count > 0 ? (week.completed / week.count) * 100 : 0;
+                
+                html += `
+                    <div class="week-item" onclick="selectWeek('${week.week}')">
+                        <div class="week-header">
+                            <div>
+                                <div class="week-title">Semana ${index + 1}</div>
+                                <div class="week-date-range">${week.week_start} - ${week.week_end}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="week-stats">
+                            <div class="week-stat total">
+                                <div class="week-stat-number">${week.count}</div>
+                                <div class="week-stat-label">Total</div>
+                            </div>
+                            <div class="week-stat completed">
+                                <div class="week-stat-number">${week.completed}</div>
+                                <div class="week-stat-label">Completadas</div>
+                            </div>
+                            <div class="week-stat rescheduled">
+                                <div class="week-stat-number">${week.rescheduled}</div>
+                                <div class="week-stat-label">Reprogramadas</div>
+                            </div>
+                            <div class="week-stat pending">
+                                <div class="week-stat-number">${week.pending}</div>
+                                <div class="week-stat-label">Pendientes</div>
+                            </div>
+                        </div>
+
+                        <div class="week-progress">
+                            <div class="region-indicators">
+                                <div class="region-indicator">
+                                    <div class="region-dot florida"></div>
+                                    <span>FL: ${week.florida?.count || 0}</span>
+                                </div>
+                                <div class="region-indicator">
+                                    <div class="region-dot texas"></div>
+                                    <span>TX: ${week.texas?.count || 0}</span>
+                                </div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${completedPercentage}%"></div>
+                            </div>
+                            <span>${completedPercentage.toFixed(1)}%</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            weeksElement.innerHTML = html;
+        }
+
+        // Select a week for detailed view
+        function selectWeek(weekKey) {
+            selectedWeek = weekKey;
+            
+            // Update visual selection
+            document.querySelectorAll('.week-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+
+            // Find week data
+            const weekData = calendarData.weekly_schedule.find(w => w.week === weekKey);
+            if (!weekData) return;
+
+            // Show details
+            document.getElementById('calendarDetailsEmpty').style.display = 'none';
+            const detailsElement = document.getElementById('calendarDetails');
+            detailsElement.style.display = 'block';
+
+            // Generate details HTML
+            let storesHtml = '';
+            
+            // Florida stores
+            if (weekData.florida && weekData.florida.stores && weekData.florida.stores.length > 0) {
+                storesHtml += `
+                    <div class="stores-section">
+                        <h4>Florida (${weekData.florida.count})</h4>
+                        <div class="store-list">
+                `;
+                weekData.florida.stores.slice(0, 8).forEach(store => {
+                    storesHtml += `
+                        <div class="store-item">
+                            <span class="store-name">${store.store}</span>
+                            <span class="store-status ${store.status}">${store.status}</span>
+                        </div>
+                    `;
+                });
+                if (weekData.florida.stores.length > 8) {
+                    storesHtml += `<div style="text-align: center; color: #6B7280; font-size: 0.8em; padding: 10px;">+${weekData.florida.stores.length - 8} más...</div>`;
+                }
+                storesHtml += `</div></div>`;
+            }
+
+            // Texas stores
+            if (weekData.texas && weekData.texas.stores && weekData.texas.stores.length > 0) {
+                storesHtml += `
+                    <div class="stores-section">
+                        <h4>Texas (${weekData.texas.count})</h4>
+                        <div class="store-list">
+                `;
+                weekData.texas.stores.slice(0, 8).forEach(store => {
+                    storesHtml += `
+                        <div class="store-item">
+                            <span class="store-name">${store.store}</span>
+                            <span class="store-status ${store.status}">${store.status}</span>
+                        </div>
+                    `;
+                });
+                if (weekData.texas.stores.length > 8) {
+                    storesHtml += `<div style="text-align: center; color: #6B7280; font-size: 0.8em; padding: 10px;">+${weekData.texas.stores.length - 8} más...</div>`;
+                }
+                storesHtml += `</div></div>`;
+            }
+
+            detailsElement.innerHTML = `
+                <div class="details-content">
+                    <h3>Detalles de la Semana</h3>
+                    <p style="color: #6B7280; margin-bottom: 20px;">${weekData.week_start} - ${weekData.week_end}</p>
+
+                    <div class="status-summary">
+                        <div class="status-item completed">
+                            <div class="status-label">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                    <polyline points="22,4 12,14.01 9,11.01"/>
+                                </svg>
+                                <span>Completadas</span>
+                            </div>
+                            <span class="status-count" style="color: #10B981;">${weekData.completed}</span>
+                        </div>
+                        
+                        <div class="status-item rescheduled">
+                            <div class="status-label">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <path d="M12 1v6m0 6v6"/>
+                                    <path d="m15.14 7.14-4.28 4.28m0 0L6.58 7.14"/>
+                                </svg>
+                                <span>Reprogramadas</span>
+                            </div>
+                            <span class="status-count" style="color: #F59E0B;">${weekData.rescheduled}</span>
+                        </div>
+                        
+                        <div class="status-item pending">
+                            <div class="status-label">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12,6 12,12 16,14"/>
+                                </svg>
+                                <span>Pendientes</span>
+                            </div>
+                            <span class="status-count" style="color: var(--wendy-blue);">${weekData.pending}</span>
+                        </div>
+                    </div>
+
+                    ${storesHtml}
+                </div>
+            `;
+        }
+
+        // Update calendar last update time
+        function updateCalendarLastUpdate() {
+            if (calendarData && calendarData.last_update) {
+                const updateDate = new Date(calendarData.last_update);
+                const formattedDate = updateDate.toLocaleString('en-US', {
+                    timeZone: 'America/Chicago',
+                    month: 'short',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                document.getElementById('calendarLastUpdate').textContent = formattedDate;
+            }
+        }
+
+        // Load data from API (tu función existente)
         async function loadDataFromAPI() {
             try {
                 showStatus('Loading data from SharePoint...', 'loading');
@@ -1114,7 +896,10 @@
                 `;
 
                 showStatus('Data loaded successfully from SharePoint', 'success');
-                updateDashboard();
+                
+                if (currentView === 'dashboard') {
+                    updateDashboard();
+                }
                 updateLastUpdate();
 
             } catch (error) {
@@ -1122,7 +907,7 @@
                 showStatus(`Error connecting to server: ${error.message}`, 'error');
 
                 document.getElementById('connectionStatus').innerHTML = `
-                    <span style="color: #EF4444;"> Connection error</span>
+                    <span style="color: #EF4444;">Connection error</span>
                 `;
             }
         }
@@ -1136,7 +921,12 @@
                 await fetch(`${API_BASE_URL}/api/refresh`);
 
                 // Wait a bit and then load new data
-                setTimeout(loadDataFromAPI, 3000);
+                setTimeout(() => {
+                    loadDataFromAPI();
+                    if (currentView === 'calendar') {
+                        loadCalendarData();
+                    }
+                }, 3000);
 
             } catch (error) {
                 showStatus(`Error requesting update: ${error.message}`, 'error');
@@ -1148,13 +938,11 @@
             try {
                 showStatus('Downloading Excel file...', 'loading');
 
-                // Create a temporary link to download the file
                 const link = document.createElement('a');
                 link.href = 'https://916foods-my.sharepoint.com/personal/it_support_916foods_com/_layouts/15/download.aspx?share=EZb5NHihKQ9Lnysp--9gH0UBOkCr7K-3Ud_mPhC2At2PPQ';
                 link.target = '_blank';
-                link.download = '916Foods_Data.xlsx'; // Optional: suggest filename
+                link.download = '916Foods_Data.xlsx';
 
-                // Trigger download
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -1171,7 +959,6 @@
             const statusDiv = document.getElementById('statusMessage');
             const spinner = type === 'loading' ? '<span class="loading-spinner"></span> ' : '';
 
-            // Handle multiline messages
             const formattedMessage = message.replace(/\n/g, '<br>');
 
             statusDiv.innerHTML = `<div class="status ${type}" style="text-align: left; white-space: pre-wrap;">${spinner}${formattedMessage}</div>`;
@@ -1197,1077 +984,37 @@
                 `Last update: ${formattedDate} (ET) | Automatic every 30 minutes | Real-time data`;
         }
 
-        function getCurrentData() {
-            if (!dashboardData) return null;
-
-            switch (currentRegion) {
-                case 'florida': return dashboardData.florida_data;
-                case 'texas': return dashboardData.texas_data;
-                case 'global': return dashboardData.global_data;
-                default: return dashboardData.global_data;
-            }
-        }
-
-        // Function to handle tab clicks
-        function handleTabClick(region, tabElement) {
-            // Cerrar tablas abiertas al cambiar de pestaña
-            hideProjectDetailsTable();
-            hideDetailedTable();
-
-            currentRegion = region;
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            tabElement.classList.add('active');
-
-            // Show/hide more information button
-            const moreInfoSection = document.getElementById('moreInfoSection');
-            if (region === 'florida' || region === 'texas') {
-                moreInfoSection.style.display = 'block';
-            } else {
-                moreInfoSection.style.display = 'none';
-                hideDetailedTable(); // Hide table if visible
-            }
-
-            updateDashboard();
-        }
-
-        function showRegion(region) {
-            // Cerrar tablas abiertas al cambiar de región
-            hideProjectDetailsTable();
-            hideDetailedTable();
-
-            currentRegion = region;
-
-            // Update active tab
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-
-            // Find and activate the corresponding tab
-            const tabs = document.querySelectorAll('.tab');
-            tabs.forEach(tab => {
-                const tabText = tab.textContent.toLowerCase();
-                if ((region === 'global' && tabText.includes('global')) ||
-                    (region === 'florida' && tabText.includes('florida')) ||
-                    (region === 'texas' && tabText.includes('texas'))) {
-                    tab.classList.add('active');
-                }
-            });
-
-            // Show/hide more information button
-            const moreInfoSection = document.getElementById('moreInfoSection');
-            if (region === 'florida' || region === 'texas') {
-                moreInfoSection.style.display = 'block';
-            } else {
-                moreInfoSection.style.display = 'none';
-                hideDetailedTable(); // Hide table if visible
-            }
-
-            updateDashboard();
-        }
-
-        function updateAlohaStats(data) {
-            if (!data || !data.aloha19) return;
-
-            const statsGrid = document.getElementById('alohaStats');
-            const regionalStats = document.getElementById('regionalStats');
-
-            // Determine total stores by region
-            let totalStores = data.aloha19.total || 0;
-            let regionInfo;
-
-            if (currentRegion === 'florida') {
-                regionInfo = 'Florida Stores';
-            } else if (currentRegion === 'texas') {
-                regionInfo = 'Texas Stores';
-            } else {
-                regionInfo = 'Total Stores';
-            }
-
-            // Calculate percentages
-            const finishedPercentage = totalStores > 0 ? ((data.aloha19.finished / totalStores) * 100).toFixed(1) : 0;
-            const wiringFinishedPercentage = totalStores > 0 ? ((data.wiring.finished / totalStores) * 100).toFixed(1) : 0;
-
-            let statsHTML = `
-                <div class="stat-card finished" onclick="scrollToChart('aloha19Chart')">
-                    <div class="stat-number">${totalStores}</div>
-                    <div class="stat-label">${regionInfo}</div>
-                </div>
-            `;
-
-            if (currentRegion === 'global') {
-                // Global View - Show only 4 main cards
-                statsHTML += `
-                    <div class="stat-card finished" onclick="scrollToChart('aloha19Chart')">
-                        <div class="stat-number">${data.aloha19.finished}</div>
-                        <div class="stat-label">Aloha 19 Complete (${finishedPercentage}%)</div>
-                    </div>
-
-                    <div class="stat-card finished" onclick="scrollToChart('wiringChart')">
-                        <div class="stat-number">${data.wiring.finished}</div>
-                        <div class="stat-label">Wiring Complete (${wiringFinishedPercentage}%)</div>
-                    </div>
-                    
-                    <div class="stat-card finished" onclick="scrollToChart('techChart')">
-                        <div class="stat-number">${data.technologies.fresh_ai}</div>
-                        <div class="stat-label">Fresh AI Deployed</div>
-                    </div>
-                `;
-
-                // Show regional stats
-                regionalStats.style.display = 'block';
-                updateRegionalStats();
-
-            } else {
-                // Regional views - Show traditional details
-                statsHTML += `
-                    <div class="stat-card" onclick="scrollToChart('aloha19Chart')">
-                        <div class="stat-number">${data.aloha19.finished}</div>
-                        <div class="stat-label">Aloha 19  (${finishedPercentage}%)</div>
-                    </div>
-                    
-                    <div class="stat-card" onclick="scrollToChart('wiringChart')">
-                        <div class="stat-number">${data.wiring.finished}</div>
-                        <div class="stat-label">Wiring Complete (${wiringFinishedPercentage}%)</div>
-                    </div>
-                    <div class="stat-card" onclick="scrollToChart('techChart')">
-                        <div class="stat-number">${data.technologies.fresh_ai}</div>
-                        <div class="stat-label">Fresh AI Deployed</div>
-                    </div>
-                `;
-
-                // Hide regional stats
-                regionalStats.style.display = 'none';
-            }
-
-            statsGrid.innerHTML = statsHTML;
-        }
-
-        // New function to update regional statistics
-        function updateRegionalStats() {
-            if (!dashboardData) return;
-
-            // Calculate Florida stats
-            const floridaData = dashboardData.florida_data;
-            const floridaTotal = floridaData.aloha19?.total || 0;
-            const floridaAlohaPercent = floridaTotal > 0 ? ((floridaData.aloha19.finished / floridaTotal) * 100).toFixed(1) : 0;
-            const floridaWiringPercent = floridaTotal > 0 ? ((floridaData.wiring.finished / floridaTotal) * 100).toFixed(1) : 0;
-
-            // Calculate Texas stats
-            const texasData = dashboardData.texas_data;
-            const texasTotal = texasData.aloha19?.total || 0;
-            const texasAlohaPercent = texasTotal > 0 ? ((texasData.aloha19.finished / texasTotal) * 100).toFixed(1) : 0;
-            const texasWiringPercent = texasTotal > 0 ? ((texasData.wiring.finished / texasTotal) * 100).toFixed(1) : 0;
-
-            const floridaContainer = document.getElementById('floridaRegionalStats');
-            const texasContainer = document.getElementById('texasRegionalStats');
-
-            floridaContainer.innerHTML = `
-                <div class="regional-stat-card" onclick="showRegion('florida')">
-                    <div class="regional-stat-number">${floridaTotal}</div>
-                    <div class="regional-stat-label">Total Stores</div>
-                </div>
-                <div class="regional-stat-card" onclick="showRegion('florida')">
-                    <div class="regional-stat-number">${floridaData.aloha19.finished}</div>
-                    <div class="regional-stat-label">Aloha 19 (${floridaAlohaPercent}%)</div>
-                </div>
-                <div class="regional-stat-card" onclick="showRegion('florida')">
-                    <div class="regional-stat-number">${floridaData.wiring.finished}</div>
-                    <div class="regional-stat-label">Wiring Complete (${floridaWiringPercent}%)</div>
-                </div>
-                <div class="regional-stat-card" onclick="showRegion('florida')">
-                    <div class="regional-stat-number">${floridaData.technologies.fresh_ai}</div>
-                    <div class="regional-stat-label">Fresh AI</div>
-                </div>
-            `;
-
-            texasContainer.innerHTML = `
-                <div class="regional-stat-card" onclick="showRegion('texas')">
-                    <div class="regional-stat-number">${texasTotal}</div>
-                    <div class="regional-stat-label">Total Stores</div>
-                </div>
-                <div class="regional-stat-card" onclick="showRegion('texas')">
-                    <div class="regional-stat-number">${texasData.aloha19.finished}</div>
-                    <div class="regional-stat-label">Aloha 19 (${texasAlohaPercent}%)</div>
-                </div>
-                <div class="regional-stat-card" onclick="showRegion('texas')">
-                    <div class="regional-stat-number">${texasData.wiring.finished}</div>
-                    <div class="regional-stat-label">Wiring Complete (${texasWiringPercent}%)</div>
-                </div>
-                <div class="regional-stat-card" onclick="showRegion('texas')">
-                    <div class="regional-stat-number">${texasData.technologies.fresh_ai}</div>
-                    <div class="regional-stat-label">Fresh AI</div>
-                </div>
-            `;
-        }
-
-        // Function to scroll to specific chart
-        function scrollToChart(chartId) {
-            const chartElement = document.getElementById(chartId);
-            if (chartElement) {
-                chartElement.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'center'
-                });
-                // Add a subtle highlight effect
-                const wrapper = chartElement.closest('.chart-wrapper');
-                if (wrapper) {
-                    wrapper.style.boxShadow = '0 15px 40px rgba(227, 24, 55, 0.3)';
-                    setTimeout(() => {
-                        wrapper.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)';
-                    }, 2000);
-                }
-            }
-        }
-
-        // NUEVA FUNCIÓN: Toggle para project details table
-        function toggleProjectDetailsTable() {
-            const container = document.getElementById('projectDetailsContainer');
-            const btn = document.getElementById('projectDetailsBtn');
-
-            if (container.style.display === 'none' || container.style.display === '') {
-                showProjectDetailsTable();
-                btn.textContent = 'Hide Project Details';
-            } else {
-                hideProjectDetailsTable();
-                btn.textContent = 'Project Details';
-            }
-        }
-
-        // Mostrar tabla de detalles de proyectos (datos reales del SharePoint)
-        async function showProjectDetailsTable() {
-            try {
-                const regionText = currentRegion === 'global' ? '' : ` for ${currentRegion.charAt(0).toUpperCase() + currentRegion.slice(1)}`;
-                showStatus(`Loading project details${regionText} from SharePoint...`, 'loading');
-
-                // Usar siempre el endpoint original para obtener todos los datos
-                const response = await fetch(`${API_BASE_URL}/api/table/projects`);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP Error: ${response.status}`);
-                }
-
-                const result = await response.json();
-
-                if (result.error) {
-                    throw new Error(result.error);
-                }
-
-                // Mostrar información de debug si está disponible
-                if (result.debug_info) {
-                    console.log('Debug Info:', result.debug_info);
-                    console.log(`Sheets processed: ${result.debug_info.sheets_processed.join(', ')}`);
-                    console.log(`Total rows checked: ${result.debug_info.total_rows_checked}`);
-                    console.log(`Rows with project data: ${result.debug_info.rows_with_project_data}`);
-                    console.log(`Rows matching filters: ${result.debug_info.rows_matching_filters}`);
-                }
-
-                if (!result.data || result.data.length === 0) {
-                    let debugMessage = `No project data found in SharePoint${regionText}`;
-                    showStatus(debugMessage, 'warning');
-                    return;
-                }
-
-                // Filtrar datos según la región actual
-                let filteredData = result.data;
-                if (currentRegion !== 'global') {
-                    filteredData = result.data.filter(rowInfo => {
-                        const region = rowInfo.data._region ? rowInfo.data._region.toLowerCase() : '';
-                        return region.includes(currentRegion.toLowerCase());
-                    });
-                }
-
-                // Store filtered data globally for sorting
-                currentTableData = filteredData;
-
-                if (currentTableData.length === 0) {
-                    showStatus(`No project data found for ${currentRegion === 'global' ? 'any region' : currentRegion}`, 'warning');
-                    return;
-                }
-
-                // Generate table HTML with real data and sortable headers
-                renderProjectDetailsTable();
-                document.getElementById('projectDetailsContainer').style.display = 'block';
-
-                const filterNote = result.filters_applied ? result.filters_applied.note : '';
-                const debugNote = result.debug_info ? ` (${result.debug_info.total_rows_checked} rows checked)` : '';
-                const regionNote = currentRegion !== 'global' ? ` - Filtered for ${currentRegion}` : '';
-                showStatus(`Project details loaded (${currentTableData.length} records)${debugNote}${regionNote}. ${filterNote}`, 'success');
-
-            } catch (error) {
-                showStatus(`Error loading project details: ${error.message}`, 'error');
-                console.error('Error:', error);
-            }
-        }
-
-        function formatDateCell(value, columnKey) {
-            // Columnas que contienen fechas
-            const dateColumns = ['M', 'O', 'P', 'U', 'V'];
-
-            if (!dateColumns.includes(columnKey) || !value || value === '---') {
-                return value;
-            }
-
-            try {
-                // Si contiene hora (formato YYYY-MM-DD HH:MM:SS), extraer solo la fecha
-                if (typeof value === 'string' && value.includes(' ') && value.includes(':')) {
-                    const datePart = value.split(' ')[0];
-
-                    // Si está en formato YYYY-MM-DD, convertir a MM/DD/YYYY
-                    if (datePart.includes('-')) {
-                        const parts = datePart.split('-');
-                        if (parts.length === 3) {
-                            const [year, month, day] = parts;
-                            return `${month.padStart(2, '0')}/${day.padStart(2, '0')}/${year}`;
-                        }
-                    }
-                    return datePart;
-                }
-
-                // Si ya está en formato MM/DD/YYYY, mantenerlo
-                if (typeof value === 'string' && value.includes('/')) {
-                    return value;
-                }
-
-                // Para otros casos, devolver el valor original
-                return value;
-
-            } catch (error) {
-                console.log('Error formateando fecha:', error);
-                return value;
-            }
-        }
-
-        // Function to render the project details table with sorting
-        function renderProjectDetailsTable() {
-            const table = document.getElementById('projectDetailsTable');
-            const columns = [
-                { key: '_region', label: 'Region', sortable: true },
-                { key: 'A', label: 'Store', sortable: true },
-                { key: 'B', label: 'Address', sortable: true },
-                { key: 'M', label: 'Aloha UP', sortable: true },
-                { key: 'N', label: 'Nexteo Pro', sortable: true },
-                { key: 'Q', label: 'Project', sortable: true },
-                { key: 'R', label: 'AUV', sortable: true },
-                { key: 'S', label: 'Cost', sortable: true },
-                { key: 'T', label: 'Status', sortable: true },
-                { key: 'U', label: 'Cable Install', sortable: true },
-                { key: 'V', label: 'Delivery Date', sortable: true },
-                { key: 'W', label: 'Installation Date', sortable: true },
-                { key: 'X', label: 'Install', sortable: true }
-            ];
-
-            // Create header row with sortable columns
-            let tableHTML = '<tr>';
-            columns.forEach(col => {
-                if (col.sortable) {
-                    const sortIcon = currentSortColumn === col.key ?
-                        (currentSortDirection === 'asc' ? ' ▲' : ' ▼') : ' ⇕';
-                    tableHTML += `<th onclick="sortTable('${col.key}')" style="cursor: pointer; user-select: none;">${col.label}${sortIcon}</th>`;
-                } else {
-                    tableHTML += `<th>${col.label}</th>`;
-                }
-            });
-            tableHTML += '</tr>';
-
-            // Add data rows
-            currentTableData.forEach(rowInfo => {
-                const row = rowInfo.data;
-
-                // Format cost as currency
-                let formattedCost = row.R || '---';
-                if (formattedCost !== '---' && !isNaN(formattedCost) && formattedCost !== '' && formattedCost !== '0') {
-                    try {
-                        formattedCost = new Intl.NumberFormat('en-US', {
-                            style: 'currency',
-                            currency: 'USD'
-                        }).format(parseFloat(formattedCost));
-                    } catch (e) {
-                        // Keep original value if formatting fails
-                    }
-                }
-
-                // Format Aloha UP date (columna M)
-                const formattedAlohaUp = formatDateCell(row.M || '---', 'M');
-                const formattedDeliveryDate = formatDateCell(row.T || '---', 'U');
-                const formattedInstallationDate = formatDateCell(row.U || '---', 'V');
-
-                tableHTML += `
-                    <tr>
-                        <td>${row._region || 'N/A'}</td>
-                        <td>${row.A || '---'}</td>
-                        <td>${row.B || '---'}</td>
-                        <td>${formattedAlohaUp}</td>
-                        <td>${row.N || '---'}</td>
-                        <td>${row.Q || '---'}</td>
-                        <td>${row.R || '---'}</td>
-                        <td>${formattedCost}</td>
-                        <td>${row.T || '---'}</td>
-                        <td>${row.U || '---'}</td>
-                        <td>${row.V || '---'}</td>
-                        <td>${row.W || '---'}</td>
-                        <td>${row.X || '---'}</td>
-                    </tr>
-                `;
-            });
-
-            table.innerHTML = tableHTML;
-        }
-
-        // Function to sort table by column
-        function sortTable(columnKey) {
-            if (currentSortColumn === columnKey) {
-                // Toggle direction if same column
-                currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
-            } else {
-                // New column, start with ascending
-                currentSortColumn = columnKey;
-                currentSortDirection = 'asc';
-            }
-
-            currentTableData.sort((a, b) => {
-                let aVal = a.data[columnKey] || '';
-                let bVal = b.data[columnKey] || '';
-
-                // Handle numeric values (for Cost column R, AUV column Q, and Aloha UP column M)
-                if (columnKey === 'S' || columnKey === 'R') {
-                    aVal = parseFloat(aVal) || 0;
-                    bVal = parseFloat(bVal) || 0;
-
-                    if (currentSortDirection === 'asc') {
-                        return aVal - bVal;
-                    } else {
-                        return bVal - aVal;
-                    }
-                }
-
-                // Handle text values
-                aVal = aVal.toString().toLowerCase();
-                bVal = bVal.toString().toLowerCase();
-
-                if (currentSortDirection === 'asc') {
-                    return aVal.localeCompare(bVal);
-                } else {
-                    return bVal.localeCompare(aVal);
-                }
-            });
-
-            renderProjectDetailsTable();
-        }
-
-        // Function to hide project details table
-        function hideProjectDetailsTable() {
-            document.getElementById('projectDetailsContainer').style.display = 'none';
-            const btn = document.getElementById('projectDetailsBtn');
-            btn.textContent = 'Project Details';
-            // Reset sorting variables
-            currentTableData = [];
-            currentSortColumn = null;
-            currentSortDirection = 'asc';
-        }
-
-        // NUEVA FUNCIÓN: Mostrar tabla detallada regional (datos reales del SharePoint)
-        async function showDetailedTable() {
-            try {
-                if (currentRegion === 'global') {
-                    showStatus('Detailed table only available for specific Florida or Texas views', 'warning');
-                    return;
-                }
-
-                showStatus(`Loading detailed table for ${currentRegion} from SharePoint...`, 'loading');
-
-                const response = await fetch(`${API_BASE_URL}/api/table/${currentRegion}/detailed`);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP Error: ${response.status}`);
-                }
-
-                const result = await response.json();
-
-                if (result.error) {
-                    throw new Error(result.error);
-                }
-
-                if (!result.data || result.data.length === 0) {
-                    showStatus(`No detailed data found for ${currentRegion}`, 'warning');
-                    return;
-                }
-
-                // Store data globally for sorting
-                currentDetailedTableData = result.data;
-                currentDetailedColumns = result.columns;
-
-                // Generate table HTML with real SharePoint data and sortable headers
-                renderDetailedTable();
-                document.getElementById('detailedTableContainer').style.display = 'block';
-
-                showStatus(`Detailed ${currentRegion} table loaded (${result.total_rows} rows from ${result.sheet})`, 'success');
-
-            } catch (error) {
-                showStatus(`Error loading detailed table: ${error.message}`, 'error');
-                console.error('Error:', error);
-            }
-        }
-
-        // Function to render the detailed table with sorting
-        function renderDetailedTable() {
-            const table = document.getElementById('detailedTable');
-
-            // Column names mapping
-            const columnNames = {
-                'A': 'STORE', 'B': 'ADDRESS', 'C': 'PHONE/STORE PHONE', 'D': 'DM', 'E': 'GM',
-                'F': 'A19', 'G': 'WIRING', 'H': 'FRESH AI', 'I': 'EDMB', 'J': 'IDMB',
-                'K': 'QB', 'L': 'KIOSK', 'M': 'A19 UP', 'N': 'NETXEO PRO', 'O': 'START REMOD', 'P': 'END REMOD',
-                'Q': 'PROJECT', 'R': 'AUV', 'S': 'COST', 'T': 'STATUS', 'U': 'CABLE INSTALL',
-                'V': 'DELIVERY DATE', 'W': 'INSTALLATION DATE', 'X': 'INSTALL'
-            };
-
-            // Create header row with sortable columns
-            let tableHTML = '<tr>';
-            currentDetailedColumns.forEach(col => {
-                const displayName = columnNames[col] || `Column ${col}`;
-                const sortIcon = currentDetailedSortColumn === col ?
-                    (currentDetailedSortDirection === 'asc' ? ' ▲' : ' ▼') : ' ⇕';
-                tableHTML += `<th onclick="sortDetailedTable('${col}')" style="cursor: pointer; user-select: none;">${displayName}${sortIcon}</th>`;
-            });
-            tableHTML += '</tr>';
-
-            // Add data rows
-            currentDetailedTableData.forEach(rowInfo => {
-                const row = rowInfo.data;
-                tableHTML += '<tr>';
-
-                currentDetailedColumns.forEach(col => {
-                    let cellValue = row[col] || '---';
-
-                    // Ensure 0 values become "---"
-                    if (cellValue === 0 || cellValue === '0' || cellValue === '0.0') {
-                        cellValue = '---';
-                    }
-
-                    // Format cost column if it's column R
-                    if (col === 'R' && cellValue !== '---' && !isNaN(cellValue) && cellValue !== '' && cellValue !== '0') {
-                        try {
-                            cellValue = new Intl.NumberFormat('en-US', {
-                                style: 'currency',
-                                currency: 'USD'
-                            }).format(parseFloat(cellValue));
-                        } catch (e) {
-                            // Keep original value if formatting fails
-                        }
-                    }
-
-                    // NUEVO: Format date columns (M, N, O)
-                    if (['M', 'O', 'P', "U"].includes(col) && cellValue !== '---') {
-                        cellValue = formatDateCell(cellValue, col);
-                    }
-
-                    tableHTML += `<td>${cellValue}</td>`;
-                });
-
-                tableHTML += '</tr>';
-            });
-
-            table.innerHTML = tableHTML;
-        }
-
-        // Function to sort detailed table by column
-        function sortDetailedTable(columnKey) {
-            if (currentDetailedSortColumn === columnKey) {
-                // Toggle direction if same column
-                currentDetailedSortDirection = currentDetailedSortDirection === 'asc' ? 'desc' : 'asc';
-            } else {
-                // New column, start with ascending
-                currentDetailedSortColumn = columnKey;
-                currentDetailedSortDirection = 'asc';
-            }
-
-            currentDetailedTableData.sort((a, b) => {
-                let aVal = a.data[columnKey] || '';
-                let bVal = b.data[columnKey] || '';
-
-                // Handle numeric values (for columns like Cost R, AUV Q, etc.)
-                if (['S', 'R'].includes(columnKey)) {
-                    aVal = parseFloat(aVal) || 0;
-                    bVal = parseFloat(bVal) || 0;
-
-                    if (currentDetailedSortDirection === 'asc') {
-                        return aVal - bVal;
-                    } else {
-                        return bVal - aVal;
-                    }
-                }
-
-                // Handle text values
-                aVal = aVal.toString().toLowerCase();
-                bVal = bVal.toString().toLowerCase();
-
-                if (currentDetailedSortDirection === 'asc') {
-                    return aVal.localeCompare(bVal);
-                } else {
-                    return bVal.localeCompare(aVal);
-                }
-            });
-
-            renderDetailedTable();
-        }
-
-        // Function to hide detailed table
-        function hideDetailedTable() {
-            document.getElementById('detailedTableContainer').style.display = 'none';
-            // Reset sorting variables
-            currentDetailedTableData = [];
-            currentDetailedSortColumn = null;
-            currentDetailedSortDirection = 'asc';
-            currentDetailedColumns = [];
-        }
-
-        // NUEVA FUNCIÓN: Abrir modal de Schedule
-        function openScheduleModal() {
-            const modal = document.getElementById('scheduleModal');
-            modal.style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // Prevenir scroll del fondo
-
-            // Actualizar título del modal
-            const regionTitle = currentRegion.charAt(0).toUpperCase() + currentRegion.slice(1);
-            document.getElementById('modalRegionTitle').textContent = regionTitle;
-
-            // Actualizar datos del modal
-            updateModalScheduleData();
-        }
-
-        // NUEVA FUNCIÓN: Cerrar modal de Schedule
-        function closeScheduleModal() {
-            const modal = document.getElementById('scheduleModal');
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto'; // Restaurar scroll
-        }
-
-        // NUEVA FUNCIÓN: Actualizar datos del modal
-        async function updateModalScheduleData() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/remodel-dates`);
-
-                if (response.ok) {
-                    const result = await response.json();
-
-                    if (result.status === 'success') {
-                        let stage1Start, stage1End, stage2Start, stage2End;
-                        let storesBreakdown = "TBD";
-
-                        if (currentRegion === 'florida' && result.regional_details && result.regional_details.florida) {
-                            const floridaData = result.regional_details.florida;
-                            stage1Start = floridaData.stage1_start;
-                            stage1End = floridaData.stage1_end;
-                            stage2Start = floridaData.stage2_start;
-                            stage2End = floridaData.stage2_end;
-
-                            const julyStores = floridaData.july_stores || 0;
-                            const augustStores = floridaData.august_stores || 0;
-                            storesBreakdown = `<strong>July:</strong> ${julyStores} stores<br><strong>August:</strong> ${augustStores} stores`;
-
-                        } else if (currentRegion === 'texas' && result.regional_details && result.regional_details.texas) {
-                            const texasData = result.regional_details.texas;
-                            stage1Start = texasData.stage1_start;
-                            stage1End = texasData.stage1_end;
-                            stage2Start = texasData.stage2_start;
-                            stage2End = texasData.stage2_end;
-
-                            const juneStores = texasData.june_stores || 0;
-                            const julyStores = texasData.july_stores || 0;
-                            storesBreakdown = `<strong>June:</strong> ${juneStores} stores<br><strong>July:</strong> ${julyStores} stores`;
-                        } else {
-                            stage1Start = result.stage1_start;
-                            stage1End = result.stage1_end;
-                            stage2Start = result.stage2_start;
-                            stage2End = result.stage2_end;
-                        }
-
-                        // Update modal data
-                        document.getElementById('modalStage1Start').textContent = stage1Start || 'TBD';
-                        document.getElementById('modalStage1End').textContent = stage1End || 'TBD';
-                        document.getElementById('modalStage2Start').textContent = stage2Start || 'TBD';
-                        document.getElementById('modalStage2End').textContent = stage2End || 'TBD';
-                        document.getElementById('modalStage1Stores').innerHTML = storesBreakdown;
-
-                        // Update last update time
-                        if (dashboardData && dashboardData.last_update) {
-                            const updateDate = new Date(dashboardData.last_update);
-                            const formattedDate = updateDate.toLocaleString('en-US', {
-                                timeZone: 'America/Chicago',
-                                month: 'short',
-                                day: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            });
-                            document.getElementById('modalLastUpdate').textContent = formattedDate;
-                        }
-
-                    } else {
-                        throw new Error(result.source || 'Error en respuesta del servidor');
-                    }
-                } else {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-            } catch (error) {
-                console.log('Error en modal, usando fallback:', error.message);
-                // Fallback data
-                if (currentRegion === 'texas') {
-                    document.getElementById('modalStage1Start').textContent = 'TBD';
-                    document.getElementById('modalStage1End').textContent = 'TBD';
-                    document.getElementById('modalStage2Start').textContent = 'TBD';
-                    document.getElementById('modalStage2End').textContent = 'TBD';
-                    document.getElementById('modalStage1Stores').innerHTML = '<strong>June:</strong> TBD stores<br><strong>July:</strong> TBD stores';
-                } else {
-                    document.getElementById('modalStage1Start').textContent = '07/20/2025';
-                    document.getElementById('modalStage1End').textContent = '08/05/2025';
-                    document.getElementById('modalStage2Start').textContent = 'TBD';
-                    document.getElementById('modalStage2End').textContent = 'TBD';
-                    document.getElementById('modalStage1Stores').innerHTML = '<strong>July:</strong> TBD stores<br><strong>August:</strong> TBD stores';
-                }
-            }
-        }
-
-        // NUEVA FUNCIÓN: Cerrar modal con tecla ESC
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape') {
-                closeScheduleModal();
-            }
-        });
-        document.addEventListener('click', function (event) {
-            const modal = document.getElementById('scheduleModal');
-            if (event.target === modal) {
-                closeScheduleModal();
-            }
-        });
-
-        function updateRemodelSchedule() {
-            const scheduleButtonContainer = document.getElementById('scheduleButtonContainer');
-
-            // Solo mostrar botón en vistas regionales, NO en global
-            if (currentRegion === 'global') {
-                scheduleButtonContainer.style.display = 'none';
-            } else {
-                scheduleButtonContainer.style.display = 'block';
-            }
-        }
-
-        function createChart(ctx, data, title, colors = null, showValues = true, chartType = 'doughnut', dataKey = '') {
-            if (allCharts[ctx.canvas.id]) {
-                allCharts[ctx.canvas.id].destroy();
-            }
-
-            const defaultColors = ['#E31837', '#FFC72C', '#8B5CF6', '#10B981', '#0085CA', '#6B7280'];
-            const chartColors = colors || defaultColors;
-
-            // Determinar si es una gráfica de Project Types para ajustar tamaño
-            const isProjectTypesChart = ctx.canvas.id.includes('projectTypes') || title.includes('Project Types');
-
-            const config = {
-                type: chartType,
-                data: {
-                    labels: Object.keys(data),
-                    datasets: [{
-                        data: Object.values(data),
-                        backgroundColor: chartColors,
-                        borderWidth: 2,
-                        borderColor: '#fff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: chartType === 'bar' ? 'top' : 'bottom',
-                            labels: {
-                                padding: isProjectTypesChart ? 8 : 15, /* AUMENTADO padding normal */
-                                font: {
-                                    size: isProjectTypesChart ? 9 : 12, /* AUMENTADO tamaño de fuente normal */
-                                    family: 'Montserrat',
-                                    weight: '600'
-                                }
-                            }
-                        },
-                        datalabels: showValues ? {
-                            color: chartType === 'bar' ? '#374151' : 'white',
-                            font: {
-                                weight: 'bold',
-                                size: isProjectTypesChart ? 10 : 13, /* AUMENTADO tamaño */
-                                family: 'Montserrat'
-                            },
-                            formatter: (value, context) => {
-                                return value > 0 ? value : '';
-                            },
-                            anchor: chartType === 'bar' ? 'end' : 'center',
-                            align: chartType === 'bar' ? 'top' : 'center'
-                        } : false
-                    }
-                },
-                plugins: showValues ? [ChartDataLabels] : []
-            };
-
-            // Specific configurations for bar charts
-            if (chartType === 'bar') {
-                const maxValue = isProjectTypesChart ? 40 : 70;
-                config.options.scales = {
-                    y: {
-                        beginAtZero: true,
-                        max: maxValue,
-                        ticks: {
-                            stepSize: isProjectTypesChart ? 5 : 10,
-                            font: {
-                                family: 'Montserrat',
-                                weight: '500',
-                                size: isProjectTypesChart ? 9 : 11
-                            }
-                        }
-                    },
-                    x: {
-                        ticks: {
-                            maxRotation: 45,
-                            minRotation: 0,
-                            font: {
-                                family: 'Montserrat',
-                                weight: '500',
-                                size: isProjectTypesChart ? 9 : 11 /* AUMENTADO tamaño */
-                            }
-                        }
-                    }
-                };
-                config.options.plugins.legend.display = false;
-            }
-
-            allCharts[ctx.canvas.id] = new Chart(ctx, config);
-        }
-
-        // FUNCIÓN ACTUALIZADA: Actualizar Project Types integrado
-        function updateProjectTypes(data) {
-            const wrapper = document.getElementById('projectTypesIntegratedWrapper');
-            const title = document.getElementById('projectTypesIntegratedTitle');
-            const canvas = document.getElementById('projectTypesIntegratedChart');
-
-            if (currentRegion === 'global') {
-                // Vista global: mostrar datos combinados de ambas regiones
-                title.textContent = 'Project Types (Combined)';
-
-                // Combinar datos de Florida y Texas
-                const combinedData = {};
-
-                if (data.project_types_florida) {
-                    if (data.project_types_florida.fai_edmb_idmb_qb > 0) {
-                        combinedData['FAI,EDMB,IDMB,QUE'] = (combinedData['FAI,EDMB,IDMB,QUE'] || 0) + data.project_types_florida.fai_edmb_idmb_qb;
-                    }
-                    if (data.project_types_florida.edmb_idmb_qb > 0) {
-                        combinedData['EDMB,IDMB,QB'] = (combinedData['EDMB,IDMB,QB'] || 0) + data.project_types_florida.edmb_idmb_qb;
-                    }
-                }
-
-                if (data.project_types_texas) {
-                    if (data.project_types_texas.edmb > 0) {
-                        combinedData['EDMB'] = (combinedData['EDMB'] || 0) + data.project_types_texas.edmb;
-                    }
-                    if (data.project_types_texas.edmb_idmb_qb > 0) {
-                        combinedData['EDMB-IDMB-QB'] = (combinedData['EDMB-IDMB-QB'] || 0) + data.project_types_texas.edmb_idmb_qb;
-                    }
-                    if (data.project_types_texas.idmb_qb > 0) {
-                        combinedData['IDMB-QB'] = (combinedData['IDMB-QB'] || 0) + data.project_types_texas.idmb_qb;
-                    }
-                }
-
-                console.log('Combined Project Types Data:', combinedData);
-                console.log('Florida Data:', data.project_types_florida);
-                console.log('Texas Data:', data.project_types_texas);
-                console.log('Projects en Florida:', data.project_types_florida ? Object.keys(data.project_types_florida).length : 0);
-                console.log('Projects en Texas:', data.project_types_texas ? Object.keys(data.project_types_texas).length : 0);
-
-                if (Object.keys(combinedData).length > 0) {
-                    createChart(
-                        canvas.getContext('2d'),
-                        combinedData,
-                        'Project Types (Combined)',
-                        ['#8B5CF6', '#0085CA', '#10B981', '#F472B6', '#F3C200', '#3B82F6'],
-                        true,
-                        'bar'
-                    );
-                } else {
-                    // Si no hay datos, ocultar la gráfica
-                    wrapper.style.display = 'none';
-                }
-
-            } else {
-                // Vista específica de región
-                wrapper.style.display = 'block';
-                title.textContent = `Project Types - ${currentRegion.charAt(0).toUpperCase() + currentRegion.slice(1)}`;
-
-                // Obtener datos según la región actual
-                const regionData = getCurrentData();
-                if (regionData && regionData.project_types) {
-                    const projectTypesData = {};
-
-                    if (currentRegion === 'florida') {
-                        if (regionData.project_types.fai_edmb_idmb_qb > 0) {
-                            projectTypesData['FAI,EDMB,IDMB,QB'] = regionData.project_types.fai_edmb_idmb_qb;
-                        }
-                        if (regionData.project_types.edmb_idmb_qb > 0) {
-                            projectTypesData['EDMB,IDMB,QB'] = regionData.project_types.edmb_idmb_qb;
-                        }
-                    } else if (currentRegion === 'texas') {
-                        if (regionData.project_types.edmb > 0) {
-                            projectTypesData['EDMB'] = regionData.project_types.edmb;
-                        }
-                        if (regionData.project_types.edmb_idmb_qb > 0) {
-                            projectTypesData['EDMB-IDMB-QB'] = regionData.project_types.edmb_idmb_qb;
-                        }
-                        if (regionData.project_types.idmb_qb > 0) {
-                            projectTypesData['IDMB-QB'] = regionData.project_types.idmb_qb;
-                        }
-                    }
-
-                    if (Object.keys(projectTypesData).length > 0) {
-                        createChart(
-                            canvas.getContext('2d'),
-                            projectTypesData,
-                            'Project Types',
-                            ['#8B5CF6', '#0085CA', '#10B981'],
-                            true,
-                            'bar'
-                        );
-                    } else {
-                        // Si no hay datos para esta región, ocultar la gráfica
-                        wrapper.style.display = 'none';
-                    }
-                } else {
-                    wrapper.style.display = 'none';
-                }
-            }
-        }
-
+        // Placeholder function for dashboard update (aquí va tu lógica existente)
         function updateDashboard() {
-            const data = getCurrentData();
-            if (!data) {
+            if (!dashboardData) {
                 showStatus('No data available. Connecting...', 'warning');
                 return;
             }
 
-            // Update Aloha 19 statistics
-            updateAlohaStats(data);
-
-            // Update remodel schedule table (solo en vistas regionales)
-            updateRemodelSchedule();
-
-            // Main Aloha 19 chart
-            if (data.aloha19) {
-                const alohaChartData = {
-                    'Finished': data.aloha19.finished || 0,
-                    // 'Stage 1': data.aloha19.stage1 || 0,
-                    'June': data.aloha19.june || 0,
-                    'July': data.aloha19.july || 0,
-                    'August': data.aloha19.august || 0,
-                    'Stage 2': data.aloha19.stage2 || 0,
-                };
-                // Add Close for Texas
-                if (data.aloha19.close && data.aloha19.close > 0) {
-                    alohaChartData['Close'] = data.aloha19.close;
-                }
-
-                createChart(
-                    document.getElementById('aloha19Chart').getContext('2d'),
-                    alohaChartData,
-                    'Aloha 19 Status',
-                    ['#10B981', '#2cffd5', '#FFC72C', '#FF692C', '#FF8C00', '#E31837'],
-                    true,
-                    'doughnut'
-                );
+            // Aquí va toda tu lógica existente de updateDashboard()
+            // updateAlohaStats(), charts, etc.
+            console.log('Updating dashboard for region:', currentRegion);
+            
+            // Placeholder - reemplaza con tu código existente
+            const alohaStats = document.getElementById('alohaStats');
+            if (alohaStats) {
+                alohaStats.innerHTML = `
+                    <div style="text-align: center; padding: 30px; background: #F8FAFC; border-radius: 12px; color: #6B7280;">
+                        <h3>Dashboard para región: ${currentRegion}</h3>
+                        <p>Aquí va tu código existente de dashboard</p>
+                        <p>Charts, estadísticas, tablas, etc.</p>
+                    </div>
+                `;
             }
-
-            // Wiring chart
-            if (data.wiring) {
-                const wiringData = {
-                    'Finished': data.wiring.finished || 0,
-                    'Pending': data.wiring.pending || 0,
-                    'Close': data.wiring.close || 0
-                };
-
-                // AGREGAR "Close" solo para Texas (celda B14)
-                if (currentRegion === 'texas' && data.wiring.close && data.wiring.close > 0) {
-                    wiringData['Close'] = data.wiring.close;
-                }
-
-                // Colores dinámicos: verde para Finished, amarillo para Pending, ROJO para Close
-                const wiringColors = (currentRegion === 'texas' && data.wiring.close && data.wiring.close > 0)
-                    ? ['#10B981', '#FFC72C', '#E31837']  // Texas con Close (verde, amarillo, rojo)
-                    : ['#10B981', '#FFC72C', '#E31837'];            // Sin Close (verde, amarillo)
-
-                console.log(`🔌 Wiring chart - Región: ${currentRegion}, Datos:`, wiringData, 'Colores:', wiringColors);
-
-                createChart(
-                    document.getElementById('wiringChart').getContext('2d'),
-                    wiringData,
-                    'Wiring Status',
-                    wiringColors,
-                    true,
-                    'doughnut'
-                );
-            }
-
-            // Technologies chart
-            if (data.technologies) {
-                createChart(
-                    document.getElementById('techChart').getContext('2d'),
-                    {
-                        'Fresh AI': data.technologies.fresh_ai || 0,
-                        'EDMB': data.technologies.edmb || 0,
-                        'IDMB': data.technologies.idmb || 0,
-                        'QB': data.technologies.qb || 0,
-                        'KIOSK': data.technologies.kiosk || 0
-                    },
-                    'Technologies Implementation',
-                    ['#0085CA', '#10B981', '#FFC72C', '#8B5CF6', '#E31837'],
-                    true,
-                    'bar'
-                );
-            }
-
-            // Projects chart
-            if (data.projects) {
-                const projectsData = {};
-
-                // CORREGIDO: En vista global, mostrar datos combinados. En vistas regionales, mostrar datos específicos
-                if (currentRegion === 'global') {
-                    // Vista global: combinar datos de Florida y Texas
-                    if (data.projects.paid > 0) projectsData['Paid'] = data.projects.paid;
-                    if (data.projects.signed > 0) projectsData['Signed'] = data.projects.signed;
-                    if (data.projects.quote > 0) projectsData['Quote'] = data.projects.quote; // Combinado FL+TX
-
-                } else if (currentRegion === 'texas') {
-                    // Vista Texas: solo Quote
-                    if (data.projects.paid > 0) projectsData['Paid'] = data.projects.paid;
-                    if (data.projects.signed > 0) projectsData['Signed'] = data.projects.signed;
-                    if (data.projects.quote > 0) projectsData['Quote'] = data.projects.quote;
-
-                } else if (currentRegion === 'florida') {
-                    // Vista Florida: Signed, Quote, Paid
-                    if (data.projects.paid > 0) projectsData['Paid'] = data.projects.paid;
-                    if (data.projects.signed > 0) projectsData['Signed'] = data.projects.signed;
-                    if (data.projects.quote > 0) projectsData['Quote'] = data.projects.quote;
-                }
-
-                if (Object.keys(projectsData).length > 0) {
-                    createChart(
-                        document.getElementById('projectsChart').getContext('2d'),
-                        projectsData,
-                        'Projects Status',
-                        ['#10B981', '#FFC72C', '#FF8C00', '#8B5CF6'],
-                        true,
-                        'doughnut'
-                    );
-                }
-            }
-
-            // ACTUALIZADO: Usar la nueva función integrada de Project Types
-            updateProjectTypes(data);
         }
 
         // Auto-refresh every 5 minutes
-        setInterval(loadDataFromAPI, 5 * 60 * 1000);
+        setInterval(() => {
+            loadDataFromAPI();
+            if (currentView === 'calendar') {
+                loadCalendarData();
+            }
+        }, 5 * 60 * 1000);
 
         // Initial load
         document.addEventListener('DOMContentLoaded', function () {
@@ -2276,7 +1023,18 @@
 
             loadDataFromAPI();
         });
+
+        // Close calendar details when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.week-item') && !event.target.closest('#calendarDetails')) {
+                selectedWeek = null;
+                document.querySelectorAll('.week-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                document.getElementById('calendarDetailsEmpty').style.display = 'flex';
+                document.getElementById('calendarDetails').style.display = 'none';
+            }
+        });
     </script>
 </body>
-
 </html>
