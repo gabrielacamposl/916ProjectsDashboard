@@ -335,6 +335,166 @@ def get_remodel_dates():
             "source": f"error: {str(e)}"
         }
 
+# Correcciones y adiciones al backend para el calendario
+
+def get_weekly_schedule_data(sheet_name):
+    try:
+        global workbook
+        if not workbook or sheet_name not in workbook.sheetnames:
+            return {"error": f"La hoja '{sheet_name}' no existe o el workbook no está cargado."}
+        sheet = workbook[sheet_name]
+        logger.info(f"Procesando fechas de calendario para {sheet_name}")
+        
+        # Leer todas las fechas de la columna M
+        dates_data = []
+        weekly_counts = {}
+        
+        if sheet_name == 'TEX-COM':
+            max_row = min(59, sheet.max_row)
+        elif sheet_name == 'FLO-COM':
+            max_row = min(28, sheet.max_row)
+        else:
+            max_row = sheet.max_row
+        
+        for row_num in range(2, max_row + 1):
+            try:
+                cell_value = sheet[f"M{row_num}"].value
+                store = sheet[f"A{row_num}"].value
+                a19_status = sheet[f"F{row_num}"].value  # Columna F para status A19
+                
+                if cell_value and cell_value not in ['FINISHED', 'TBD', '---', '', ' ', 'CLOSE']:
+                    parsed_date = parse_date_for_calendar(cell_value)
+                    if parsed_date:
+                        week_key = get_week_key(parsed_date)
+                        
+                        # Determinar el estado de la tienda
+                        current_date = datetime.now()
+                        is_past = parsed_date < current_date
+                        
+                        status = "pending"  # Por defecto
+                        if is_past:
+                            if a19_status and str(a19_status).upper() == "SI":
+                                status = "completed"
+                            elif a19_status and str(a19_status).upper() == "REPR":
+                                status = "rescheduled"
+                        
+                        dates_data.append({
+                            'store': store or f"Store_{row_num}",
+                            'date': parsed_date.strftime("%m/%d/%Y"),
+                            'week': week_key,
+                            'status': status,
+                            'a19_status': str(a19_status) if a19_status else "---"
+                        })
+                        
+                        if week_key not in weekly_counts:
+                            weekly_counts[week_key] = {
+                                'count': 0,
+                                'completed': 0,
+                                'rescheduled': 0,
+                                'pending': 0,
+                                'stores': [],
+                                'week_start': get_week_start(parsed_date),
+                                'week_end': get_week_end(parsed_date)
+                            }
+                        
+                        weekly_counts[week_key]['count'] += 1
+                        weekly_counts[week_key][status] += 1
+                        weekly_counts[week_key]['stores'].append({
+                            'store': store or f"Store_{row_num}",
+                            'status': status,
+                            'date': parsed_date.strftime("%m/%d/%Y")
+                        })
+                        
+            except Exception as e:
+                logger.error(f"Error procesando fila {row_num} en {sheet_name}: {str(e)}")
+                continue
+        
+        weekly_schedule = []
+        for week_key in sorted(weekly_counts.keys()):
+            week_data = weekly_counts[week_key]
+            weekly_schedule.append({
+                'week': week_key,
+                'week_start': week_data['week_start'],
+                'week_end': week_data['week_end'],
+                'count': week_data['count'],
+                'completed': week_data['completed'],
+                'rescheduled': week_data['rescheduled'],
+                'pending': week_data['pending'],
+                'stores': week_data['stores']
+            })
+            logger.info(f"Semana {week_key}: {week_data['count']} tiendas, {week_data['completed']} completadas, {week_data['rescheduled']} reprogramadas")
+        
+        return {
+            "status": "success",
+            "sheet": sheet_name,
+            "total_dates": len(dates_data),
+            "weekly_schedule": weekly_schedule,
+            "raw_dates": dates_data
+        }   
+    except Exception as e:
+        logger.error(f"Error procesando datos semanales para {sheet_name}: {str(e)}")
+        return {"status": "error", "message": str(e)}
+
+def parse_date_for_calendar(date_value):
+    try:
+        if hasattr(date_value, 'strftime'):
+            return date_value
+        
+        if isinstance(date_value, str):
+            date_str = date_value.strip()
+            
+            if '/' in date_str:
+                try:
+                    return datetime.strptime(date_str, "%m/%d/%Y")
+                except:
+                    try:
+                        return datetime.strptime(date_str, "%d/%m/%Y")
+                    except:
+                        pass
+            elif '-' in date_str:
+                try:
+                    return datetime.strptime(date_str, "%Y-%m-%d")
+                except:
+                    pass
+        
+        if isinstance(date_value, (int, float)) and date_value > 0:
+            try:
+                # Asumir que es un número de días desde 1900
+                excel_epoch = datetime(1900, 1, 1)
+                return excel_epoch + timedelta(days=date_value - 2)
+            except:
+                pass
+        
+        return None
+        
+    except Exception as e:
+        logger.error(f"Error parseando fecha: {str(e)}")
+        return None
+
+def get_week_key(date_obj):
+    """Obtiene la clave de semana para una fecha dada"""
+    if not date_obj:
+        return None
+    # Usar el lunes como inicio de semana
+    week_start = date_obj - timedelta(days=date_obj.weekday())
+    return week_start.strftime("%m/%d/%Y")
+
+def get_week_start(date_obj):
+    """Obtiene el inicio de la semana (lunes)"""
+    if not date_obj:
+        return None
+    week_start = date_obj - timedelta(days=date_obj.weekday())
+    return week_start.strftime("%m/%d/%Y")
+
+def get_week_end(date_obj):
+    """Obtiene el final de la semana (domingo)"""
+    if not date_obj:
+        return None
+    week_start = date_obj - timedelta(days=date_obj.weekday())
+    week_end = week_start + timedelta(days=6)
+    return week_end.strftime("%m/%d/%Y")
+
+
 def process_sheet_data(workbook, sheet_name):
     """Procesa los datos de una hoja específica (FLO o TEX) con DEBUG completo"""
     try:
@@ -426,7 +586,7 @@ def process_sheet_data(workbook, sheet_name):
             logger.info("🔌 Leyendo datos de Wiring...")
             wiring_pending = read_excel_cell(sheet, 'B12')
             wiring_finished = read_excel_cell(sheet, 'B13')
-            wiring_close = read_excel_cell(sheet, 'B14')  # NUEVO: Wiring Close (CELDA B14)
+            wiring_close = read_excel_cell(sheet, 'B14')  #  Wiring Close (CELDA B14)
             
             logger.info(f"Texas Wiring - Pending: {wiring_pending}, Finished: {wiring_finished}, Close: {wiring_close}")
             
@@ -474,7 +634,7 @@ def process_sheet_data(workbook, sheet_name):
                     "kiosk": kiosk
                 },
                 "projects": {
-                    "paid": paid,  # Texas Quote = 5 (B27)
+                    "paid": paid,  # Texas Quote (B27)
                     "signed": signed,  # Texas Pending (B28)
                     "quote": quote,  # Texas Quote
                 },
@@ -628,6 +788,8 @@ def get_table_data(sheet_name, columns=None, filter_rows=True, max_row=None):
         # Columnas que contienen fechas (no convertir 0 a "---")
         date_columns = ['M', 'N', 'O', 'P', 'U', 'V', 'W']
         
+        # 
+        
         # Leer datos fila por fila (empezar desde fila 2 para evitar headers)
         for row_num in range(2, actual_max_row + 1):
             row_data = {}
@@ -746,6 +908,100 @@ def get_remodel_dates_api():
             "source": f"error: {str(e)}"
         })
 
+# Nuevo endpoint para el calendario
+@app.route('/api/calendar')
+def get_calendar_data():
+    """Endpoint para obtener datos del calendario semanal"""
+    try:
+        logger.info("API request - Datos de calendario")
+        
+        # Obtener datos de ambas hojas
+        florida_calendar = get_weekly_schedule_data('FLO-COM')
+        texas_calendar = get_weekly_schedule_data('TEX-COM')
+        
+        # Combinar datos de ambas regiones
+        combined_weekly = {}
+        
+        # Procesar Florida
+        if florida_calendar.get("status") == "success":
+            for week_data in florida_calendar.get("weekly_schedule", []):
+                week_key = week_data["week"]
+                if week_key not in combined_weekly:
+                    combined_weekly[week_key] = {
+                        "week": week_key,
+                        "week_start": week_data["week_start"],
+                        "week_end": week_data["week_end"],
+                        "count": 0,
+                        "completed": 0,
+                        "rescheduled": 0,
+                        "pending": 0,
+                        "florida": {"count": 0, "completed": 0, "rescheduled": 0, "pending": 0, "stores": []},
+                        "texas": {"count": 0, "completed": 0, "rescheduled": 0, "pending": 0, "stores": []}
+                    }
+                
+                combined_weekly[week_key]["count"] += week_data["count"]
+                combined_weekly[week_key]["completed"] += week_data["completed"]
+                combined_weekly[week_key]["rescheduled"] += week_data["rescheduled"]
+                combined_weekly[week_key]["pending"] += week_data["pending"]
+                combined_weekly[week_key]["florida"] = {
+                    "count": week_data["count"],
+                    "completed": week_data["completed"],
+                    "rescheduled": week_data["rescheduled"],
+                    "pending": week_data["pending"],
+                    "stores": week_data["stores"]
+                }
+        
+        # Procesar Texas
+        if texas_calendar.get("status") == "success":
+            for week_data in texas_calendar.get("weekly_schedule", []):
+                week_key = week_data["week"]
+                if week_key not in combined_weekly:
+                    combined_weekly[week_key] = {
+                        "week": week_key,
+                        "week_start": week_data["week_start"],
+                        "week_end": week_data["week_end"],
+                        "count": 0,
+                        "completed": 0,
+                        "rescheduled": 0,
+                        "pending": 0,
+                        "florida": {"count": 0, "completed": 0, "rescheduled": 0, "pending": 0, "stores": []},
+                        "texas": {"count": 0, "completed": 0, "rescheduled": 0, "pending": 0, "stores": []}
+                    }
+                
+                combined_weekly[week_key]["count"] += week_data["count"]
+                combined_weekly[week_key]["completed"] += week_data["completed"]
+                combined_weekly[week_key]["rescheduled"] += week_data["rescheduled"]
+                combined_weekly[week_key]["pending"] += week_data["pending"]
+                combined_weekly[week_key]["texas"] = {
+                    "count": week_data["count"],
+                    "completed": week_data["completed"],
+                    "rescheduled": week_data["rescheduled"],
+                    "pending": week_data["pending"],
+                    "stores": week_data["stores"]
+                }
+        
+        # Convertir a lista ordenada
+        weekly_schedule = []
+        for week_key in sorted(combined_weekly.keys()):
+            weekly_schedule.append(combined_weekly[week_key])
+        
+        return jsonify({
+            "status": "success",
+            "last_update": dashboard_data.get("last_update"),
+            "weekly_schedule": weekly_schedule,
+            "florida_data": florida_calendar,
+            "texas_data": texas_calendar,
+            "total_weeks": len(weekly_schedule)
+        })
+        
+    except Exception as e:
+        logger.error(f"Error en endpoint calendario: {str(e)}")
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        })
+
+
 # ENDPOINTS PARA TABLAS DETALLADAS
 @app.route('/api/table/<region>/detailed')
 def get_detailed_regional_table(region):
@@ -813,7 +1069,7 @@ def get_project_details_table():
                     row_data = row_info["data"]
                     debug_info["total_rows_checked"] += 1
                     
-                    # ¿ PROJECT está en columna P
+                    # PROJECT está en columna Q
                     project_value = row_data.get('Q', '---').strip()
                     
                     if project_value not in ['---', '', ' ', 'NULL', '-----']:
