@@ -111,6 +111,302 @@
             transition: opacity 0.3s ease;
         }
 
+        /* Estilos específicos para el calendario en el dashboard */
+        .calendar-chart-wrapper {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #E5E7EB;
+            position: relative;
+            overflow: hidden;
+            max-height: 500px;
+        }
+
+        .calendar-chart-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--wendy-red), var(--wendy-yellow), var(--wendy-blue));
+        }
+
+        .calendar-chart-wrapper:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .calendar-mini-content {
+            display: flex;
+            min-height: 350px;
+        }
+
+        .calendar-mini-weeks {
+            flex: 2;
+            padding: 15px;
+            background: white;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .calendar-mini-details {
+            flex: 1;
+            background: #F8FAFC;
+            padding: 15px;
+            border-left: 1px solid #E5E7EB;
+        }
+
+        .week-item-mini {
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            font-size: 0.85em;
+        }
+
+        .week-item-mini:hover {
+            border-color: var(--wendy-blue);
+            box-shadow: 0 2px 8px rgba(0, 133, 202, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .week-item-mini.selected {
+            border-color: var(--wendy-blue);
+            background: #EFF6FF;
+            box-shadow: 0 2px 8px rgba(0, 133, 202, 0.2);
+        }
+
+        .week-header-mini {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .week-title-mini {
+            font-weight: 600;
+            color: var(--wendy-dark-gray);
+            font-size: 0.9em;
+        }
+
+        .week-date-range-mini {
+            color: #6B7280;
+            font-size: 0.75em;
+            font-weight: 500;
+        }
+
+        .week-stats-mini {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .week-stat-mini {
+            text-align: center;
+            padding: 6px 4px;
+            border-radius: 6px;
+            background: #F8FAFC;
+        }
+
+        .week-stat-number-mini {
+            font-size: 1.1em;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .week-stat-label-mini {
+            font-size: 0.6em;
+            color: #6B7280;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .week-stat-mini.total .week-stat-number-mini {
+            color: var(--wendy-dark-gray);
+        }
+
+        .week-stat-mini.completed .week-stat-number-mini {
+            color: #10B981;
+        }
+
+        .week-stat-mini.rescheduled .week-stat-number-mini {
+            color: #F59E0B;
+        }
+
+        .week-stat-mini.pending .week-stat-number-mini {
+            color: var(--wendy-blue);
+        }
+
+        .week-progress-mini {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.7em;
+        }
+
+        .progress-bar-mini {
+            flex: 1;
+            height: 4px;
+            background: #E5E7EB;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill-mini {
+            height: 100%;
+            background: linear-gradient(90deg, #10B981 0%, #059669 100%);
+            transition: width 0.3s ease;
+        }
+
+        .region-indicators-mini {
+            display: flex;
+            gap: 8px;
+            font-size: 0.7em;
+            font-weight: 600;
+        }
+
+        .region-indicator-mini {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .region-dot-mini {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .region-dot-mini.florida {
+            background: #10B981;
+        }
+
+        .region-dot-mini.texas {
+            background: #EF4444;
+        }
+
+        .details-panel-mini {
+            text-align: center;
+            font-size: 0.85em;
+        }
+
+        .details-empty-mini {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 150px;
+            color: #6B7280;
+        }
+
+        .details-content-mini h4 {
+            color: var(--wendy-dark-gray);
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .status-summary-mini {
+            display: grid;
+            gap: 6px;
+            margin-bottom: 15px;
+        }
+
+        .status-item-mini {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            background: white;
+            border-radius: 6px;
+            border-left: 3px solid #E5E7EB;
+            font-size: 0.8em;
+        }
+
+        .status-item-mini.completed {
+            border-left-color: #10B981;
+        }
+
+        .status-item-mini.rescheduled {
+            border-left-color: #F59E0B;
+        }
+
+        .status-item-mini.pending {
+            border-left-color: var(--wendy-blue);
+        }
+
+        .status-label-mini {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+        }
+
+        .status-count-mini {
+            font-weight: 700;
+            font-size: 1em;
+        }
+
+        .stores-section-mini {
+            margin-top: 12px;
+        }
+
+        .stores-section-mini h5 {
+            color: var(--wendy-dark-gray);
+            margin-bottom: 6px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .store-list-mini {
+            max-height: 80px;
+            overflow-y: auto;
+        }
+
+        .store-item-mini {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            border-bottom: 1px solid #F3F4F6;
+            font-size: 0.75em;
+        }
+
+        .store-name-mini {
+            font-weight: 500;
+            color: var(--wendy-dark-gray);
+        }
+
+        .store-status-mini {
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 0.65em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .store-status-mini.completed {
+            background: #DCFCE7;
+            color: #166534;
+        }
+
+        .store-status-mini.rescheduled {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .store-status-mini.pending {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+
         .subtitle {
             color: var(--wendy-dark-gray);
             font-size: 1.2em;
@@ -987,6 +1283,39 @@
             </div>
         </div>
 
+        <!-- Calendario en Dashboard -->
+        <div class="calendar-chart-wrapper">
+            <div class="chart-title">Weekly Schedule Calendar</div>
+            <div class="calendar-mini-content">
+                <div class="calendar-mini-weeks">
+                    <div id="calendarLoadingMini" class="loading-calendar">
+                        <div class="loading-spinner"></div>
+                        <span style="margin-left: 10px;">Loading calendar...</span>
+                    </div>
+                    <div id="calendarWeeksMini" style="display: none;">
+                        <!-- Las semanas se generarán dinámicamente aquí -->
+                    </div>
+                </div>
+
+                <div class="calendar-mini-details">
+                    <div id="calendarDetailsEmptyMini" class="details-empty-mini">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5" style="opacity: 0.5;">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                        </svg>
+                        <p style="margin-top: 10px; font-size: 0.8em;">Select a week to view details</p>
+                    </div>
+
+                    <div id="calendarDetailsMini" style="display: none;">
+                        <!-- Los detalles se generarán dinámicamente aquí -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- NUEVO: Modal para Remodel Schedule -->
         <div id="scheduleModal" class="modal" style="display: none;">
             <div class="modal-content">
@@ -1417,7 +1746,195 @@
             }
         }
 
-        // NUEVA FUNCIÓN: Toggle para project details table
+        // Render calendar weeks para la versión mini en dashboard
+        function renderCalendarMini() {
+            const loadingElement = document.getElementById('calendarLoadingMini');
+            const weeksElement = document.getElementById('calendarWeeksMini');
+
+            if (loadingElement) loadingElement.style.display = 'none';
+            if (weeksElement) weeksElement.style.display = 'block';
+
+            if (!calendarData || !calendarData.weekly_schedule || calendarData.weekly_schedule.length === 0) {
+                if (weeksElement) {
+                    weeksElement.innerHTML = `
+                <div style="text-align: center; padding: 30px; color: #6B7280; font-size: 0.8em;">
+                    <p>No calendar data available</p>
+                </div>
+            `;
+                }
+                return;
+            }
+
+            let html = '';
+            calendarData.weekly_schedule.forEach((week, index) => {
+                const completedPercentage = week.count > 0 ? (week.completed / week.count) * 100 : 0;
+
+                html += `
+            <div class="week-item-mini" onclick="selectWeekMini('${week.week}')">
+                <div class="week-header-mini">
+                    <div>
+                        <div class="week-title-mini">Week ${index + 1}</div>
+                        <div class="week-date-range-mini">${week.week_start} - ${week.week_end}</div>
+                    </div>
+                </div>
+                
+                <div class="week-stats-mini">
+                    <div class="week-stat-mini total">
+                        <div class="week-stat-number-mini">${week.count}</div>
+                        <div class="week-stat-label-mini">Total</div>
+                    </div>
+                    <div class="week-stat-mini completed">
+                        <div class="week-stat-number-mini">${week.completed}</div>
+                        <div class="week-stat-label-mini">Done</div>
+                    </div>
+                    <div class="week-stat-mini rescheduled">
+                        <div class="week-stat-number-mini">${week.rescheduled}</div>
+                        <div class="week-stat-label-mini">Reschedule</div>
+                    </div>
+                    <div class="week-stat-mini pending">
+                        <div class="week-stat-number-mini">${week.pending}</div>
+                        <div class="week-stat-label-mini">Pending</div>
+                    </div>
+                </div>
+
+                <div class="week-progress-mini">
+                    <div class="region-indicators-mini">
+                        <div class="region-indicator-mini">
+                            <div class="region-dot-mini florida"></div>
+                            <span>FL:${week.florida?.count || 0}</span>
+                        </div>
+                        <div class="region-indicator-mini">
+                            <div class="region-dot-mini texas"></div>
+                            <span>TX:${week.texas?.count || 0}</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar-mini">
+                        <div class="progress-fill-mini" style="width: ${completedPercentage}%"></div>
+                    </div>
+                    <span>${completedPercentage.toFixed(0)}%</span>
+                </div>
+            </div>
+        `;
+            });
+
+            if (weeksElement) {
+                weeksElement.innerHTML = html;
+            }
+        }
+
+        // Select a week for detailed view en versión mini
+        function selectWeekMini(weekKey) {
+            // Update visual selection
+            const weeksContainer = document.getElementById('calendarWeeksMini');
+            if (weeksContainer) {
+                weeksContainer.querySelectorAll('.week-item-mini').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                event.currentTarget.classList.add('selected');
+            }
+
+            // Find week data
+            const weekData = calendarData.weekly_schedule.find(w => w.week === weekKey);
+            if (!weekData) return;
+
+            // Show details
+            const detailsEmpty = document.getElementById('calendarDetailsEmptyMini');
+            const detailsElement = document.getElementById('calendarDetailsMini');
+
+            if (detailsEmpty) detailsEmpty.style.display = 'none';
+            if (detailsElement) {
+                detailsElement.style.display = 'block';
+
+                // Generate details HTML
+                let storesHtml = '';
+
+                // Florida stores
+                if (weekData.florida && weekData.florida.stores && weekData.florida.stores.length > 0) {
+                    storesHtml += `
+                <div class="stores-section-mini">
+                    <h5>Florida (${weekData.florida.count})</h5>
+                    <div class="store-list-mini">
+            `;
+                    weekData.florida.stores.slice(0, 4).forEach(store => {
+                        storesHtml += `
+                    <div class="store-item-mini">
+                        <span class="store-name-mini">${store.store}</span>
+                        <span class="store-status-mini ${store.status}">${store.status.charAt(0).toUpperCase()}</span>
+                    </div>
+                `;
+                    });
+                    if (weekData.florida.stores.length > 4) {
+                        storesHtml += `<div style="text-align: center; color: #6B7280; font-size: 0.7em; padding: 5px;">+${weekData.florida.stores.length - 4} more...</div>`;
+                    }
+                    storesHtml += `</div></div>`;
+                }
+
+                // Texas stores
+                if (weekData.texas && weekData.texas.stores && weekData.texas.stores.length > 0) {
+                    storesHtml += `
+                <div class="stores-section-mini">
+                    <h5>Texas (${weekData.texas.count})</h5>
+                    <div class="store-list-mini">
+            `;
+                    weekData.texas.stores.slice(0, 4).forEach(store => {
+                        storesHtml += `
+                    <div class="store-item-mini">
+                        <span class="store-name-mini">${store.store}</span>
+                        <span class="store-status-mini ${store.status}">${store.status.charAt(0).toUpperCase()}</span>
+                    </div>
+                `;
+                    });
+                    if (weekData.texas.stores.length > 4) {
+                        storesHtml += `<div style="text-align: center; color: #6B7280; font-size: 0.7em; padding: 5px;">+${weekData.texas.stores.length - 4} more...</div>`;
+                    }
+                    storesHtml += `</div></div>`;
+                }
+
+                detailsElement.innerHTML = `
+            <div class="details-content-mini">
+                <h4>Week Details</h4>
+                <p style="color: #6B7280; margin-bottom: 12px; font-size: 0.75em;">${weekData.week_start} - ${weekData.week_end}</p>
+
+                <div class="status-summary-mini">
+                    <div class="status-item-mini completed">
+                        <div class="status-label-mini">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22,4 12,14.01 9,11.01"/>
+                            </svg>
+                            <span>Done</span>
+                        </div>
+                        <span class="status-count-mini" style="color: #10B981;">${weekData.completed}</span>
+                    </div>
+                    
+                    <div class="status-item-mini rescheduled">
+                        <div class="status-label-mini">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M12 1v6m0 6v6"/>
+                            </svg>
+                            <span>Reschedule</span>
+                        </div>
+                        <span class="status-count-mini" style="color: #F59E0B;">${weekData.rescheduled}</span>
+                    </div>
+                    
+                    <div class="status-item-mini pending">
+                        <div class="status-label-mini">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12,6 12,12 16,14"/>
+                            </svg>
+                            <span>Pending</span>
+                        </div>
+                        <span class="status-count-mini" style="color: var(--wendy-blue);">${weekData.pending}</span>
+                    </div>
+                </div>
+
+                ${storesHtml}
+            </div>
+        `;
+            }
+        }
         function toggleProjectDetailsTable() {
             const container = document.getElementById('projectDetailsContainer');
             const btn = document.getElementById('projectDetailsBtn');
@@ -1840,7 +2357,32 @@
             document.body.style.overflow = 'auto'; // Restaurar scroll
         }
 
-        // NUEVA FUNCIÓN: Actualizar datos del modal
+        async function loadCalendarData() {
+            try {
+                showStatus('Loading calendar data...', 'loading');
+
+                const response = await fetch(`${API_BASE_URL}/api/calendar`);
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (data.status !== 'success') {
+                    throw new Error(data.message || 'Error en respuesta del servidor');
+                }
+
+                calendarData = data;
+                renderCalendar('Full');
+                renderCalendar(''); // Para el calendario en dashboard
+                renderCalendarMini(); // ← ESTA ES LA LÍNEA QUE AGREGAS
+                updateCalendarLastUpdate();
+                showStatus('Calendar loaded successfully', 'success');
+
+            } catch (error) {
+                // ... resto del código de error
+            }
+        }
+
         async function updateModalScheduleData() {
             try {
                 const response = await fetch(`${API_BASE_URL}/api/remodel-dates`);
